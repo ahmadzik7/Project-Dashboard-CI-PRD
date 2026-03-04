@@ -801,7 +801,35 @@ Ada update? cc: [Atasan jika perlu]</div>
         <button class="btn-primary" style="width:100%;font-size:11px;" onclick="updateStatus()">UPDATE STATUS</button>
       </div>
       <div class="detail-section">
-        <div class="detail-sec-label">Material Terkait</div>
+        <div class="detail-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Material Kebutuhan Project</span>
+          <button class="btn-teal" style="font-size:10px;padding:3px 9px;" onclick="toggleMatForm()">+ Tambah</button>
+        </div>
+
+        <!-- INLINE MATERIAL FORM -->
+        <div id="inline-mat-form" style="display:none;background:var(--bg);border:1px solid var(--border);border-top:2px solid var(--teal);padding:12px;margin-bottom:10px;">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:1px;margin-bottom:10px;">INPUT MATERIAL BARU</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div class="form-group full"><label>Nama Material *</label><input type="text" id="im-name" placeholder="Contoh: Pipa PVC 2 inch"></div>
+            <div class="form-group"><label>Part Number</label><input type="text" id="im-partno" placeholder="Opsional"></div>
+            <div class="form-group"><label>Qty</label><input type="number" id="im-qty" min="1" placeholder="0"></div>
+            <div class="form-group"><label>Satuan</label>
+              <select id="im-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option></select>
+            </div>
+            <div class="form-group"><label>Status</label>
+              <select id="im-status"><option value="pending">Pending / Belum Diorder</option><option value="order">Sudah Diorder</option><option value="ready">Ready di Gudang</option></select>
+            </div>
+            <div class="form-group"><label>ETA (Est. Tiba)</label><input type="date" id="im-eta"></div>
+            <div class="form-group full"><label>Supplier</label><input type="text" id="im-supplier" placeholder="Nama supplier"></div>
+            <div class="form-group full"><label>Catatan</label><input type="text" id="im-notes" placeholder="Catatan tambahan..."></div>
+          </div>
+          <div style="display:flex;gap:6px;justify-content:flex-end;">
+            <button class="btn-secondary btn-sm" onclick="toggleMatForm()">Batal</button>
+            <button class="btn-teal" style="font-size:10px;padding:4px 12px;" onclick="saveInlineMat()">SIMPAN MATERIAL</button>
+          </div>
+        </div>
+
+        <!-- MATERIAL LIST -->
         <div id="d-materials"></div>
       </div>
     </div>
@@ -1375,9 +1403,109 @@ function openDetail(id) {
   document.getElementById('d-status-sel').value=p.status;
   document.getElementById('d-prog-input').value=p.progress||0;
   document.getElementById('d-phases').innerHTML=(p.phases||[]).length?p.phases.map(ph=>`<div style="display:grid;grid-template-columns:110px 1fr 75px;gap:4px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="font-weight:500;">${ph.name}</span><span style="color:var(--text-dim);">${ph.desc||''}</span><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${ph.start?fmt(ph.start):''}</span></div>`).join(''):'<span style="color:var(--text-muted);font-size:11px;">Tidak ada fase.</span>';
-  const mats=materials.filter(m=>m.projectId===id);
-  document.getElementById('d-materials').innerHTML=mats.length?mats.map(m=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;"><span>${m.name} <span style="color:var(--text-muted);font-size:10px;">${m.qty} ${m.unit}</span></span>${matBadge(m.status)}</div>`).join(''):'<span style="color:var(--text-muted);font-size:11px;">Belum ada material.</span>';
+  renderDetailMaterials(id);
+  document.getElementById('inline-mat-form').style.display='none';
   document.getElementById('detail-overlay').classList.add('open');
+}
+
+function renderDetailMaterials(projId) {
+  const pid = projId || currentDetailId;
+  const mats = materials.filter(m=>m.projectId===pid);
+  const allReady = mats.length && mats.every(m=>m.status==='ready');
+  const anyPending = mats.some(m=>m.status==='pending');
+
+  let summary = '';
+  if (mats.length) {
+    const readyCount = mats.filter(m=>m.status==='ready').length;
+    const orderCount = mats.filter(m=>m.status==='order').length;
+    const pendingCount = mats.filter(m=>m.status==='pending').length;
+    summary = `<div style="display:flex;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--accent3);">✓ Ready: ${readyCount}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--accent);">⏳ Order: ${orderCount}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">— Pending: ${pendingCount}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-left:auto;">Total: ${mats.length} item</span>
+    </div>`;
+  }
+
+  document.getElementById('d-materials').innerHTML = mats.length
+    ? summary + mats.map(m=>`
+      <div style="background:var(--bg);border:1px solid var(--border);padding:9px 11px;margin-bottom:5px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          <span style="font-size:12px;font-weight:600;">${m.name}</span>
+          <div style="display:flex;align-items:center;gap:5px;">
+            ${matBadge(m.status)}
+            <button class="btn-danger" style="padding:2px 7px;font-size:10px;" onclick="delInlineMat('${m.id}')">×</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-bottom:6px;">
+          ${m.partno?`<span>PN: <span style="color:var(--text-dim)">${m.partno}</span></span>`:''}
+          <span>Qty: <span style="color:var(--text-dim)">${m.qty||'—'} ${m.unit||''}</span></span>
+          ${m.eta?`<span>ETA: <span style="color:var(--text-dim)">${fmt(m.eta)}</span></span>`:''}
+          ${m.supplier?`<span>Supplier: <span style="color:var(--text-dim)">${m.supplier}</span></span>`:''}
+          ${m.notes?`<span style="grid-column:1/-1">Catatan: <span style="color:var(--text-dim)">${m.notes}</span></span>`:''}
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">Update status:</span>
+          <select onchange="updInlineMatStatus('${m.id}',this.value)" style="font-size:10px;padding:3px 6px;flex:1;" onclick="event.stopPropagation()">
+            <option value="pending" ${m.status==='pending'?'selected':''}>— Pending</option>
+            <option value="order"   ${m.status==='order'  ?'selected':''}>⏳ On Order</option>
+            <option value="ready"   ${m.status==='ready'  ?'selected':''}>✓ Ready</option>
+          </select>
+        </div>
+      </div>`).join('')
+    : `<div style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;border:1px dashed var(--border);">
+        Belum ada material.<br>Klik <strong style="color:var(--teal)">+ Tambah</strong> untuk input kebutuhan material project ini.
+      </div>`;
+}
+
+function toggleMatForm() {
+  const form = document.getElementById('inline-mat-form');
+  const isOpen = form.style.display !== 'none';
+  form.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    ['im-name','im-partno','im-supplier','im-notes'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('im-qty').value='';
+    document.getElementById('im-eta').value='';
+    document.getElementById('im-status').value='pending';
+    document.getElementById('im-name').focus();
+  }
+}
+
+function saveInlineMat() {
+  const name = document.getElementById('im-name').value.trim();
+  if(!name){alert('Nama material harus diisi!');return;}
+  materials.push({
+    id: genId('MAT'),
+    projectId: currentDetailId,
+    name,
+    partno: document.getElementById('im-partno').value,
+    qty: document.getElementById('im-qty').value,
+    unit: document.getElementById('im-unit').value,
+    status: document.getElementById('im-status').value,
+    eta: document.getElementById('im-eta').value,
+    supplier: document.getElementById('im-supplier').value,
+    notes: document.getElementById('im-notes').value,
+    createdAt: Date.now()
+  });
+  save();
+  // Auto-update project matStatus if any pending
+  const proj = projects.find(p=>p.id===currentDetailId);
+  if(proj && proj.matStatus==='pending') { proj.matStatus='pending'; }
+  document.getElementById('inline-mat-form').style.display='none';
+  renderDetailMaterials();
+  renderDashboard();
+  if(document.getElementById('mat-tbody')) renderMaterials();
+}
+
+function updInlineMatStatus(id, val) {
+  const m = materials.find(x=>x.id===id);
+  if(m){ m.status=val; save(); renderDetailMaterials(); renderDashboard(); if(document.getElementById('mat-tbody')) renderMaterials(); }
+}
+
+function delInlineMat(id) {
+  if(!confirm('Hapus material ini?')) return;
+  materials = materials.filter(m=>m.id!==id);
+  save(); renderDetailMaterials(); renderDashboard(); if(document.getElementById('mat-tbody')) renderMaterials();
 }
 function closeDetail(e){if(!e||e.target===document.getElementById('detail-overlay'))document.getElementById('detail-overlay').classList.remove('open');}
 function updateStatus(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;p.status=document.getElementById('d-status-sel').value;p.progress=parseInt(document.getElementById('d-prog-input').value)||0;if(p.status==='done')p.progress=100;save();openDetail(currentDetailId);renderDashboard();renderAllProjects();}
