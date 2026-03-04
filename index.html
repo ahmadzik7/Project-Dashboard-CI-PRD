@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI Project Command Center </title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;--surface:#151820;--surface2:#1c2130;--border:#2a3145;
+  --accent:#f59e0b;--accent2:#3b82f6;--accent3:#10b981;
+  --danger:#ef4444;--warn:#f97316;--purple:#a855f7;--teal:#14b8a6;
+  --text:#e2e8f0;--text-muted:#64748b;--text-dim:#94a3b8;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --c5r:#06b6d4;--cshe:#f43f5e;--cimprove:#8b5cf6;--cperbaikan:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:2px solid var(--accent);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:11px;}
+.logo-badge{background:var(--accent);color:#000;font-family:var(--mono);font-weight:700;font-size:11px;padding:4px 9px;letter-spacing:1px;}
+.header-title{font-size:14px;font-weight:600;letter-spacing:0.3px;}
+.header-sub{font-family:var(--mono);font-size:10px;color:var(--text-muted);}
+.header-right{display:flex;gap:7px;align-items:center;}
+.btn-primary{background:var(--accent);color:#000;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:0.5px;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.82;}
+.btn-secondary{background:transparent;color:var(--text-dim);border:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:11px;padding:7px 13px;transition:all 0.15s;}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:4px 9px;font-size:10px;}
+.btn-danger{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3);cursor:pointer;font-family:var(--mono);font-size:10px;padding:4px 9px;transition:all 0.15s;}
+.btn-danger:hover{background:rgba(239,68,68,0.2);}
+.btn-teal{background:var(--teal);color:#000;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:0.5px;transition:opacity 0.15s;}
+.btn-teal:hover{opacity:0.82;}
+
+/* LAYOUT */
+.app{display:flex;min-height:calc(100vh - 52px);}
+.sidebar{width:210px;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;overflow-y:auto;}
+.nav-label{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:2px;padding:0 14px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:500;transition:all 0.12s;border-left:3px solid transparent;color:var(--text-dim);}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{border-left-color:var(--accent);background:var(--surface2);color:var(--accent);}
+.nav-item.todo-nav.active{border-left-color:var(--teal);color:var(--teal);}
+.nav-item.sop-nav.active{border-left-color:var(--purple);color:var(--purple);}
+.nav-icon{font-size:13px;width:16px;text-align:center;}
+.nav-sep{border:none;border-top:1px solid var(--border);margin:8px 0;}
+.nav-cat-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+.nav-badge{background:var(--teal);color:#000;font-family:var(--mono);font-size:9px;font-weight:700;padding:1px 5px;margin-left:auto;}
+
+/* MAIN */
+.main{flex:1;padding:20px 24px;overflow-y:auto;max-height:calc(100vh - 52px);}
+.page{display:none;}
+.page.active{display:block;}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);padding:14px 16px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.amber::before{background:var(--accent);}
+.stat-card.blue::before{background:var(--accent2);}
+.stat-card.green::before{background:var(--accent3);}
+.stat-card.red::before{background:var(--danger);}
+.stat-card.cyan::before{background:var(--c5r);}
+.stat-card.rose::before{background:var(--cshe);}
+.stat-card.purple::before{background:var(--cimprove);}
+.stat-card.teal::before{background:var(--teal);}
+.stat-label{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.stat-value{font-size:24px;font-weight:700;font-family:var(--mono);}
+.stat-sub{font-size:10px;color:var(--text-muted);margin-top:2px;}
+
+/* SECTION */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+.section-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);overflow:hidden;margin-bottom:18px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:500px;}
+thead tr{background:var(--surface2);}
+th{font-family:var(--mono);font-size:9px;letter-spacing:1.2px;color:var(--text-muted);text-transform:uppercase;text-align:left;padding:9px 11px;font-weight:500;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:9px 11px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr{transition:background 0.12s;cursor:pointer;}
+tbody tr:hover{background:var(--surface2);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 6px;letter-spacing:0.5px;white-space:nowrap;}
+.badge-dot{width:5px;height:5px;border-radius:50%;}
+.badge.open{background:rgba(59,130,246,0.15);color:var(--accent2);}
+.badge.open .badge-dot{background:var(--accent2);}
+.badge.inprogress{background:rgba(245,158,11,0.15);color:var(--accent);}
+.badge.inprogress .badge-dot{background:var(--accent);}
+.badge.blocked{background:rgba(239,68,68,0.15);color:var(--danger);}
+.badge.blocked .badge-dot{background:var(--danger);}
+.badge.done{background:rgba(16,185,129,0.15);color:var(--accent3);}
+.badge.done .badge-dot{background:var(--accent3);}
+.badge.waiting{background:rgba(100,116,139,0.2);color:var(--text-dim);}
+.badge.waiting .badge-dot{background:var(--text-dim);}
+.cat-badge{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;letter-spacing:0.5px;border-radius:2px;}
+.cat-5r{background:rgba(6,182,212,0.15);color:var(--c5r);}
+.cat-she{background:rgba(244,63,94,0.2);color:var(--cshe);}
+.cat-improve{background:rgba(139,92,246,0.15);color:var(--cimprove);}
+.cat-perbaikan{background:rgba(245,158,11,0.15);color:var(--cperbaikan);}
+.prio{font-family:var(--mono);font-size:10px;font-weight:700;}
+.prio.H{color:var(--danger);}
+.prio.M{color:var(--accent);}
+.prio.L{color:var(--accent3);}
+.prog-wrap{background:var(--border);height:4px;width:65px;}
+.prog-fill{height:4px;background:var(--accent);transition:width 0.3s;}
+.prog-fill.done{background:var(--accent3);}
+.prog-fill.blocked{background:var(--danger);}
+.ejo-badge{font-family:var(--mono);font-size:9px;color:var(--purple);background:rgba(168,85,247,0.12);padding:2px 6px;border-radius:2px;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);width:720px;max-height:90vh;overflow-y:auto;border-top:3px solid var(--accent);}
+.modal.wide{width:800px;}
+.modal-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1;}
+.modal-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:1px;}
+.modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;line-height:1;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:20px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+label{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+input,select,textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px;outline:none;transition:border-color 0.15s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:60px;}
+select option{background:var(--surface);}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+
+/* PHASE ROWS */
+.phase-section{margin-top:16px;}
+.phase-header-labels{display:grid;grid-template-columns:130px 1fr 100px 115px 115px 30px;gap:5px;padding:0 7px 4px;}
+.phase-header-labels span{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+.phase-rows{display:flex;flex-direction:column;gap:5px;}
+.phase-row{display:grid;grid-template-columns:130px 1fr 100px 115px 115px 30px;gap:5px;align-items:center;background:var(--bg);border:1px solid var(--border);padding:6px 7px;}
+.phase-row input,.phase-row select{padding:4px 6px;font-size:11px;}
+.phase-del{background:none;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;width:24px;height:24px;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;flex-shrink:0;}
+.phase-del:hover{border-color:var(--danger);color:var(--danger);}
+.btn-add-phase{background:none;border:1px dashed var(--border);color:var(--text-muted);cursor:pointer;font-family:var(--mono);font-size:10px;padding:5px 11px;transition:all 0.15s;margin-top:5px;}
+.btn-add-phase:hover{border-color:var(--accent);color:var(--accent);}
+
+/* DETAIL PANEL */
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;justify-content:flex-end;}
+.detail-overlay.open{display:flex;}
+.detail-panel{background:var(--surface);border-left:1px solid var(--border);width:480px;height:100vh;overflow-y:auto;border-top:3px solid var(--accent);}
+.detail-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.detail-id{font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:1px;margin-bottom:3px;}
+.detail-title-text{font-size:14px;font-weight:600;}
+.detail-body{padding:16px 20px;}
+.detail-section{margin-bottom:18px;}
+.detail-sec-label{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.detail-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;}
+.detail-key{color:var(--text-muted);}
+.detail-val{font-weight:500;text-align:right;}
+
+/* ALERTS */
+.alert-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.alert-chip{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);padding:6px 11px;font-size:11px;}
+.alert-chip.red{border-color:rgba(239,68,68,0.4);color:var(--danger);}
+.alert-chip.amber{border-color:rgba(245,158,11,0.4);color:var(--accent);}
+.alert-chip.green{border-color:rgba(16,185,129,0.4);color:var(--accent3);}
+
+/* ISSUE CARDS */
+.issue-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px;}
+.issue-card{background:var(--surface);border:1px solid var(--border);padding:13px 15px;border-left:4px solid var(--accent2);}
+.issue-card.critical{border-left-color:var(--danger);}
+.issue-card.warning{border-left-color:var(--warn);}
+.issue-card.info{border-left-color:var(--accent3);}
+.issue-title{font-weight:600;font-size:12px;margin-bottom:4px;}
+.issue-meta{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:6px;}
+.issue-desc{font-size:11px;color:var(--text-dim);line-height:1.5;}
+
+/* MAT STATUS */
+.mat-status{font-family:var(--mono);font-size:9px;font-weight:600;}
+.mat-status.ready{color:var(--accent3);}
+.mat-status.order{color:var(--accent);}
+.mat-status.pending{color:var(--text-muted);}
+
+/* NOTE BOX */
+.note-box{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-left:3px solid var(--accent);padding:10px 13px;font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:12px;}
+.note-box strong{color:var(--accent);font-family:var(--mono);font-size:9px;letter-spacing:1px;}
+
+/* CAT TABS */
+.cat-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border);}
+.cat-tab{padding:8px 14px;font-family:var(--mono);font-size:10px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all 0.15s;letter-spacing:0.5px;}
+.cat-tab:hover{color:var(--text);}
+.cat-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.cat-tab.tab-5r.active{color:var(--c5r);border-bottom-color:var(--c5r);}
+.cat-tab.tab-she.active{color:var(--cshe);border-bottom-color:var(--cshe);}
+.cat-tab.tab-improve.active{color:var(--cimprove);border-bottom-color:var(--cimprove);}
+.cat-tab.tab-perbaikan.active{color:var(--cperbaikan);border-bottom-color:var(--cperbaikan);}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:45px;color:var(--text-muted);font-size:12px;}
+.empty-icon{font-size:28px;margin-bottom:9px;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted);}
+
+/* =================== TO DO LIST =================== */
+.todo-header-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.todo-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.todo-tab{padding:7px 14px;font-family:var(--mono);font-size:10px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all 0.15s;}
+.todo-tab:hover{color:var(--text);}
+.todo-tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+
+.todo-list{display:flex;flex-direction:column;gap:8px;}
+.todo-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--teal);padding:13px 16px;transition:all 0.15s;position:relative;}
+.todo-card:hover{border-color:var(--teal);}
+.todo-card.done-todo{opacity:0.5;border-left-color:var(--text-muted);}
+.todo-card-top{display:flex;align-items:flex-start;gap:10px;}
+.todo-check{width:18px;height:18px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;margin-top:1px;transition:all 0.15s;}
+.todo-card.done-todo .todo-check{background:var(--teal);border-color:var(--teal);}
+.todo-card.done-todo .todo-check::after{content:'✓';color:#000;font-size:10px;font-weight:700;}
+.todo-body{flex:1;}
+.todo-title{font-size:13px;font-weight:600;margin-bottom:4px;}
+.todo-card.done-todo .todo-title{text-decoration:line-through;color:var(--text-muted);}
+.todo-desc{font-size:11px;color:var(--text-dim);line-height:1.5;margin-bottom:7px;}
+.todo-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.todo-date-badge{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;}
+.todo-date-badge.overdue{color:var(--danger);}
+.todo-date-badge.today{color:var(--accent);}
+.todo-date-badge.upcoming{color:var(--teal);}
+.todo-date-badge.done{color:var(--text-muted);}
+.todo-prio-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;}
+.todo-prio-badge.H{background:rgba(239,68,68,0.15);color:var(--danger);}
+.todo-prio-badge.M{background:rgba(245,158,11,0.15);color:var(--accent);}
+.todo-prio-badge.L{background:rgba(16,185,129,0.15);color:var(--accent3);}
+.todo-proj-link{font-family:var(--mono);font-size:9px;color:var(--accent2);background:rgba(59,130,246,0.1);padding:2px 6px;cursor:pointer;}
+.todo-proj-link:hover{background:rgba(59,130,246,0.2);}
+.todo-actions{display:flex;gap:5px;margin-left:auto;flex-shrink:0;}
+.todo-overdue-bar{background:rgba(239,68,68,0.08);border-top:1px solid rgba(239,68,68,0.2);padding:5px 10px;font-family:var(--mono);font-size:9px;color:var(--danger);display:flex;align-items:center;gap:5px;margin:8px -16px -13px;border-radius:0;}
+
+/* =================== SOP & WI LIBRARY =================== */
+.lib-layout{display:grid;grid-template-columns:230px 1fr;gap:16px;min-height:500px;}
+.lib-sidebar{background:var(--surface);border:1px solid var(--border);overflow-y:auto;}
+.lib-sidebar-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.lib-sidebar-title{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;}
+.lib-tree{padding:8px 0;}
+.lib-cat{margin-bottom:2px;}
+.lib-cat-header{display:flex;align-items:center;gap:6px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);transition:all 0.12s;user-select:none;}
+.lib-cat-header:hover{background:var(--surface2);color:var(--text);}
+.lib-cat-header.active-cat{color:var(--purple);background:rgba(168,85,247,0.08);}
+.lib-cat-icon{font-size:12px;transition:transform 0.15s;}
+.lib-cat-icon.open{transform:rotate(90deg);}
+.lib-cat-count{margin-left:auto;font-family:var(--mono);font-size:9px;background:var(--surface2);padding:1px 5px;color:var(--text-muted);}
+.lib-folder-list{display:none;padding-left:0;}
+.lib-folder-list.open{display:block;}
+.lib-folder-item{display:flex;align-items:center;gap:6px;padding:6px 14px 6px 28px;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all 0.12s;border-left:2px solid transparent;}
+.lib-folder-item:hover{background:var(--surface2);color:var(--text);}
+.lib-folder-item.active{border-left-color:var(--purple);color:var(--purple);background:rgba(168,85,247,0.06);}
+.lib-folder-del{margin-left:auto;font-size:12px;color:transparent;transition:color 0.12s;}
+.lib-folder-item:hover .lib-folder-del{color:var(--text-muted);}
+.lib-folder-del:hover{color:var(--danger) !important;}
+.lib-folder-count{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-left:auto;}
+
+/* LIB MAIN CONTENT */
+.lib-content{background:var(--surface);border:1px solid var(--border);}
+.lib-content-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.lib-content-title{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:600;flex:1;}
+.lib-search{flex:1;max-width:220px;}
+.lib-search input{font-size:11px;padding:6px 10px;}
+
+/* DOC CARDS */
+.doc-grid{padding:16px;display:flex;flex-direction:column;gap:8px;}
+.doc-card{background:var(--bg);border:1px solid var(--border);padding:12px 14px;transition:border-color 0.12s;}
+.doc-card:hover{border-color:var(--purple);}
+.doc-card-top{display:flex;align-items:flex-start;gap:10px;}
+.doc-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.doc-body{flex:1;}
+.doc-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.doc-number{font-family:var(--mono);font-size:10px;color:var(--purple);margin-bottom:5px;}
+.doc-meta{display:flex;gap:12px;flex-wrap:wrap;}
+.doc-meta-item{font-family:var(--mono);font-size:9px;color:var(--text-muted);}
+.doc-meta-item span{color:var(--text-dim);}
+.doc-actions{display:flex;gap:5px;align-items:flex-start;flex-shrink:0;}
+.doc-link-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:var(--purple);font-family:var(--mono);font-size:9px;font-weight:600;padding:4px 9px;cursor:pointer;text-decoration:none;transition:all 0.12s;}
+.doc-link-btn:hover{background:rgba(168,85,247,0.2);}
+.doc-type-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;}
+.doc-type-badge.sop{background:rgba(168,85,247,0.15);color:var(--purple);}
+.doc-type-badge.wi{background:rgba(6,182,212,0.15);color:var(--c5r);}
+.doc-type-badge.form{background:rgba(16,185,129,0.15);color:var(--accent3);}
+.doc-type-badge.other{background:rgba(100,116,139,0.2);color:var(--text-dim);}
+
+/* FOLDER ADD INLINE */
+.folder-add-row{display:flex;align-items:center;gap:6px;padding:5px 14px 5px 28px;}
+.folder-add-row input{font-size:11px;padding:4px 8px;}
+.folder-add-row button{font-size:10px;padding:4px 8px;}
+
+/* =================== CALENDAR =================== */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-nav{display:flex;align-items:center;gap:10px;}
+.cal-month-title{font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:1px;min-width:170px;text-align:center;}
+.cal-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);cursor:pointer;padding:6px 13px;font-family:var(--mono);font-size:13px;transition:all 0.15s;}
+.cal-btn:hover{border-color:var(--accent);color:var(--accent);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border:1px solid var(--border);background:var(--border);}
+.cal-dow{background:var(--surface2);padding:7px 4px;text-align:center;font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+.cal-cell{background:var(--surface);min-height:95px;padding:5px 6px;position:relative;transition:background 0.1s;cursor:pointer;vertical-align:top;}
+.cal-cell:hover{background:var(--surface2);}
+.cal-cell.other-month .cal-day-num{color:var(--border);}
+.cal-cell.today{background:rgba(245,158,11,0.05);}
+.cal-cell.today .cal-day-num{color:var(--accent);font-weight:700;}
+.cal-day-num{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-bottom:3px;}
+.cal-event{font-size:9px;padding:2px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;font-weight:500;border-left:2px solid;}
+.cal-event.ev-start{background:rgba(59,130,246,0.2);color:var(--accent2);border-left-color:var(--accent2);}
+.cal-event.ev-5r{background:rgba(6,182,212,0.2);color:var(--c5r);border-left-color:var(--c5r);}
+.cal-event.ev-she{background:rgba(244,63,94,0.2);color:var(--cshe);border-left-color:var(--cshe);}
+.cal-event.ev-improve{background:rgba(139,92,246,0.2);color:var(--cimprove);border-left-color:var(--cimprove);}
+.cal-event.ev-perbaikan{background:rgba(245,158,11,0.2);color:var(--cperbaikan);border-left-color:var(--cperbaikan);}
+.cal-event.ev-phase{background:rgba(16,185,129,0.15);color:var(--accent3);border-left-color:var(--accent3);}
+.cal-event.ev-todo{background:rgba(20,184,166,0.2);color:var(--teal);border-left-color:var(--teal);border-style:dashed;}
+.cal-event.ev-todo-done{background:rgba(100,116,139,0.1);color:var(--text-muted);border-left-color:var(--text-muted);border-style:dashed;text-decoration:line-through;}
+.cal-more{font-family:var(--mono);font-size:8px;color:var(--text-muted);padding:1px 3px;cursor:pointer;}
+.cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.cal-leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-dim);}
+.cal-leg-dot{width:7px;height:7px;border-radius:1px;}
+.cal-leg-dot.dashed{border:1px dashed;background:transparent !important;}
+
+/* DAY POPUP */
+.day-popup{position:fixed;z-index:400;background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);padding:12px 16px;width:270px;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:none;}
+.day-popup-title{font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:9px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;}
+.day-popup-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.day-popup-item:last-child{border-bottom:none;}
+.day-popup-item-label{font-weight:500;margin-bottom:3px;}
+.day-popup-item-meta{font-family:var(--mono);font-size:9px;color:var(--text-muted);}
+.day-popup-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-badge">CI</div>
+    <div>
+      <div class="header-title">Project Command Center</div>
+      <div class="header-sub">Continuous Improvement · Production Dept </div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-teal" onclick="openTodoModal()">+ TO DO</button>
+    <button class="btn-primary" onclick="openNewProject()">+ PROJECT</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="nav-label">Menu Utama</div>
+  <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◈</span> Dashboard</div>
+  <div class="nav-item todo-nav" onclick="showPage('todo',this)"><span class="nav-icon">✅</span> To Do List <span class="nav-badge" id="nav-todo-count">0</span></div>
+  <div class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">📅</span> Kalender</div>
+  <div class="nav-item" onclick="showPage('all-projects',this)"><span class="nav-icon">▤</span> Semua Project</div>
+  <div class="nav-item" onclick="showPage('materials',this)"><span class="nav-icon">⬡</span> Material Tracker</div>
+  <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
+  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP & WI Library</div>
+  <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
+  <hr class="nav-sep">
+  <div class="nav-label">Kategori Project</div>
+  <div class="nav-item" onclick="filterCat('5r',this)"><span class="nav-cat-dot" style="background:var(--c5r)"></span>Project 5R</div>
+  <div class="nav-item" onclick="filterCat('she',this)"><span class="nav-cat-dot" style="background:var(--cshe)"></span>Project SHE</div>
+  <div class="nav-item" onclick="filterCat('improve',this)"><span class="nav-cat-dot" style="background:var(--cimprove)"></span>Project Improve</div>
+  <div class="nav-item" onclick="filterCat('perbaikan',this)"><span class="nav-cat-dot" style="background:var(--cperbaikan)"></span>Project Perbaikan</div>
+  <hr class="nav-sep">
+  <div class="nav-label">Filter Status</div>
+  <div class="nav-item" onclick="filterStatus('inprogress',this)"><span class="nav-icon" style="color:var(--accent)">●</span>On-Going</div>
+  <div class="nav-item" onclick="filterStatus('blocked',this)"><span class="nav-icon" style="color:var(--danger)">●</span>Blocked</div>
+  <div class="nav-item" onclick="filterStatus('done',this)"><span class="nav-icon" style="color:var(--accent3)">●</span>Completed</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ===== DASHBOARD ===== -->
+<div class="page active" id="page-dashboard">
+  <div class="stats-row">
+    <div class="stat-card amber"><div class="stat-label">Total Projects</div><div class="stat-value" id="s-total">0</div><div class="stat-sub">Semua aktif</div></div>
+    <div class="stat-card blue"><div class="stat-label">On-Going</div><div class="stat-value" id="s-ongoing">0</div><div class="stat-sub">Sedang dikerjakan</div></div>
+    <div class="stat-card red"><div class="stat-label">Blocked / Wait</div><div class="stat-value" id="s-blocked">0</div><div class="stat-sub">Perlu tindak lanjut</div></div>
+    <div class="stat-card green"><div class="stat-label">Completed</div><div class="stat-value" id="s-done">0</div><div class="stat-sub">Selesai</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;">
+    <div class="stat-card cyan" style="padding:10px 13px;"><div class="stat-label" style="color:var(--c5r);">5R</div><div class="stat-value" style="font-size:18px;" id="s-5r">0</div></div>
+    <div class="stat-card rose" style="padding:10px 13px;"><div class="stat-label" style="color:var(--cshe);">SHE</div><div class="stat-value" style="font-size:18px;" id="s-she">0</div></div>
+    <div class="stat-card purple" style="padding:10px 13px;"><div class="stat-label" style="color:var(--cimprove);">Improve</div><div class="stat-value" style="font-size:18px;" id="s-improve">0</div></div>
+    <div class="stat-card amber" style="padding:10px 13px;"><div class="stat-label">Perbaikan</div><div class="stat-value" style="font-size:18px;" id="s-perbaikan">0</div></div>
+    <div class="stat-card teal" style="padding:10px 13px;"><div class="stat-label" style="color:var(--teal);">To Do</div><div class="stat-value" style="font-size:18px;" id="s-todo-db">0</div><div class="stat-sub">belum selesai</div></div>
+  </div>
+  <div id="alert-row" class="alert-row"></div>
+  <div class="section-header"><span class="section-title">▸ Project Terbaru</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>EJO</th><th>Project</th><th>Kategori</th><th>Prioritas</th><th>Status</th><th>PIC Eng.</th><th>Material</th><th>Deadline</th><th>Progress</th></tr></thead>
+      <tbody id="db-tbody"></tbody>
+    </table>
+  </div>
+  <div class="section-header"><span class="section-title">▸ Material Belum Ready</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Project</th><th>Material</th><th>Qty</th><th>Status</th><th>ETA</th><th>Catatan</th></tr></thead>
+      <tbody id="mat-alert-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TO DO LIST ===== -->
+<div class="page" id="page-todo">
+  <div class="todo-header-bar">
+    <div style="flex:1;">
+      <div style="font-size:16px;font-weight:600;margin-bottom:2px;">To Do List</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Catatan tugas harian · Muncul di Kalender dengan warna teal</div>
+    </div>
+    <input type="text" id="todo-search" placeholder="Cari task..." style="width:180px;" oninput="renderTodo()">
+    <button class="btn-teal" onclick="openTodoModal()">+ Tambah Task</button>
+  </div>
+  <div class="todo-tabs">
+    <div class="todo-tab active" data-tf="all" onclick="setTodoTab(this,'all')">Semua</div>
+    <div class="todo-tab" data-tf="pending" onclick="setTodoTab(this,'pending')">Pending</div>
+    <div class="todo-tab" data-tf="today" onclick="setTodoTab(this,'today')">Hari Ini</div>
+    <div class="todo-tab" data-tf="overdue" onclick="setTodoTab(this,'overdue')">Overdue</div>
+    <div class="todo-tab" data-tf="done" onclick="setTodoTab(this,'done')">Selesai</div>
+  </div>
+  <div class="todo-list" id="todo-list"></div>
+</div>
+
+<!-- ===== CALENDAR ===== -->
+<div class="page" id="page-calendar">
+  <div class="cal-header">
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="calPrev()">‹</button>
+      <div class="cal-month-title" id="cal-title"></div>
+      <button class="cal-btn" onclick="calNext()">›</button>
+    </div>
+    <button class="btn-secondary btn-sm" onclick="calToday()">Hari Ini</button>
+  </div>
+  <div class="cal-legend">
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--accent2)"></div>Start Project</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--accent3)"></div>Fase/Deadline</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--c5r)"></div>5R</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--cshe)"></div>SHE</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--cimprove)"></div>Improve</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--cperbaikan)"></div>Perbaikan</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot dashed" style="border-color:var(--teal);color:var(--teal)"></div>To Do (teal)</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+
+<!-- ===== ALL PROJECTS ===== -->
+<div class="page" id="page-all-projects">
+  <div class="section-header">
+    <span class="section-title" id="all-proj-title">▸ Semua Project</span>
+    <div style="display:flex;gap:7px;">
+      <input type="text" id="search-input" placeholder="Cari..." style="width:150px;" oninput="renderAllProjects()">
+      <select id="filter-status-sel" onchange="renderAllProjects()" style="width:120px;">
+        <option value="">Semua Status</option>
+        <option value="open">Open</option>
+        <option value="inprogress">In Progress</option>
+        <option value="blocked">Blocked</option>
+        <option value="waiting">Waiting Material</option>
+        <option value="done">Done</option>
+      </select>
+    </div>
+  </div>
+  <div class="cat-tabs" id="cat-tabs">
+    <div class="cat-tab active" data-cat="" onclick="setCatTab(this,'')">Semua</div>
+    <div class="cat-tab tab-5r" data-cat="5r" onclick="setCatTab(this,'5r')">5R</div>
+    <div class="cat-tab tab-she" data-cat="she" onclick="setCatTab(this,'she')">SHE</div>
+    <div class="cat-tab tab-improve" data-cat="improve" onclick="setCatTab(this,'improve')">Improve</div>
+    <div class="cat-tab tab-perbaikan" data-cat="perbaikan" onclick="setCatTab(this,'perbaikan')">Perbaikan</div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>EJO</th><th>Project</th><th>Kategori</th><th>Lokasi</th><th>Prio</th><th>Status</th><th>PIC</th><th>Material</th><th>Start</th><th>Deadline</th><th>Progress</th><th>Aksi</th></tr></thead>
+      <tbody id="all-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== MATERIALS ===== -->
+<div class="page" id="page-materials">
+  <div class="section-header">
+    <span class="section-title">▸ Material Tracker</span>
+    <button class="btn-primary" onclick="openMatModal()">+ TAMBAH MATERIAL</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Project</th><th>Material</th><th>Part No.</th><th>Qty</th><th>Sat.</th><th>Status</th><th>ETA</th><th>Supplier</th><th>Catatan</th><th>Update</th></tr></thead>
+      <tbody id="mat-tbody"></tbody>
+    </table>
+  </div>
+  <div class="note-box"><strong>💡 TIP — </strong>Update status material segera setelah ada info dari procurement/supplier.</div>
+</div>
+
+<!-- ===== ISSUES ===== -->
+<div class="page" id="page-issues">
+  <div class="section-header">
+    <span class="section-title">▸ Issue Log</span>
+    <button class="btn-primary" onclick="openIssueModal()">+ LOG ISSUE</button>
+  </div>
+  <div class="issue-grid" id="issue-grid"></div>
+</div>
+
+<!-- ===== SOP & WI LIBRARY ===== -->
+<div class="page" id="page-sop">
+  <div class="section-header">
+    <span class="section-title" style="color:var(--purple);">▸ SOP & WI Document Library</span>
+    <div style="display:flex;gap:7px;">
+      <input type="text" id="lib-search-global" placeholder="Cari dokumen..." style="width:200px;" oninput="renderLibrary()">
+      <button class="btn-secondary" onclick="openFolderModal()" style="border-color:rgba(168,85,247,0.4);color:var(--purple);">+ Folder</button>
+      <button class="btn-primary" style="background:var(--purple);" onclick="openDocModal()">+ Dokumen</button>
+    </div>
+  </div>
+  <div class="lib-layout">
+    <!-- FOLDER TREE -->
+    <div class="lib-sidebar">
+      <div class="lib-sidebar-header">
+        <span class="lib-sidebar-title">Folder</span>
+      </div>
+      <div class="lib-tree" id="lib-tree"></div>
+    </div>
+    <!-- DOC CONTENT -->
+    <div class="lib-content">
+      <div class="lib-content-header">
+        <span class="lib-content-title" id="lib-content-title">📂 Semua Dokumen</span>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);" id="lib-doc-count"></span>
+      </div>
+      <div class="doc-grid" id="doc-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CI FRAMEWORK ===== -->
+<div class="page" id="page-framework">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px;">
+      <div class="detail-sec-label">⚡ Problem-Solving Framework (DMAPM)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text-dim);line-height:1.6;">
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--danger);"><strong style="color:var(--danger);">1. DEFINE</strong><br>Apa masalahnya? Di mana? Kapan? Dampak ke produksi?</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--warn);"><strong style="color:var(--warn);">2. MEASURE</strong><br>Frekuensi, downtime, estimasi kerugian. Data untuk prioritas.</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--accent);"><strong style="color:var(--accent);">3. ANALYZE</strong><br>5-Why atau Fishbone. Root cause, bukan symptom.</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--accent2);"><strong style="color:var(--accent2);">4. PLAN</strong><br>Buat project entry. Konfirmasi material & jadwal Engineering.</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--accent3);"><strong style="color:var(--accent3);">5. MONITOR</strong><br>Update tiap 2-3 hari. Hambatan → log Issue → eskalasi.</div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px;">
+      <div class="detail-sec-label">📧 Template Komunikasi ke Engineering</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:5px;">REQUEST PERTAMA</div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:9px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.8;white-space:pre-wrap;">Halo [Nama PIC Engineering],
+
+🔧 ISSUE: [Deskripsi masalah]
+📍 LOKASI: [Mesin/Area]
+💥 DAMPAK: [Dampak ke produksi]
+
+Mohon konfirmasi:
+1. Kebutuhan material (list + part no.)
+2. Estimasi hari kerja
+3. Jadwal availability tim
+
+Target: [tanggal] | EJO: [nomor]
+Terima kasih 🙏</div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:5px;">FOLLOW-UP</div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:9px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.8;white-space:pre-wrap;">Halo [Nama],
+
+Follow-up: [nama project / EJO]
+
+✅ Issue sudah diidentifikasi
+⏳ Menunggu info material & jadwal
+
+Ada update? cc: [Atasan jika perlu]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===== MODAL NEW PROJECT ===== -->
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-proj-title">NEW PROJECT</span>
+      <button class="modal-close" onclick="closeModal('modal-project')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Nama Project / Deskripsi Masalah *</label><input type="text" id="f-name" placeholder="Contoh: Perbaikan Pipa Bocor Line 3"></div>
+        <div class="form-group"><label>Kategori Project *</label>
+          <select id="f-category">
+            <option value="5r">5R — Kebersihan & Kerapian</option>
+            <option value="she">SHE — Safety, Health, Environment</option>
+            <option value="improve">Improve — Project Management</option>
+            <option value="perbaikan" selected>Perbaikan — Maintenance & Repair</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nomor EJO (Engineering Job Order)</label><input type="text" id="f-ejo" placeholder="Contoh: EJO-2024-001"></div>
+        <div class="form-group"><label>Lokasi / Mesin / Area</label><input type="text" id="f-location" placeholder="Contoh: Line 3 - Mesin Filling"></div>
+        <div class="form-group"><label>PIC Engineering</label><input type="text" id="f-pic" placeholder="Nama PIC Engineering"></div>
+        <div class="form-group"><label>Prioritas</label>
+          <select id="f-priority"><option value="H">H — High</option><option value="M" selected>M — Medium</option><option value="L">L — Low</option></select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="f-status"><option value="open">Open</option><option value="inprogress">In Progress</option><option value="waiting">Waiting Material</option><option value="blocked">Blocked</option></select>
+        </div>
+        <div class="form-group"><label>Target Mulai</label><input type="date" id="f-start"></div>
+        <div class="form-group"><label>Deadline</label><input type="date" id="f-end"></div>
+        <div class="form-group"><label>Status Material</label>
+          <select id="f-mat-status"><option value="pending">Belum Dicek</option><option value="order">Sudah Diorder</option><option value="ready">Ready</option></select>
+        </div>
+        <div class="form-group full"><label>Root Cause / Analisa</label><textarea id="f-rootcause" placeholder="5-Why singkat..."></textarea></div>
+        <div class="form-group full"><label>Catatan / Hambatan / Risiko</label><textarea id="f-notes" placeholder="Catatan tambahan..."></textarea></div>
+      </div>
+      <div class="phase-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+          <span class="section-title">▸ Fase Pengerjaan</span>
+        </div>
+        <div class="phase-header-labels"><span>Fase</span><span>Deskripsi</span><span>PIC</span><span>Tgl Mulai</span><span>Tgl Selesai</span><span></span></div>
+        <div class="phase-rows" id="phase-rows"></div>
+        <button class="btn-add-phase" onclick="addPhaseRow()">+ Tambah Fase</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-project')">Batal</button>
+      <button class="btn-primary" onclick="saveProject()">SIMPAN PROJECT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL TODO ===== -->
+<div class="modal-overlay" id="modal-todo">
+  <div class="modal" style="width:540px;border-top-color:var(--teal);">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-todo-title">TAMBAH TO DO</span>
+      <button class="modal-close" onclick="closeModal('modal-todo')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Judul Task *</label><input type="text" id="tf-title" placeholder="Contoh: Follow up Engineering terkait EJO-001"></div>
+        <div class="form-group full"><label>Catatan / Deskripsi</label><textarea id="tf-desc" placeholder="Detail task, langkah-langkah, atau catatan penting..."></textarea></div>
+        <div class="form-group"><label>Tanggal Deadline</label><input type="date" id="tf-date"></div>
+        <div class="form-group"><label>Prioritas</label>
+          <select id="tf-priority"><option value="H">H — High (Urgent)</option><option value="M" selected>M — Medium</option><option value="L">L — Low</option></select>
+        </div>
+        <div class="form-group full"><label>Terkait Project (Opsional)</label>
+          <select id="tf-project"><option value="">— Tidak terkait project —</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-todo')">Batal</button>
+      <button class="btn-teal" onclick="saveTodo()">SIMPAN TASK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL MATERIAL ===== -->
+<div class="modal-overlay" id="modal-mat">
+  <div class="modal" style="width:540px;">
+    <div class="modal-header"><span class="modal-title">TAMBAH MATERIAL</span><button class="modal-close" onclick="closeModal('modal-mat')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Project</label><select id="mf-project"></select></div>
+        <div class="form-group"><label>Nama Material *</label><input type="text" id="mf-name"></div>
+        <div class="form-group"><label>Part Number</label><input type="text" id="mf-partno"></div>
+        <div class="form-group"><label>Qty</label><input type="number" id="mf-qty" min="1"></div>
+        <div class="form-group"><label>Satuan</label><select id="mf-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option></select></div>
+        <div class="form-group"><label>Status</label><select id="mf-status"><option value="pending">Pending</option><option value="order">On Order</option><option value="ready">Ready</option></select></div>
+        <div class="form-group"><label>ETA</label><input type="date" id="mf-eta"></div>
+        <div class="form-group"><label>Supplier</label><input type="text" id="mf-supplier"></div>
+        <div class="form-group full"><label>Catatan</label><textarea id="mf-notes"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-mat')">Batal</button><button class="btn-primary" onclick="saveMaterial()">SIMPAN</button></div>
+  </div>
+</div>
+
+<!-- ===== MODAL ISSUE ===== -->
+<div class="modal-overlay" id="modal-issue">
+  <div class="modal" style="width:490px;">
+    <div class="modal-header"><span class="modal-title">LOG ISSUE BARU</span><button class="modal-close" onclick="closeModal('modal-issue')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Judul Issue *</label><input type="text" id="if-title"></div>
+        <div class="form-group"><label>Terkait Project</label><select id="if-project"></select></div>
+        <div class="form-group"><label>Urgensi</label><select id="if-severity"><option value="critical">Critical</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+        <div class="form-group full"><label>Deskripsi & Rencana Tindak Lanjut</label><textarea id="if-desc"></textarea></div>
+        <div class="form-group"><label>Tanggal Temukan</label><input type="date" id="if-date"></div>
+        <div class="form-group"><label>Deadline Resolve</label><input type="date" id="if-deadline"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-issue')">Batal</button><button class="btn-primary" onclick="saveIssue()">LOG ISSUE</button></div>
+  </div>
+</div>
+
+<!-- ===== MODAL FOLDER ===== -->
+<div class="modal-overlay" id="modal-folder">
+  <div class="modal" style="width:420px;border-top-color:var(--purple);">
+    <div class="modal-header"><span class="modal-title">BUAT FOLDER BARU</span><button class="modal-close" onclick="closeModal('modal-folder')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Kategori Utama *</label>
+          <select id="ff-cat">
+            <option value="SOP">SOP (Standard Operating Procedure)</option>
+            <option value="WI">WI (Work Instruction)</option>
+            <option value="Form">Form / Checklist</option>
+            <option value="Other">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nama Sub-Folder *</label><input type="text" id="ff-name" placeholder="Contoh: SOP Produksi Line 1"></div>
+        <div class="form-group full"><label>Deskripsi (Opsional)</label><input type="text" id="ff-desc" placeholder="Deskripsi singkat folder ini"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-folder')">Batal</button><button class="btn-primary" style="background:var(--purple);" onclick="saveFolder()">BUAT FOLDER</button></div>
+  </div>
+</div>
+
+<!-- ===== MODAL DOCUMENT ===== -->
+<div class="modal-overlay" id="modal-doc">
+  <div class="modal" style="width:600px;border-top-color:var(--purple);">
+    <div class="modal-header"><span class="modal-title" id="modal-doc-title">TAMBAH DOKUMEN</span><button class="modal-close" onclick="closeModal('modal-doc')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Nama Dokumen *</label><input type="text" id="df-name" placeholder="Contoh: SOP Penanganan Mesin Bocor"></div>
+        <div class="form-group"><label>Nomor Dokumen</label><input type="text" id="df-number" placeholder="Contoh: SOP-PRD-001"></div>
+        <div class="form-group"><label>Tipe Dokumen</label>
+          <select id="df-type"><option value="sop">SOP</option><option value="wi">WI</option><option value="form">Form</option><option value="other">Lainnya</option></select>
+        </div>
+        <div class="form-group"><label>Versi / Revisi</label><input type="text" id="df-rev" placeholder="Contoh: Rev.02"></div>
+        <div class="form-group"><label>Tanggal Efektif</label><input type="date" id="df-date"></div>
+        <div class="form-group"><label>PIC / Pembuat</label><input type="text" id="df-pic" placeholder="Nama pembuat / penanggung jawab"></div>
+        <div class="form-group full"><label>Folder</label><select id="df-folder"></select></div>
+        <div class="form-group full" style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.2);padding:12px;gap:8px;">
+          <label style="color:var(--purple);">Link Dokumen (Google Drive / SharePoint / URL)</label>
+          <input type="url" id="df-link" placeholder="https://drive.google.com/... atau link eksternal lainnya" style="border-color:rgba(168,85,247,0.3);">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:2px;">Tempel link dari Google Drive, SharePoint, OneDrive, atau sistem DMS perusahaan</div>
+        </div>
+        <div class="form-group full"><label>Catatan / Scope</label><textarea id="df-notes" placeholder="Ruang lingkup, catatan khusus, atau keterangan tambahan..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-doc')">Batal</button><button class="btn-primary" style="background:var(--purple);" onclick="saveDoc()">SIMPAN DOKUMEN</button></div>
+  </div>
+</div>
+
+<!-- ===== DETAIL PANEL ===== -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" onclick="event.stopPropagation()">
+    <div class="detail-header">
+      <div>
+        <div class="detail-id" id="d-id"></div>
+        <div style="margin-bottom:3px;" id="d-cat-badge"></div>
+        <div class="detail-title-text" id="d-title"></div>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <button class="btn-secondary btn-sm" onclick="editProject()">Edit</button>
+        <button class="modal-close" onclick="closeDetail()">×</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-section">
+        <div class="detail-sec-label">Info Project</div>
+        <div class="detail-row"><span class="detail-key">EJO</span><span class="detail-val" id="d-ejo"></span></div>
+        <div class="detail-row"><span class="detail-key">Lokasi</span><span class="detail-val" id="d-loc"></span></div>
+        <div class="detail-row"><span class="detail-key">PIC Engineering</span><span class="detail-val" id="d-pic"></span></div>
+        <div class="detail-row"><span class="detail-key">Prioritas</span><span class="detail-val" id="d-prio"></span></div>
+        <div class="detail-row"><span class="detail-key">Status</span><span id="d-status"></span></div>
+        <div class="detail-row"><span class="detail-key">Material</span><span id="d-mat"></span></div>
+        <div class="detail-row"><span class="detail-key">Start Plan</span><span class="detail-val" id="d-start"></span></div>
+        <div class="detail-row"><span class="detail-key">Deadline</span><span class="detail-val" id="d-end"></span></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-sec-label">Root Cause</div>
+        <div id="d-rootcause" style="font-size:12px;color:var(--text-dim);line-height:1.6;"></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-sec-label">Catatan</div>
+        <div id="d-notes" style="font-size:12px;color:var(--text-dim);line-height:1.6;"></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-sec-label">Fase Pengerjaan</div>
+        <div id="d-phases"></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-sec-label">Update Status & Progress</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+          <select id="d-status-sel"><option value="open">Open</option><option value="inprogress">In Progress</option><option value="waiting">Waiting Material</option><option value="blocked">Blocked</option><option value="done">Done</option></select>
+          <input type="number" id="d-prog-input" placeholder="Progress %" min="0" max="100">
+        </div>
+        <button class="btn-primary" style="width:100%;font-size:11px;" onclick="updateStatus()">UPDATE STATUS</button>
+      </div>
+      <div class="detail-section">
+        <div class="detail-sec-label">Material Terkait</div>
+        <div id="d-materials"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DAY POPUP -->
+<div id="day-popup" class="day-popup"></div>
+
+<script>
+// ===== STORAGE =====
+let projects  = JSON.parse(localStorage.getItem('ci3_projects')  || '[]');
+let materials = JSON.parse(localStorage.getItem('ci3_materials') || '[]');
+let issues    = JSON.parse(localStorage.getItem('ci3_issues')    || '[]');
+let todos     = JSON.parse(localStorage.getItem('ci3_todos')     || '[]');
+let libFolders= JSON.parse(localStorage.getItem('ci3_folders')   || '[]');
+let libDocs   = JSON.parse(localStorage.getItem('ci3_docs')      || '[]');
+
+// Migrate from v2 if present
+function migrateFromV2() {
+  if (!projects.length) {
+    const v2p = localStorage.getItem('ci2_projects');
+    if (v2p) { projects = JSON.parse(v2p); save(); }
+  }
+  if (!materials.length) {
+    const v2m = localStorage.getItem('ci2_materials');
+    if (v2m) { materials = JSON.parse(v2m); save(); }
+  }
+  if (!issues.length) {
+    const v2i = localStorage.getItem('ci2_issues');
+    if (v2i) { issues = JSON.parse(v2i); save(); }
+  }
+}
+migrateFromV2();
+
+// Seed default folders if none
+if (!libFolders.length) {
+  libFolders = [
+    { id:'F1', cat:'SOP', name:'SOP Produksi', desc:'SOP umum produksi', createdAt: Date.now() },
+    { id:'F2', cat:'SOP', name:'SOP Maintenance', desc:'SOP untuk kegiatan perawatan mesin', createdAt: Date.now() },
+    { id:'F3', cat:'SOP', name:'SOP SHE', desc:'SOP keselamatan dan lingkungan', createdAt: Date.now() },
+    { id:'F4', cat:'WI', name:'WI Mesin Line 1', desc:'Work instruction mesin line 1', createdAt: Date.now() },
+    { id:'F5', cat:'WI', name:'WI Mesin Line 2', desc:'Work instruction mesin line 2', createdAt: Date.now() },
+    { id:'F6', cat:'Form', name:'Form Checklist Harian', desc:'Form inspeksi dan checklist harian', createdAt: Date.now() },
+    { id:'F7', cat:'Form', name:'Form SHE', desc:'Form laporan insiden dan inspeksi SHE', createdAt: Date.now() },
+  ];
+  save();
+}
+
+let editingId      = null;
+let currentDetailId= null;
+let currentCatFilter='';
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let todoFilter = 'all';
+let libActiveCat = '';
+let libActiveFolder = '';
+let editingDocId = null;
+
+function save() {
+  localStorage.setItem('ci3_projects',  JSON.stringify(projects));
+  localStorage.setItem('ci3_materials', JSON.stringify(materials));
+  localStorage.setItem('ci3_issues',    JSON.stringify(issues));
+  localStorage.setItem('ci3_todos',     JSON.stringify(todos));
+  localStorage.setItem('ci3_folders',   JSON.stringify(libFolders));
+  localStorage.setItem('ci3_docs',      JSON.stringify(libDocs));
+}
+function genId(p) { return p + '-' + Date.now() + Math.floor(Math.random()*999); }
+
+// ===== NAV =====
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  currentCatFilter = '';
+  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, framework: ()=>{} };
+  if (renders[name]) renders[name]();
+}
+function filterCat(cat, el) {
+  currentCatFilter = cat;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('page-all-projects').classList.add('active');
+  document.querySelectorAll('.page').forEach(p => { if(p.id!=='page-all-projects') p.classList.remove('active'); });
+  document.querySelectorAll('.cat-tab').forEach(t => { t.classList.remove('active'); if(t.dataset.cat===cat) t.classList.add('active'); });
+  document.getElementById('all-proj-title').textContent = `▸ Project ${cat.toUpperCase()}`;
+  renderAllProjects();
+}
+function filterStatus(status, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  showPage('all-projects', null);
+  if (el) el.classList.add('active');
+  document.getElementById('filter-status-sel').value = status;
+  renderAllProjects();
+}
+function setCatTab(el, cat) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); currentCatFilter = cat; renderAllProjects();
+}
+function setTodoTab(el, f) {
+  document.querySelectorAll('.todo-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); todoFilter = f; renderTodo();
+}
+
+// ===== HELPERS =====
+const CAT_INFO = { '5r':{label:'5R',cls:'cat-5r',ev:'ev-5r'}, 'she':{label:'SHE',cls:'cat-she',ev:'ev-she'}, 'improve':{label:'Improve',cls:'cat-improve',ev:'ev-improve'}, 'perbaikan':{label:'Perbaikan',cls:'cat-perbaikan',ev:'ev-perbaikan'} };
+function catBadge(cat) { const c=CAT_INFO[cat]||{label:cat,cls:'cat-perbaikan'}; return `<span class="cat-badge ${c.cls}">${c.label}</span>`; }
+function statusBadge(s) { const m={open:['open','Open'],inprogress:['inprogress','In Progress'],blocked:['blocked','Blocked'],waiting:['waiting','Waiting Mat.'],done:['done','Done']}; const [cls,lbl]=m[s]||['open',s]; return `<span class="badge ${cls}"><span class="badge-dot"></span>${lbl}</span>`; }
+function matBadge(s) { return {ready:'<span class="mat-status ready">✓ Ready</span>',order:'<span class="mat-status order">⏳ On Order</span>',pending:'<span class="mat-status pending">— Pending</span>'}[s]||'<span class="mat-status pending">— Pending</span>'; }
+function prioBadge(p) { return `<span class="prio ${p}">${p}</span>`; }
+function progBar(pct,s) { const cls=s==='done'?'done':s==='blocked'?'blocked':''; return `<div style="display:flex;align-items:center;gap:4px;"><div class="prog-wrap"><div class="prog-fill ${cls}" style="width:${pct||0}%"></div></div><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${pct||0}%</span></div>`; }
+function fmt(d) { return d?new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'—'; }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  document.getElementById('s-total').textContent = projects.length;
+  document.getElementById('s-ongoing').textContent = projects.filter(p=>p.status==='inprogress').length;
+  document.getElementById('s-blocked').textContent = projects.filter(p=>p.status==='blocked'||p.status==='waiting').length;
+  document.getElementById('s-done').textContent = projects.filter(p=>p.status==='done').length;
+  ['5r','she','improve','perbaikan'].forEach(c => document.getElementById('s-'+c).textContent = projects.filter(p=>p.category===c).length);
+  const pendingTodos = todos.filter(t=>!t.done).length;
+  document.getElementById('s-todo-db').textContent = pendingTodos;
+  document.getElementById('nav-todo-count').textContent = pendingTodos;
+
+  const now = new Date(); now.setHours(0,0,0,0);
+  const alerts = [];
+  projects.forEach(p => {
+    if(p.status==='blocked') alerts.push(`<div class="alert-chip red">⚠ <strong>${p.name}</strong> — BLOCKED</div>`);
+    if(p.status==='waiting') alerts.push(`<div class="alert-chip amber">📦 <strong>${p.name}</strong> — Waiting Material</div>`);
+    if(p.endDate&&p.status!=='done'){
+      const d=new Date(p.endDate+'T00:00:00');d.setHours(0,0,0,0);
+      const diff=Math.ceil((d-now)/86400000);
+      if(diff>=0&&diff<=3) alerts.push(`<div class="alert-chip amber">⏰ <strong>${p.name}</strong> — deadline ${diff===0?'hari ini!':diff+' hari lagi'}</div>`);
+      if(diff<0) alerts.push(`<div class="alert-chip red">🔴 <strong>${p.name}</strong> — OVERDUE ${Math.abs(diff)} hari</div>`);
+    }
+  });
+  todos.filter(t=>!t.done&&t.dueDate).forEach(t => {
+    const d=new Date(t.dueDate+'T00:00:00');d.setHours(0,0,0,0);
+    const diff=Math.ceil((d-now)/86400000);
+    if(diff<0) alerts.push(`<div class="alert-chip red">📋 To Do OVERDUE: <strong>${t.title}</strong></div>`);
+    else if(diff===0) alerts.push(`<div class="alert-chip amber">📋 To Do hari ini: <strong>${t.title}</strong></div>`);
+  });
+  document.getElementById('alert-row').innerHTML = alerts.length ? alerts.join('') : '<div class="alert-chip green">✓ Tidak ada alert kritis</div>';
+
+  const recent = [...projects].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,10);
+  document.getElementById('db-tbody').innerHTML = recent.length ? recent.map(p=>`<tr onclick="openDetail('${p.id}')">
+    <td><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${p.id}</span></td>
+    <td>${p.ejo?`<span class="ejo-badge">${p.ejo}</span>`:'—'}</td>
+    <td style="font-weight:500;max-width:140px;">${p.name}</td>
+    <td>${catBadge(p.category||'perbaikan')}</td>
+    <td>${prioBadge(p.priority||'M')}</td>
+    <td>${statusBadge(p.status)}</td>
+    <td style="font-size:11px;">${p.pic||'—'}</td>
+    <td>${matBadge(p.matStatus||'pending')}</td>
+    <td style="font-family:var(--mono);font-size:10px;">${fmt(p.endDate)}</td>
+    <td>${progBar(p.progress,p.status)}</td>
+  </tr>`).join('') : `<tr><td colspan="10" class="empty-state"><div class="empty-icon">◈</div>Belum ada project.</td></tr>`;
+
+  const notReady = materials.filter(m=>m.status!=='ready');
+  document.getElementById('mat-alert-tbody').innerHTML = notReady.length ? notReady.map(m=>{ const proj=projects.find(p=>p.id===m.projectId); return `<tr><td style="font-size:11px;">${proj?proj.name:'—'}</td><td style="font-weight:500;">${m.name}</td><td style="font-family:var(--mono);font-size:10px;">${m.qty||'—'} ${m.unit||''}</td><td>${matBadge(m.status)}</td><td style="font-family:var(--mono);font-size:10px;">${fmt(m.eta)}</td><td style="font-size:11px;color:var(--text-dim);">${m.notes||'—'}</td></tr>`; }).join('') : `<tr><td colspan="6" style="text-align:center;color:var(--accent3);padding:12px;font-size:12px;">✓ Semua material ready</td></tr>`;
+}
+
+// ===== TO DO LIST =====
+function openTodoModal(id) {
+  editingId = id || null;
+  document.getElementById('modal-todo-title').textContent = id ? 'EDIT TASK' : 'TAMBAH TO DO';
+  document.getElementById('tf-project').innerHTML = '<option value="">— Tidak terkait project —</option>' + projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  if (id) {
+    const t = todos.find(x=>x.id===id);
+    if(!t) return;
+    document.getElementById('tf-title').value = t.title||'';
+    document.getElementById('tf-desc').value = t.desc||'';
+    document.getElementById('tf-date').value = t.dueDate||'';
+    document.getElementById('tf-priority').value = t.priority||'M';
+    document.getElementById('tf-project').value = t.projectId||'';
+  } else {
+    ['tf-title','tf-desc','tf-date'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('tf-priority').value='M';
+    document.getElementById('tf-project').value='';
+  }
+  document.getElementById('modal-todo').classList.add('open');
+}
+
+function saveTodo() {
+  const title = document.getElementById('tf-title').value.trim();
+  if (!title) { alert('Judul task harus diisi!'); return; }
+  const data = { title, desc:document.getElementById('tf-desc').value, dueDate:document.getElementById('tf-date').value, priority:document.getElementById('tf-priority').value, projectId:document.getElementById('tf-project').value, done:false, createdAt:Date.now() };
+  if (editingId) { Object.assign(todos.find(t=>t.id===editingId), data); }
+  else { todos.unshift({id:genId('TODO'),...data}); }
+  save(); closeModal('modal-todo'); renderTodo(); renderDashboard();
+}
+
+function toggleTodo(id) {
+  const t = todos.find(x=>x.id===id);
+  if(t){ t.done=!t.done; t.doneAt=t.done?todayStr():null; }
+  save(); renderTodo(); renderDashboard(); renderCalendar();
+}
+
+function delTodo(id) {
+  if(!confirm('Hapus task ini?')) return;
+  todos = todos.filter(t=>t.id!==id);
+  save(); renderTodo(); renderDashboard(); renderCalendar();
+}
+
+function renderTodo() {
+  const search = (document.getElementById('todo-search')?.value||'').toLowerCase();
+  const today = todayStr();
+  let list = todos.filter(t => {
+    if (search && !t.title.toLowerCase().includes(search) && !(t.desc||'').toLowerCase().includes(search)) return false;
+    if (todoFilter==='pending') return !t.done;
+    if (todoFilter==='today') return !t.done && t.dueDate===today;
+    if (todoFilter==='overdue') return !t.done && t.dueDate && t.dueDate<today;
+    if (todoFilter==='done') return t.done;
+    return true;
+  });
+
+  const pendingCount = todos.filter(t=>!t.done).length;
+  document.getElementById('nav-todo-count').textContent = pendingCount;
+
+  const container = document.getElementById('todo-list');
+  if (!list.length) { container.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div>${todoFilter==='done'?'Belum ada task yang selesai.':'Tidak ada task ditemukan.'}</div>`; return; }
+
+  container.innerHTML = list.map(t => {
+    const proj = projects.find(p=>p.id===t.projectId);
+    let dateCls='upcoming', dateLabel='—', isOverdue=false;
+    if(t.dueDate){
+      if(t.done){dateCls='done';dateLabel=fmt(t.dueDate);}
+      else if(t.dueDate<today){dateCls='overdue';dateLabel=`⚠ ${fmt(t.dueDate)}`;isOverdue=true;}
+      else if(t.dueDate===today){dateCls='today';dateLabel=`🔔 Hari Ini`;}
+      else{dateCls='upcoming';dateLabel=fmt(t.dueDate);}
+    }
+    return `<div class="todo-card ${t.done?'done-todo':''}">
+      <div class="todo-card-top">
+        <div class="todo-check" onclick="toggleTodo('${t.id}')"></div>
+        <div class="todo-body">
+          <div class="todo-title">${t.title}</div>
+          ${t.desc?`<div class="todo-desc">${t.desc}</div>`:''}
+          <div class="todo-meta">
+            ${t.dueDate?`<span class="todo-date-badge ${dateCls}">📅 ${dateLabel}</span>`:''}
+            <span class="todo-prio-badge ${t.priority||'M'}">${t.priority||'M'}</span>
+            ${proj?`<span class="todo-proj-link" onclick="openDetail('${proj.id}')">${proj.name}</span>`:''}
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button class="btn-secondary btn-sm" onclick="openTodoModal('${t.id}')">Edit</button>
+          <button class="btn-danger" onclick="delTodo('${t.id}')">×</button>
+        </div>
+      </div>
+      ${isOverdue?`<div class="todo-overdue-bar">⚠ Task ini sudah melewati deadline! Segera selesaikan atau update tanggal.</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ===== ALL PROJECTS =====
+function renderAllProjects() {
+  const search = (document.getElementById('search-input')?.value||'').toLowerCase();
+  const statusF = document.getElementById('filter-status-sel')?.value||'';
+  let list = projects.filter(p => {
+    const ms=!statusF||p.status===statusF;
+    const mc=!currentCatFilter||p.category===currentCatFilter;
+    const mq=!search||[p.name,p.location,p.pic,p.ejo].some(x=>(x||'').toLowerCase().includes(search));
+    return ms&&mc&&mq;
+  });
+  document.getElementById('all-tbody').innerHTML = list.length ? list.map(p=>`<tr onclick="openDetail('${p.id}')">
+    <td><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${p.id}</span></td>
+    <td>${p.ejo?`<span class="ejo-badge">${p.ejo}</span>`:'—'}</td>
+    <td style="font-weight:500;max-width:130px;">${p.name}</td>
+    <td>${catBadge(p.category||'perbaikan')}</td>
+    <td style="font-size:11px;color:var(--text-dim);">${p.location||'—'}</td>
+    <td>${prioBadge(p.priority||'M')}</td>
+    <td>${statusBadge(p.status)}</td>
+    <td style="font-size:11px;">${p.pic||'—'}</td>
+    <td>${matBadge(p.matStatus||'pending')}</td>
+    <td style="font-family:var(--mono);font-size:9px;">${fmt(p.startDate)}</td>
+    <td style="font-family:var(--mono);font-size:9px;">${fmt(p.endDate)}</td>
+    <td>${progBar(p.progress,p.status)}</td>
+    <td><button class="btn-danger" onclick="event.stopPropagation();delProject('${p.id}')">×</button></td>
+  </tr>`).join('') : `<tr><td colspan="13" class="empty-state">Tidak ada project.</td></tr>`;
+}
+
+// ===== MATERIALS =====
+function renderMaterials() {
+  document.getElementById('mat-tbody').innerHTML = materials.length ? materials.map(m=>{ const proj=projects.find(p=>p.id===m.projectId); return `<tr><td style="font-size:11px;">${proj?proj.name:'—'}</td><td style="font-weight:500;">${m.name}</td><td style="font-family:var(--mono);font-size:9px;">${m.partno||'—'}</td><td style="font-family:var(--mono);font-size:10px;">${m.qty||'—'}</td><td style="font-size:11px;">${m.unit||'—'}</td><td>${matBadge(m.status)}</td><td style="font-family:var(--mono);font-size:9px;">${fmt(m.eta)}</td><td style="font-size:11px;">${m.supplier||'—'}</td><td style="font-size:11px;color:var(--text-dim);">${m.notes||'—'}</td><td><select onchange="updMatStatus('${m.id}',this.value)" style="font-size:10px;padding:3px;width:95px;" onclick="event.stopPropagation()"><option value="pending" ${m.status==='pending'?'selected':''}>Pending</option><option value="order" ${m.status==='order'?'selected':''}>On Order</option><option value="ready" ${m.status==='ready'?'selected':''}>Ready</option></select></td></tr>`; }).join('') : `<tr><td colspan="10" class="empty-state"><div class="empty-icon">⬡</div>Belum ada material.</td></tr>`;
+}
+function updMatStatus(id,val){const m=materials.find(x=>x.id===id);if(m){m.status=val;save();renderMaterials();renderDashboard();}}
+
+// ===== ISSUES =====
+function renderIssues() {
+  document.getElementById('issue-grid').innerHTML = issues.length ? issues.map(i=>{ const proj=projects.find(p=>p.id===i.projectId); return `<div class="issue-card ${i.severity}"><div class="issue-title">${i.title}</div><div class="issue-meta">${proj?proj.name:'General'} · ${fmt(i.date)}${i.deadline?` → Deadline: ${fmt(i.deadline)}`:''}</div><div class="issue-desc">${i.desc||'—'}</div><div style="margin-top:8px;display:flex;justify-content:flex-end;"><button class="btn-danger" onclick="delIssue('${i.id}')">Hapus</button></div></div>`; }).join('') : `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠</div>Belum ada issue.</div>`;
+}
+
+// ===== SOP / WI LIBRARY =====
+function renderLibrary() {
+  renderLibTree();
+  renderDocGrid();
+}
+
+function renderLibTree() {
+  const cats = ['SOP','WI','Form','Other'];
+  const searchGlobal = (document.getElementById('lib-search-global')?.value||'').toLowerCase();
+  let html = '';
+  cats.forEach(cat => {
+    const folders = libFolders.filter(f=>f.cat===cat);
+    const catDocs = libDocs.filter(d => {
+      const folder = libFolders.find(f=>f.id===d.folderId);
+      return folder && folder.cat===cat;
+    });
+    if (!folders.length) return;
+    const isOpen = libActiveCat===cat || libActiveFolder;
+    html += `<div class="lib-cat">
+      <div class="lib-cat-header ${libActiveCat===cat?'active-cat':''}" onclick="toggleCat('${cat}')">
+        <span class="lib-cat-icon ${isOpen?'open':''}">▶</span>
+        <span>${cat}</span>
+        <span class="lib-cat-count">${catDocs.length}</span>
+      </div>
+      <div class="lib-folder-list ${isOpen?'open':''}" id="cat-folders-${cat}">
+        ${folders.map(f=>{
+          const fdocs=libDocs.filter(d=>d.folderId===f.id);
+          return `<div class="lib-folder-item ${libActiveFolder===f.id?'active':''}" onclick="selectFolder('${f.id}','${cat}')">
+            <span>📂</span><span style="flex:1;">${f.name}</span>
+            <span class="lib-folder-count">${fdocs.length}</span>
+            <span class="lib-folder-del" onclick="event.stopPropagation();delFolder('${f.id}')">×</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  html += `<div class="lib-folder-item ${!libActiveFolder&&!libActiveCat?'active':''}" onclick="selectFolder('','');libActiveCat='';" style="padding:7px 14px;border-top:1px solid var(--border);margin-top:4px;">
+    <span>📋</span><span>Semua Dokumen</span><span class="lib-folder-count">${libDocs.length}</span>
+  </div>`;
+  document.getElementById('lib-tree').innerHTML = html;
+}
+
+function toggleCat(cat) {
+  libActiveCat = libActiveCat===cat?'':cat;
+  libActiveFolder='';
+  renderLibTree(); renderDocGrid();
+}
+function selectFolder(fid, cat) {
+  libActiveFolder=fid; libActiveCat=fid?cat:'';
+  renderLibTree(); renderDocGrid();
+}
+
+function renderDocGrid() {
+  const search = (document.getElementById('lib-search-global')?.value||'').toLowerCase();
+  let docs = libDocs.filter(d => {
+    const mf = !libActiveFolder || d.folderId===libActiveFolder;
+    const mc = !libActiveCat || (() => { const f=libFolders.find(x=>x.id===d.folderId); return f&&f.cat===libActiveCat; })();
+    const ms = !search || [d.name,d.number,d.pic,d.notes].some(x=>(x||'').toLowerCase().includes(search));
+    return mf&&mc&&ms;
+  });
+
+  const folder = libFolders.find(f=>f.id===libActiveFolder);
+  document.getElementById('lib-content-title').textContent = folder ? `📂 ${folder.name}` : '📂 Semua Dokumen';
+  document.getElementById('lib-doc-count').textContent = `${docs.length} dokumen`;
+
+  const typeIcon = {sop:'📄',wi:'📋',form:'📝',other:'📎'};
+  document.getElementById('doc-grid').innerHTML = docs.length ? docs.map(d=>`
+    <div class="doc-card">
+      <div class="doc-card-top">
+        <div class="doc-icon">${typeIcon[d.type]||'📎'}</div>
+        <div class="doc-body">
+          <div class="doc-name">${d.name}</div>
+          ${d.number?`<div class="doc-number">${d.number}</div>`:''}
+          <div class="doc-meta">
+            <span class="doc-type-badge ${d.type||'other'}">${(d.type||'other').toUpperCase()}</span>
+            ${d.rev?`<span class="doc-meta-item">Ver: <span>${d.rev}</span></span>`:''}
+            ${d.effectiveDate?`<span class="doc-meta-item">Efektif: <span>${fmt(d.effectiveDate)}</span></span>`:''}
+            ${d.pic?`<span class="doc-meta-item">PIC: <span>${d.pic}</span></span>`:''}
+            ${d.notes?`<span class="doc-meta-item" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.notes}</span>`:''}
+          </div>
+        </div>
+        <div class="doc-actions">
+          ${d.link?`<a href="${d.link}" target="_blank" class="doc-link-btn">🔗 Buka</a>`:'<span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">No link</span>'}
+          <button class="btn-secondary btn-sm" onclick="editDoc('${d.id}')">Edit</button>
+          <button class="btn-danger" onclick="delDoc('${d.id}')">×</button>
+        </div>
+      </div>
+    </div>`).join('') : `<div class="empty-state"><div class="empty-icon">📁</div>${search?'Dokumen tidak ditemukan.':'Belum ada dokumen di folder ini.<br><br>Klik "+ Dokumen" untuk menambahkan.'}</div>`;
+}
+
+// FOLDER MODAL
+function openFolderModal() { ['ff-name','ff-desc'].forEach(x=>document.getElementById(x).value=''); document.getElementById('modal-folder').classList.add('open'); }
+function saveFolder() {
+  const name=document.getElementById('ff-name').value.trim();
+  if(!name){alert('Nama folder harus diisi!');return;}
+  libFolders.push({id:genId('F'),cat:document.getElementById('ff-cat').value,name,desc:document.getElementById('ff-desc').value,createdAt:Date.now()});
+  save();closeModal('modal-folder');renderLibrary();
+}
+function delFolder(id) {
+  if(!confirm('Hapus folder ini? Dokumen di dalamnya tidak terhapus.'))return;
+  libFolders=libFolders.filter(f=>f.id!==id);
+  if(libActiveFolder===id){libActiveFolder='';libActiveCat='';}
+  save();renderLibrary();
+}
+
+// DOC MODAL
+function openDocModal(folderId) {
+  editingDocId=null;
+  document.getElementById('modal-doc-title').textContent='TAMBAH DOKUMEN';
+  ['df-name','df-number','df-rev','df-pic','df-link','df-notes'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('df-date').value='';
+  document.getElementById('df-type').value='sop';
+  const folderSel=document.getElementById('df-folder');
+  folderSel.innerHTML=libFolders.map(f=>`<option value="${f.id}" ${f.id===(folderId||libActiveFolder)?'selected':''}>[${f.cat}] ${f.name}</option>`).join('');
+  document.getElementById('modal-doc').classList.add('open');
+}
+function editDoc(id) {
+  const d=libDocs.find(x=>x.id===id);if(!d)return;
+  editingDocId=id;
+  document.getElementById('modal-doc-title').textContent='EDIT DOKUMEN';
+  document.getElementById('df-name').value=d.name||'';
+  document.getElementById('df-number').value=d.number||'';
+  document.getElementById('df-type').value=d.type||'sop';
+  document.getElementById('df-rev').value=d.rev||'';
+  document.getElementById('df-date').value=d.effectiveDate||'';
+  document.getElementById('df-pic').value=d.pic||'';
+  document.getElementById('df-link').value=d.link||'';
+  document.getElementById('df-notes').value=d.notes||'';
+  const folderSel=document.getElementById('df-folder');
+  folderSel.innerHTML=libFolders.map(f=>`<option value="${f.id}" ${f.id===d.folderId?'selected':''}>[${f.cat}] ${f.name}</option>`).join('');
+  document.getElementById('modal-doc').classList.add('open');
+}
+function saveDoc() {
+  const name=document.getElementById('df-name').value.trim();
+  if(!name){alert('Nama dokumen harus diisi!');return;}
+  const data={name,number:document.getElementById('df-number').value,type:document.getElementById('df-type').value,rev:document.getElementById('df-rev').value,effectiveDate:document.getElementById('df-date').value,pic:document.getElementById('df-pic').value,folderId:document.getElementById('df-folder').value,link:document.getElementById('df-link').value,notes:document.getElementById('df-notes').value};
+  if(editingDocId){Object.assign(libDocs.find(d=>d.id===editingDocId),data);}
+  else{libDocs.push({id:genId('DOC'),createdAt:Date.now(),...data});}
+  save();closeModal('modal-doc');renderLibrary();
+}
+function delDoc(id){if(!confirm('Hapus dokumen ini?'))return;libDocs=libDocs.filter(d=>d.id!==id);save();renderLibrary();}
+
+// ===== CALENDAR =====
+function renderCalendar() {
+  const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('cal-title').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById('cal-grid');
+  const days=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  let html=days.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  const today=todayStr();
+  const evMap={};
+  function addEv(dateStr,ev){if(!dateStr)return;if(!evMap[dateStr])evMap[dateStr]=[];evMap[dateStr].push(ev);}
+  projects.forEach(p=>{
+    const cat=p.category||'perbaikan';
+    if(p.startDate) addEv(p.startDate,{label:`▶ ${p.name}`,type:'ev-start',projId:p.id});
+    if(p.endDate&&p.endDate!==p.startDate) addEv(p.endDate,{label:`■ ${p.name}`,type:`ev-${cat}`,projId:p.id});
+    (p.phases||[]).forEach(ph=>{
+      if(ph.start) addEv(ph.start,{label:`◆ ${ph.name}`,type:'ev-phase',projId:p.id});
+      if(ph.end&&ph.end!==ph.start) addEv(ph.end,{label:`◇ ${ph.name} end`,type:'ev-phase',projId:p.id});
+    });
+  });
+  todos.forEach(t=>{
+    if(t.dueDate) addEv(t.dueDate,{label:`☑ ${t.title}`,type:t.done?'ev-todo-done':'ev-todo',isTodo:true,todoId:t.id});
+  });
+  materials.forEach(m=>{if(m.eta&&m.status!=='ready') addEv(m.eta,{label:`📦 ${m.name}`,type:'ev-phase'});});
+  const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
+  for(let i=0;i<totalCells;i++){
+    let dayNum,dateStr,isCurrent=true;
+    if(i<firstDay){dayNum=prevDays-firstDay+i+1;const d=new Date(calYear,calMonth-1,dayNum);dateStr=d.toISOString().slice(0,10);isCurrent=false;}
+    else if(i>=firstDay+daysInMonth){dayNum=i-firstDay-daysInMonth+1;const d=new Date(calYear,calMonth+1,dayNum);dateStr=d.toISOString().slice(0,10);isCurrent=false;}
+    else{dayNum=i-firstDay+1;const d=new Date(calYear,calMonth,dayNum);dateStr=d.toISOString().slice(0,10);}
+    const isToday=dateStr===today;
+    const evs=evMap[dateStr]||[];
+    const MAX=3;
+    const shown=evs.slice(0,MAX);
+    const more=evs.length-MAX;
+    const evHtml=shown.map(e=>`<div class="cal-event ${e.type}" onclick="event.stopPropagation();${e.isTodo?`openTodoModal('${e.todoId}')`:`openDetail('${e.projId||''}')`}" title="${e.label}">${e.label}</div>`).join('')+(more>0?`<div class="cal-more">+${more}</div>`:'');
+    html+=`<div class="cal-cell ${!isCurrent?'other-month':''} ${isToday?'today':''}" onclick="calCellClick('${dateStr}',event)"><div class="cal-day-num">${dayNum}</div>${evHtml}</div>`;
+  }
+  grid.innerHTML=html;
+}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+function calToday(){calYear=new Date().getFullYear();calMonth=new Date().getMonth();renderCalendar();}
+
+function calCellClick(dateStr,event) {
+  const popup=document.getElementById('day-popup');
+  const items=[];
+  projects.forEach(p=>{
+    if(p.startDate===dateStr) items.push({label:`▶ Start: ${p.name}`,cat:p.category,ejo:p.ejo,projId:p.id,type:'project'});
+    if(p.endDate===dateStr) items.push({label:`■ Deadline: ${p.name}`,cat:p.category,ejo:p.ejo,projId:p.id,type:'project'});
+    (p.phases||[]).forEach(ph=>{
+      if(ph.start===dateStr) items.push({label:`◆ Fase: ${ph.name} (${p.name})`,cat:p.category,projId:p.id,type:'phase'});
+      if(ph.end===dateStr) items.push({label:`◇ Selesai: ${ph.name} (${p.name})`,cat:p.category,projId:p.id,type:'phase'});
+    });
+  });
+  todos.filter(t=>t.dueDate===dateStr).forEach(t=>{
+    items.push({label:`☑ ${t.title}`,prio:t.priority,done:t.done,todoId:t.id,type:'todo'});
+  });
+  materials.filter(m=>m.eta===dateStr&&m.status!=='ready').forEach(m=>{
+    const proj=projects.find(p=>p.id===m.projectId);
+    items.push({label:`📦 ETA: ${m.name}${proj?` (${proj.name})`:''}`,type:'mat'});
+  });
+  if(!items.length)return;
+  const rect=event.currentTarget.getBoundingClientRect();
+  const x=Math.min(rect.left,window.innerWidth-290);
+  const y=Math.min(rect.bottom+4,window.innerHeight-200);
+  popup.style.left=x+'px'; popup.style.top=y+'px';
+  popup.innerHTML=`<div class="day-popup-title">${fmt(dateStr)}<button class="day-popup-close" onclick="document.getElementById('day-popup').style.display='none'">×</button></div>`+
+    items.map(it=>`<div class="day-popup-item" style="cursor:${it.projId||it.todoId?'pointer':'default'}" onclick="${it.projId?`openDetail('${it.projId}');document.getElementById('day-popup').style.display='none'`:it.todoId?`openTodoModal('${it.todoId}');document.getElementById('day-popup').style.display='none'`:''}">
+      <div class="day-popup-item-label" style="${it.done?'text-decoration:line-through;color:var(--text-muted)':''}${it.type==='todo'?';color:var(--teal)':''}">${it.label}</div>
+      <div class="day-popup-item-meta">${it.cat?catBadge(it.cat):''}${it.ejo?`<span class="ejo-badge">${it.ejo}</span>`:''}${it.prio?`<span class="todo-prio-badge ${it.prio}">${it.prio}</span>`:''}</div>
+    </div>`).join('');
+  popup.style.display='block';
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('day-popup');
+  if(p.style.display!=='none'&&!p.contains(e.target)) p.style.display='none';
+});
+
+// ===== PROJECT MODAL =====
+let phaseCount=0;
+function openNewProject() {
+  editingId=null;
+  document.getElementById('modal-proj-title').textContent='NEW PROJECT';
+  ['f-name','f-ejo','f-location','f-pic','f-rootcause','f-notes','f-start','f-end'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-category').value='perbaikan';
+  document.getElementById('f-priority').value='M';
+  document.getElementById('f-status').value='open';
+  document.getElementById('f-mat-status').value='pending';
+  document.getElementById('phase-rows').innerHTML='';
+  phaseCount=0;
+  [{name:'Cek Kebutuhan Material',pic:'Engineering'},{name:'Pengadaan Material',pic:'Procurement'},{name:'Eksekusi Perbaikan',pic:'Engineering'},{name:'Verifikasi & Closing',pic:'CI'}].forEach(addPhaseRow);
+  document.getElementById('modal-project').classList.add('open');
+}
+function addPhaseRow(data) {
+  phaseCount++;
+  const d=data||{};
+  const row=document.createElement('div');
+  row.className='phase-row';
+  row.innerHTML=`<input type="text" class="ph-name" placeholder="Nama fase" value="${d.name||''}"><input type="text" class="ph-desc" placeholder="Deskripsi" value="${d.desc||''}"><input type="text" class="ph-pic" placeholder="PIC" value="${d.pic||''}"><input type="date" class="ph-start" value="${d.start||''}"><input type="date" class="ph-end" value="${d.end||''}"><button class="phase-del" onclick="this.closest('.phase-row').remove()">×</button>`;
+  document.getElementById('phase-rows').appendChild(row);
+}
+function getPhases(){return[...document.querySelectorAll('.phase-row')].map(r=>({name:r.querySelector('.ph-name').value,desc:r.querySelector('.ph-desc').value,pic:r.querySelector('.ph-pic').value,start:r.querySelector('.ph-start').value,end:r.querySelector('.ph-end').value})).filter(p=>p.name);}
+function saveProject() {
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('Nama project harus diisi!');return;}
+  const data={name,category:document.getElementById('f-category').value,ejo:document.getElementById('f-ejo').value.trim(),location:document.getElementById('f-location').value,pic:document.getElementById('f-pic').value,priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,startDate:document.getElementById('f-start').value,endDate:document.getElementById('f-end').value,matStatus:document.getElementById('f-mat-status').value,rootcause:document.getElementById('f-rootcause').value,notes:document.getElementById('f-notes').value,phases:getPhases()};
+  if(editingId){Object.assign(projects.find(p=>p.id===editingId),data);}
+  else{projects.unshift({id:genId('PRJ'),...data,progress:0,createdAt:Date.now()});}
+  save();closeModal('modal-project');renderDashboard();renderAllProjects();
+}
+function delProject(id){if(!confirm('Hapus project?'))return;projects=projects.filter(p=>p.id!==id);save();renderAllProjects();renderDashboard();}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ===== DETAIL PANEL =====
+function openDetail(id) {
+  if(!id)return;
+  const p=projects.find(x=>x.id===id);if(!p)return;
+  currentDetailId=id;
+  document.getElementById('d-id').textContent=p.id;
+  document.getElementById('d-cat-badge').innerHTML=catBadge(p.category||'perbaikan');
+  document.getElementById('d-title').textContent=p.name;
+  document.getElementById('d-ejo').innerHTML=p.ejo?`<span class="ejo-badge">${p.ejo}</span>`:'—';
+  document.getElementById('d-loc').textContent=p.location||'—';
+  document.getElementById('d-pic').textContent=p.pic||'—';
+  document.getElementById('d-prio').textContent=p.priority||'M';
+  document.getElementById('d-status').innerHTML=statusBadge(p.status);
+  document.getElementById('d-mat').innerHTML=matBadge(p.matStatus||'pending');
+  document.getElementById('d-start').textContent=fmt(p.startDate);
+  document.getElementById('d-end').textContent=fmt(p.endDate);
+  document.getElementById('d-rootcause').textContent=p.rootcause||'—';
+  document.getElementById('d-notes').textContent=p.notes||'—';
+  document.getElementById('d-status-sel').value=p.status;
+  document.getElementById('d-prog-input').value=p.progress||0;
+  document.getElementById('d-phases').innerHTML=(p.phases||[]).length?p.phases.map(ph=>`<div style="display:grid;grid-template-columns:110px 1fr 75px;gap:4px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="font-weight:500;">${ph.name}</span><span style="color:var(--text-dim);">${ph.desc||''}</span><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${ph.start?fmt(ph.start):''}</span></div>`).join(''):'<span style="color:var(--text-muted);font-size:11px;">Tidak ada fase.</span>';
+  const mats=materials.filter(m=>m.projectId===id);
+  document.getElementById('d-materials').innerHTML=mats.length?mats.map(m=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;"><span>${m.name} <span style="color:var(--text-muted);font-size:10px;">${m.qty} ${m.unit}</span></span>${matBadge(m.status)}</div>`).join(''):'<span style="color:var(--text-muted);font-size:11px;">Belum ada material.</span>';
+  document.getElementById('detail-overlay').classList.add('open');
+}
+function closeDetail(e){if(!e||e.target===document.getElementById('detail-overlay'))document.getElementById('detail-overlay').classList.remove('open');}
+function updateStatus(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;p.status=document.getElementById('d-status-sel').value;p.progress=parseInt(document.getElementById('d-prog-input').value)||0;if(p.status==='done')p.progress=100;save();openDetail(currentDetailId);renderDashboard();renderAllProjects();}
+function editProject(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;closeDetail();editingId=p.id;document.getElementById('modal-proj-title').textContent='EDIT PROJECT';document.getElementById('f-name').value=p.name;document.getElementById('f-category').value=p.category||'perbaikan';document.getElementById('f-ejo').value=p.ejo||'';document.getElementById('f-location').value=p.location||'';document.getElementById('f-pic').value=p.pic||'';document.getElementById('f-priority').value=p.priority||'M';document.getElementById('f-status').value=p.status;document.getElementById('f-start').value=p.startDate||'';document.getElementById('f-end').value=p.endDate||'';document.getElementById('f-mat-status').value=p.matStatus||'pending';document.getElementById('f-rootcause').value=p.rootcause||'';document.getElementById('f-notes').value=p.notes||'';document.getElementById('phase-rows').innerHTML='';phaseCount=0;(p.phases||[]).forEach(ph=>addPhaseRow(ph));document.getElementById('modal-project').classList.add('open');}
+
+// ===== MATERIAL MODAL =====
+function openMatModal(){document.getElementById('mf-project').innerHTML=projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');['mf-name','mf-partno','mf-eta','mf-supplier','mf-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('mf-qty').value='';document.getElementById('mf-status').value='pending';document.getElementById('modal-mat').classList.add('open');}
+function saveMaterial(){const name=document.getElementById('mf-name').value.trim();if(!name){alert('Nama material harus diisi!');return;}materials.push({id:genId('MAT'),projectId:document.getElementById('mf-project').value,name,partno:document.getElementById('mf-partno').value,qty:document.getElementById('mf-qty').value,unit:document.getElementById('mf-unit').value,status:document.getElementById('mf-status').value,eta:document.getElementById('mf-eta').value,supplier:document.getElementById('mf-supplier').value,notes:document.getElementById('mf-notes').value,createdAt:Date.now()});save();closeModal('modal-mat');renderMaterials();renderDashboard();}
+
+// ===== ISSUE MODAL =====
+function openIssueModal(){document.getElementById('if-project').innerHTML='<option value="">— General —</option>'+projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');['if-title','if-desc','if-deadline'].forEach(id=>document.getElementById(id).value='');document.getElementById('if-date').value=todayStr();document.getElementById('modal-issue').classList.add('open');}
+function saveIssue(){const title=document.getElementById('if-title').value.trim();if(!title){alert('Judul issue harus diisi!');return;}issues.unshift({id:genId('ISS'),projectId:document.getElementById('if-project').value,title,severity:document.getElementById('if-severity').value,desc:document.getElementById('if-desc').value,date:document.getElementById('if-date').value,deadline:document.getElementById('if-deadline').value,createdAt:Date.now()});save();closeModal('modal-issue');renderIssues();}
+function delIssue(id){if(!confirm('Hapus issue?'))return;issues=issues.filter(i=>i.id!==id);save();renderIssues();}
+
+// ===== INIT =====
+renderDashboard();
+renderTodo();
+</script>
+</body>
+</html>
