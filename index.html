@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CI Project Command Center </title>
+<title>CI Project Command Center v3</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -389,6 +389,99 @@ select option{background:var(--surface);}
 .user-chip:hover{border-color:var(--accent);}
 .user-avatar-sm{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;}
 .user-name-sm{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+
+/* ===== DASHBOARD TABLES SCROLLABLE ===== */
+.table-wrap{overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid var(--border);}
+.stat-card{cursor:pointer;transition:transform 0.12s,box-shadow 0.12s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+
+/* ===== CI NOTE ===== */
+.note-filter-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.note-tag-filter{padding:4px 12px;font-family:var(--mono);font-size:10px;border:1px solid var(--border);cursor:pointer;color:var(--text-muted);background:transparent;transition:all 0.15s;border-radius:12px;}
+.note-tag-filter.active{color:#000;font-weight:700;}
+.note-tag-filter.del-tag{margin-left:2px;padding:2px 6px;font-size:9px;background:none;border:none;cursor:pointer;color:var(--danger);opacity:0.6;}
+.note-tag-filter.del-tag:hover{opacity:1;}
+.note-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+.note-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--teal);padding:14px 16px;position:relative;}
+.note-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:6px;}
+.note-tags-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.note-tag-chip{padding:2px 8px;font-family:var(--mono);font-size:9px;font-weight:700;border-radius:10px;border:1px solid;cursor:pointer;}
+.note-tag-chip:hover{filter:brightness(1.3);}
+/* tag input row */
+.tag-input-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px;background:var(--bg);border:1px solid var(--border);min-height:34px;}
+.tag-chip-rm{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;font-family:var(--mono);font-size:10px;border-radius:10px;border:1px solid;}
+.tag-chip-rm button{background:none;border:none;cursor:pointer;color:inherit;font-size:11px;padding:0 0 0 2px;opacity:0.7;}
+.tag-chip-rm button:hover{opacity:1;}
+.tag-input-inline{background:none;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:10px;min-width:80px;flex:1;}
+.note-title{font-size:13px;font-weight:600;margin-bottom:6px;line-height:1.4;}
+.note-body{font-size:12px;color:var(--text-dim);line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+.note-ts{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:8px;}
+.note-actions{display:flex;gap:5px;margin-top:8px;justify-content:flex-end;}
+
+/* ===== BULK MATERIAL TABLE ===== */
+.bulk-table-wrap{overflow-x:auto;}
+.bulk-mat-table{width:100%;border-collapse:collapse;font-size:12px;}
+.bulk-mat-table th{background:var(--surface2);padding:7px 8px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--text-muted);border:1px solid var(--border);}
+.bulk-mat-table td{padding:4px 6px;border:1px solid var(--border);}
+.bulk-mat-table td input,.bulk-mat-table td select{width:100%;background:var(--bg);border:none;color:var(--text);font-family:var(--sans);font-size:11px;padding:4px 6px;outline:none;}
+.bulk-mat-table td input:focus,.bulk-mat-table td select:focus{background:var(--surface2);}
+.bulk-mat-table tr:hover td{background:rgba(255,255,255,0.02);}
+.bulk-tab-btn{padding:6px 14px;font-family:var(--mono);font-size:10px;border:1px solid var(--border);cursor:pointer;color:var(--text-muted);background:transparent;transition:all 0.15s;}
+.bulk-tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* ===== MATERIAL TRACKER FILTER ===== */
+.mat-filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.mat-filter-bar input{flex:1;min-width:160px;}
+.mat-filter-bar select{min-width:180px;}
+tr.mat-used td{opacity:0.5;}
+tr.mat-used{background:rgba(16,185,129,0.05);}
+
+/* ===== PHOTO GALLERY in project ===== */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:6px;}
+.photo-thumb{width:100%;aspect-ratio:1;background:var(--surface2);border:1px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative;}
+.photo-thumb a{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-decoration:none;}
+.photo-add-btn{width:100%;aspect-ratio:1;background:var(--bg);border:1px dashed var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);transition:all 0.15s;}
+.photo-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:768px){
+  .header{padding:8px 12px;flex-wrap:wrap;gap:6px;}
+  .header-sub{display:none;}
+  .header-right .btn-teal,.header-right .btn-primary{padding:6px 10px;font-size:10px;}
+  .app{flex-direction:column;}
+  .sidebar{width:100%;height:auto;display:flex;flex-direction:row;overflow-x:auto;padding:6px 4px;border-right:none;border-bottom:1px solid var(--border);gap:0;}
+  .sidebar .nav-label{display:none;}
+  .sidebar .nav-sep{display:none;}
+  .nav-item{flex-shrink:0;padding:6px 10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;font-size:11px;}
+  .nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent);}
+  .nav-item.todo-nav.active{border-bottom-color:var(--teal);}
+  .nav-item.sop-nav.active{border-bottom-color:var(--purple);}
+  .main{padding:10px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .form-group.full{grid-column:1;}
+  .modal{width:95vw!important;max-height:90vh;overflow-y:auto;}
+  .detail-overlay{left:0!important;width:100%!important;}
+  .detail-panel{width:100%!important;}
+  .lib-layout{flex-direction:column;}
+  .lib-sidebar{width:100%!important;border-right:none;border-bottom:1px solid var(--border);max-height:160px;}
+  .table-wrap{max-height:220px;}
+  .note-grid{grid-template-columns:1fr;}
+  .bulk-mat-table{font-size:10px;}
+  .phase-header-labels{display:none;}
+  .phase-row{flex-direction:column;gap:4px;}
+  .phase-del{align-self:flex-end;}
+  .sync-status-text{display:none;}
+  .actlog-panel{width:100vw!important;}
+  .day-popup{width:90vw!important;}
+  .cal-cell{min-height:60px;}
+  .cal-event{font-size:8px;}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .header-right{gap:4px;}
+  #sync-status .sync-status-text{display:none;}
+}
 </style>
 </head>
 <body>
@@ -463,6 +556,7 @@ select option{background:var(--surface);}
   <div class="nav-item" onclick="showPage('materials',this)"><span class="nav-icon">⬡</span> Material Tracker</div>
   <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
   <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP & WI Library</div>
+  <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
   <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
   <hr class="nav-sep">
   <div class="nav-label">Kategori Project</div>
@@ -483,30 +577,30 @@ select option{background:var(--surface);}
 <!-- ===== DASHBOARD ===== -->
 <div class="page active" id="page-dashboard">
   <div class="stats-row">
-    <div class="stat-card amber"><div class="stat-label">Total Projects</div><div class="stat-value" id="s-total">0</div><div class="stat-sub">Semua aktif</div></div>
-    <div class="stat-card blue"><div class="stat-label">On-Going</div><div class="stat-value" id="s-ongoing">0</div><div class="stat-sub">Sedang dikerjakan</div></div>
-    <div class="stat-card red"><div class="stat-label">Blocked / Wait</div><div class="stat-value" id="s-blocked">0</div><div class="stat-sub">Perlu tindak lanjut</div></div>
-    <div class="stat-card green"><div class="stat-label">Completed</div><div class="stat-value" id="s-done">0</div><div class="stat-sub">Selesai</div></div>
+    <div class="stat-card amber" onclick="showPage('all-projects',null);currentCatFilter='';renderAllProjects();" title="Lihat semua project"><div class="stat-label">Total Projects</div><div class="stat-value" id="s-total">0</div><div class="stat-sub">Klik untuk lihat semua</div></div>
+    <div class="stat-card blue" onclick="filterStatus('inprogress',null)" title="Filter On-Going"><div class="stat-label">On-Going</div><div class="stat-value" id="s-ongoing">0</div><div class="stat-sub">Klik untuk filter</div></div>
+    <div class="stat-card red" onclick="filterStatus('blocked',null)" title="Filter Blocked/Wait"><div class="stat-label">Blocked / Wait</div><div class="stat-value" id="s-blocked">0</div><div class="stat-sub">Klik untuk filter</div></div>
+    <div class="stat-card green" onclick="filterStatus('done',null)" title="Filter Completed"><div class="stat-label">Completed</div><div class="stat-value" id="s-done">0</div><div class="stat-sub">Klik untuk filter</div></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;">
-    <div class="stat-card cyan" style="padding:10px 13px;"><div class="stat-label" style="color:var(--c5r);">5R</div><div class="stat-value" style="font-size:18px;" id="s-5r">0</div></div>
-    <div class="stat-card rose" style="padding:10px 13px;"><div class="stat-label" style="color:var(--cshe);">SHE</div><div class="stat-value" style="font-size:18px;" id="s-she">0</div></div>
-    <div class="stat-card purple" style="padding:10px 13px;"><div class="stat-label" style="color:var(--cimprove);">Improve</div><div class="stat-value" style="font-size:18px;" id="s-improve">0</div></div>
-    <div class="stat-card amber" style="padding:10px 13px;"><div class="stat-label">Perbaikan</div><div class="stat-value" style="font-size:18px;" id="s-perbaikan">0</div></div>
-    <div class="stat-card teal" style="padding:10px 13px;"><div class="stat-label" style="color:var(--teal);">To Do</div><div class="stat-value" style="font-size:18px;" id="s-todo-db">0</div><div class="stat-sub">belum selesai</div></div>
+    <div class="stat-card cyan" style="padding:10px 13px;" onclick="filterCat('5r',null)" title="Filter 5R"><div class="stat-label" style="color:var(--c5r);">5R</div><div class="stat-value" style="font-size:18px;" id="s-5r">0</div></div>
+    <div class="stat-card rose" style="padding:10px 13px;" onclick="filterCat('she',null)" title="Filter SHE"><div class="stat-label" style="color:var(--cshe);">SHE</div><div class="stat-value" style="font-size:18px;" id="s-she">0</div></div>
+    <div class="stat-card purple" style="padding:10px 13px;" onclick="filterCat('improve',null)" title="Filter Improve"><div class="stat-label" style="color:var(--cimprove);">Improve</div><div class="stat-value" style="font-size:18px;" id="s-improve">0</div></div>
+    <div class="stat-card amber" style="padding:10px 13px;" onclick="filterCat('perbaikan',null)" title="Filter Perbaikan"><div class="stat-label">Perbaikan</div><div class="stat-value" style="font-size:18px;" id="s-perbaikan">0</div></div>
+    <div class="stat-card teal" style="padding:10px 13px;" onclick="showPage('todo',document.querySelector('.todo-nav'))" title="Lihat To Do"><div class="stat-label" style="color:var(--teal);">To Do</div><div class="stat-value" style="font-size:18px;" id="s-todo-db">0</div><div class="stat-sub">belum selesai</div></div>
   </div>
   <div id="alert-row" class="alert-row"></div>
-  <div class="section-header"><span class="section-title">▸ Project Terbaru</span></div>
-  <div class="table-wrap">
+  <div class="section-header"><span class="section-title">▸ Project Terbaru</span><span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Scroll untuk lihat semua</span></div>
+  <div class="table-wrap" style="max-height:280px;">
     <table>
       <thead><tr><th>ID</th><th>EJO</th><th>Project</th><th>Kategori</th><th>Prioritas</th><th>Status</th><th>PIC Eng.</th><th>Material</th><th>Deadline</th><th>Progress</th></tr></thead>
       <tbody id="db-tbody"></tbody>
     </table>
   </div>
-  <div class="section-header"><span class="section-title">▸ Material Belum Ready</span></div>
-  <div class="table-wrap">
+  <div class="section-header" style="margin-top:16px;"><span class="section-title">▸ Material Belum Ready</span><span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Scroll untuk lihat semua</span></div>
+  <div class="table-wrap" style="max-height:260px;">
     <table>
-      <thead><tr><th>Project</th><th>Material</th><th>Qty</th><th>Status</th><th>ETA</th><th>Catatan</th></tr></thead>
+      <thead><tr><th>Project</th><th>Material</th><th>Qty</th><th>Status</th><th>ETA</th><th>No PR</th><th>Tgl PR</th></tr></thead>
       <tbody id="mat-alert-tbody"></tbody>
     </table>
   </div>
@@ -591,13 +685,26 @@ select option{background:var(--surface);}
     <span class="section-title">▸ Material Tracker</span>
     <button class="btn-primary" onclick="openMatModal()">+ TAMBAH MATERIAL</button>
   </div>
-  <div class="table-wrap">
+  <div class="mat-filter-bar">
+    <input type="text" id="mat-search" placeholder="🔍 Cari nama material / part no..." oninput="renderMaterials()">
+    <select id="mat-filter-proj" onchange="renderMaterials()">
+      <option value="">— Semua Project —</option>
+    </select>
+    <select id="mat-filter-status" onchange="renderMaterials()">
+      <option value="">— Semua Status —</option>
+      <option value="pending">Pending</option>
+      <option value="order">On Order</option>
+      <option value="ready">Ready</option>
+      <option value="used">Used</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="max-height:calc(100vh - 280px);">
     <table>
-      <thead><tr><th>Project</th><th>Material</th><th>Part No.</th><th>Qty</th><th>Sat.</th><th>Status</th><th>ETA</th><th>Supplier</th><th>Catatan</th><th>Update</th></tr></thead>
+      <thead><tr><th>Project</th><th>Material</th><th>Part No.</th><th>Qty</th><th>Sat.</th><th>Status</th><th>ETA</th><th>No PR</th><th>Tgl PR</th><th>Update</th><th>Hapus</th></tr></thead>
       <tbody id="mat-tbody"></tbody>
     </table>
   </div>
-  <div class="note-box"><strong>💡 TIP — </strong>Update status material segera setelah ada info dari procurement/supplier.</div>
+  <div class="note-box"><strong>💡 TIP — </strong>Material project yang sudah Done otomatis ditandai "Used". Gunakan filter di atas untuk pencarian cepat.</div>
 </div>
 
 <!-- ===== ISSUES ===== -->
@@ -636,6 +743,20 @@ select option{background:var(--surface);}
       <div class="doc-grid" id="doc-grid"></div>
     </div>
   </div>
+</div>
+
+<!-- ===== CI NOTE ===== -->
+<div class="page" id="page-cinote">
+  <div class="section-header">
+    <span class="section-title" style="color:var(--teal);">▸ CI Note</span>
+    <div style="display:flex;gap:7px;align-items:center;">
+      <input type="text" id="note-search" placeholder="🔍 Cari judul / isi catatan..." style="width:200px;" oninput="renderNotes()">
+      <button class="btn-teal" onclick="openNoteModal()">+ Tambah Note</button>
+    </div>
+  </div>
+  <!-- TAG FILTER BAR (generated by renderNoteTags) -->
+  <div class="note-filter-bar" id="note-tag-bar"></div>
+  <div class="note-grid" id="note-grid"></div>
 </div>
 
 <!-- ===== CI FRAMEWORK ===== -->
@@ -723,6 +844,17 @@ Ada update? cc: [Atasan jika perlu]</div>
         </div>
         <div class="form-group full"><label>Root Cause / Analisa</label><textarea id="f-rootcause" placeholder="5-Why singkat..."></textarea></div>
         <div class="form-group full"><label>Catatan / Hambatan / Risiko</label><textarea id="f-notes" placeholder="Catatan tambahan..."></textarea></div>
+        <div class="form-group full">
+          <label>📸 Foto Project (Upload atau Link Google Drive)</label>
+          <div style="display:flex;gap:8px;margin-bottom:6px;">
+            <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('f-photo-upload').click()">📷 Upload Foto</button>
+            <input type="file" id="f-photo-upload" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event)">
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);align-self:center;">atau</span>
+            <input type="text" id="f-gdrive" placeholder="https://drive.google.com/..." style="flex:1;">
+          </div>
+          <div id="f-photo-preview" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;"></div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:3px;">Upload maks 2MB per foto • Format: JPG, PNG, GIF</div>
+        </div>
       </div>
       <div class="phase-section">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
@@ -769,22 +901,64 @@ Ada update? cc: [Atasan jika perlu]</div>
 
 <!-- ===== MODAL MATERIAL ===== -->
 <div class="modal-overlay" id="modal-mat">
-  <div class="modal" style="width:540px;">
+  <div class="modal" style="width:680px;max-width:95vw;">
     <div class="modal-header"><span class="modal-title">TAMBAH MATERIAL</span><button class="modal-close" onclick="closeModal('modal-mat')">×</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Project</label><select id="mf-project"></select></div>
-        <div class="form-group"><label>Nama Material *</label><input type="text" id="mf-name"></div>
-        <div class="form-group"><label>Part Number</label><input type="text" id="mf-partno"></div>
-        <div class="form-group"><label>Qty</label><input type="number" id="mf-qty" min="1"></div>
-        <div class="form-group"><label>Satuan</label><select id="mf-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option></select></div>
-        <div class="form-group"><label>Status</label><select id="mf-status"><option value="pending">Pending</option><option value="order">On Order</option><option value="ready">Ready</option></select></div>
-        <div class="form-group"><label>ETA</label><input type="date" id="mf-eta"></div>
-        <div class="form-group"><label>Supplier</label><input type="text" id="mf-supplier"></div>
-        <div class="form-group full"><label>Catatan</label><textarea id="mf-notes"></textarea></div>
+      <!-- Project Select -->
+      <div class="form-group full" style="margin-bottom:10px;"><label>Project *</label><select id="mf-project"></select></div>
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border);">
+        <button class="bulk-tab-btn active" id="mat-tab-single" onclick="switchMatTab('single')">✏️ Input Manual</button>
+        <button class="bulk-tab-btn" id="mat-tab-bulk" onclick="switchMatTab('bulk')">📋 Input Tabel (Bulk)</button>
+      </div>
+
+      <!-- SINGLE MODE -->
+      <div id="mat-mode-single">
+        <div class="form-grid">
+          <div class="form-group"><label>Nama Material *</label><input type="text" id="mf-name"></div>
+          <div class="form-group"><label>Part Number</label><input type="text" id="mf-partno"></div>
+          <div class="form-group"><label>Qty</label><input type="number" id="mf-qty" min="1"></div>
+          <div class="form-group"><label>Satuan</label>
+            <select id="mf-unit">
+              <option>pcs</option><option>meter</option><option>liter</option><option>kg</option>
+              <option>set</option><option>roll</option><option>box</option>
+              <option>lbr</option><option>klg</option><option>btg</option>
+              <option>un</option><option>gln</option><option>tbg</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Status</label>
+            <select id="mf-status"><option value="pending">Pending</option><option value="order">On Order</option><option value="ready">Ready</option></select>
+          </div>
+          <div class="form-group"><label>ETA</label><input type="date" id="mf-eta"></div>
+          <div class="form-group"><label>No PR</label><input type="text" id="mf-nopr" placeholder="Nomor Purchase Request"></div>
+          <div class="form-group"><label>Tanggal Naik PR</label><input type="date" id="mf-tglpr"></div>
+          <div class="form-group full"><label>Catatan</label><textarea id="mf-notes" rows="2"></textarea></div>
+        </div>
+      </div>
+
+      <!-- BULK TABLE MODE -->
+      <div id="mat-mode-bulk" style="display:none;">
+        <div style="background:var(--surface2);border:1px solid var(--border);padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--text-dim);line-height:1.6;">
+          💡 <strong>Cara pakai:</strong> Copy tabel dari Excel/WhatsApp (format: Part No · Nama Material · Qty · Satuan) lalu paste di area di bawah, atau isi langsung baris per baris.<br>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Ctrl+V pada sel pertama tabel untuk paste otomatis. Klik "+ Baris" untuk tambah baris kosong.</span>
+        </div>
+        <div class="bulk-table-wrap">
+          <table class="bulk-mat-table" id="bulk-mat-table">
+            <thead><tr><th width="120">Part Number</th><th>Nama Material *</th><th width="60">Qty</th><th width="80">Satuan</th><th width="30"></th></tr></thead>
+            <tbody id="bulk-mat-body"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-secondary btn-sm" onclick="addBulkRow()">+ Baris</button>
+          <button class="btn-secondary btn-sm" onclick="clearBulkTable()">🗑 Bersihkan</button>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-left:auto;align-self:center;" id="bulk-row-count">0 baris</span>
+        </div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-mat')">Batal</button><button class="btn-primary" onclick="saveMaterial()">SIMPAN</button></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-mat')">Batal</button>
+      <button class="btn-primary" id="mat-save-btn" onclick="saveMaterialModal()">SIMPAN MATERIAL</button>
+    </div>
   </div>
 </div>
 
@@ -803,6 +977,40 @@ Ada update? cc: [Atasan jika perlu]</div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-issue')">Batal</button><button class="btn-primary" onclick="saveIssue()">LOG ISSUE</button></div>
+  </div>
+</div>
+
+<!-- ===== MODAL CI NOTE ===== -->
+<div class="modal-overlay" id="modal-note">
+  <div class="modal" style="width:600px;border-top-color:var(--teal);">
+    <div class="modal-header"><span class="modal-title" id="modal-note-title">TAMBAH CI NOTE</span><button class="modal-close" onclick="closeModal('modal-note')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Judul Catatan *</label><input type="text" id="nf-title" placeholder="Contoh: Toleransi Ukuran Part X, Flow Proses Filling, dll"></div>
+        <div class="form-group full">
+          <label>Tag (klik tag yang ada, atau ketik + Enter untuk buat baru)</label>
+          <div class="tag-input-row" id="nf-tags-container" onclick="document.getElementById('nf-tag-input').focus()">
+            <!-- selected tags will be inserted here as chips -->
+            <input type="text" id="nf-tag-input" class="tag-input-inline" placeholder="Ketik tag baru lalu Enter..." maxlength="20" onkeydown="handleTagInput(event)" oninput="renderTagSuggestions()">
+          </div>
+          <!-- Existing tag suggestions -->
+          <div id="nf-tag-suggestions" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;"></div>
+        </div>
+        <div class="form-group"><label>Terkait Project (Opsional)</label>
+          <select id="nf-project"><option value="">— Tidak terkait —</option></select>
+        </div>
+        <div class="form-group"><label>Link Referensi / Drive (Opsional)</label>
+          <input type="text" id="nf-link" placeholder="https://drive.google.com/... atau link lain">
+        </div>
+        <div class="form-group full"><label>Isi Catatan *</label>
+          <textarea id="nf-body" rows="7" placeholder="Tulis catatan detail di sini...&#10;Contoh:&#10;- Toleransi ukuran part A: ±0.05 mm&#10;- Cek dengan alat ukur setiap 2 jam&#10;- Jika melebihi toleransi → stop produksi"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-note')">Batal</button>
+      <button class="btn-teal" onclick="saveNote()">SIMPAN NOTE</button>
+    </div>
   </div>
 </div>
 
@@ -889,6 +1097,10 @@ Ada update? cc: [Atasan jika perlu]</div>
         <div class="detail-sec-label">Catatan</div>
         <div id="d-notes" style="font-size:12px;color:var(--text-dim);line-height:1.6;"></div>
       </div>
+      <div class="detail-section" id="d-gdrive-section" style="display:none;">
+        <div class="detail-sec-label">📸 Foto / Google Drive</div>
+        <div id="d-gdrive-link" style="font-size:12px;"></div>
+      </div>
       <div class="detail-section">
         <div class="detail-sec-label">Fase Pengerjaan</div>
         <div id="d-phases"></div>
@@ -915,13 +1127,13 @@ Ada update? cc: [Atasan jika perlu]</div>
             <div class="form-group"><label>Part Number</label><input type="text" id="im-partno" placeholder="Opsional"></div>
             <div class="form-group"><label>Qty</label><input type="number" id="im-qty" min="1" placeholder="0"></div>
             <div class="form-group"><label>Satuan</label>
-              <select id="im-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option></select>
+              <select id="im-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option><option>lbr</option><option>klg</option><option>btg</option><option>un</option><option>gln</option><option>tbg</option></select>
             </div>
             <div class="form-group"><label>Status</label>
               <select id="im-status"><option value="pending">Pending / Belum Diorder</option><option value="order">Sudah Diorder</option><option value="ready">Ready di Gudang</option></select>
             </div>
             <div class="form-group"><label>ETA (Est. Tiba)</label><input type="date" id="im-eta"></div>
-            <div class="form-group full"><label>Supplier</label><input type="text" id="im-supplier" placeholder="Nama supplier"></div>
+            <div class="form-group full"><label>No PR</label><input type="text" id="im-nopr" placeholder="Nomor Purchase Request"></div>
             <div class="form-group full"><label>Catatan</label><input type="text" id="im-notes" placeholder="Catatan tambahan..."></div>
           </div>
           <div style="display:flex;gap:6px;justify-content:flex-end;">
@@ -960,6 +1172,7 @@ let issues     = [];
 let todos      = [];
 let libFolders = [];
 let libDocs    = [];
+let cinotes    = [];
 let activityLog = [];
 let unreadCount = 0;
 let _lastDataHash = '';
@@ -970,10 +1183,14 @@ let currentCatFilter= '';
 let calYear   = new Date().getFullYear();
 let calMonth  = new Date().getMonth();
 let todoFilter= 'all';
+let noteFilter= 'all';
 let libActiveCat    = '';
 let libActiveFolder = '';
 let editingDocId    = null;
+let editingNoteId   = null;
 let currentUser     = null;
+let currentMatTab   = 'single';
+let pendingPhotos   = []; // base64 photos for new/edit project
 
 function genId(p) { return p + '-' + Date.now() + Math.floor(Math.random()*999); }
 
@@ -1010,6 +1227,7 @@ function applyData(data) {
   todos      = data.todos      || [];
   libFolders = data.libFolders || [];
   libDocs    = data.libDocs    || [];
+  cinotes    = data.cinotes    || [];
   if (!libFolders.length) {
     libFolders = [
       { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
@@ -1026,7 +1244,7 @@ function applyData(data) {
 
 // ===== save — defined FIRST so all functions can call it =====
 function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, activityLog });
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, activityLog });
   localStorage.setItem('ci3_cache', payload);
   if (!SYNC_ENABLED) { setSyncStatus('offline', 'Lokal saja'); return; }
   clearTimeout(saveDebounceTimer);
@@ -1071,6 +1289,7 @@ function loadFromLocal() {
     todos:     JSON.parse(localStorage.getItem('ci3_todos')     || '[]'),
     libFolders:JSON.parse(localStorage.getItem('ci3_folders')   || '[]'),
     libDocs:   JSON.parse(localStorage.getItem('ci3_docs')      || '[]'),
+    cinotes:   JSON.parse(localStorage.getItem('ci3_cinotes')   || '[]'),
   });
 }
 
@@ -1126,7 +1345,7 @@ function refreshAllUI() {
   const ap = document.querySelector('.page.active');
   if (ap) {
     const pid = ap.id.replace('page-','');
-    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar })[pid]?.();
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes })[pid]?.();
   }
   if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
 }
@@ -1138,7 +1357,7 @@ function showPage(name, el) {
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
   currentCatFilter = '';
-  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, framework: ()=>{} };
+  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, framework: ()=>{} };
   if (renders[name]) renders[name]();
 }
 function filterCat(cat, el) {
@@ -1223,8 +1442,8 @@ function renderDashboard() {
     <td>${progBar(p.progress,p.status)}</td>
   </tr>`).join('') : `<tr><td colspan="10" class="empty-state"><div class="empty-icon">◈</div>Belum ada project.</td></tr>`;
 
-  const notReady = materials.filter(m=>m.status!=='ready');
-  document.getElementById('mat-alert-tbody').innerHTML = notReady.length ? notReady.map(m=>{ const proj=projects.find(p=>p.id===m.projectId); return `<tr><td style="font-size:11px;">${proj?proj.name:'—'}</td><td style="font-weight:500;">${m.name}</td><td style="font-family:var(--mono);font-size:10px;">${m.qty||'—'} ${m.unit||''}</td><td>${matBadge(m.status)}</td><td style="font-family:var(--mono);font-size:10px;">${fmt(m.eta)}</td><td style="font-size:11px;color:var(--text-dim);">${m.notes||'—'}</td></tr>`; }).join('') : `<tr><td colspan="6" style="text-align:center;color:var(--accent3);padding:12px;font-size:12px;">✓ Semua material ready</td></tr>`;
+  const notReady = materials.filter(m=>m.status!=='ready'&&m.status!=='used');
+  document.getElementById('mat-alert-tbody').innerHTML = notReady.length ? notReady.map(m=>{ const proj=projects.find(p=>p.id===m.projectId); return `<tr><td style="font-size:11px;">${proj?proj.name:'—'}</td><td style="font-weight:500;">${m.name}</td><td style="font-family:var(--mono);font-size:10px;">${m.qty||'—'} ${m.unit||''}</td><td>${matBadge(m.status)}</td><td style="font-family:var(--mono);font-size:10px;">${fmt(m.eta)}</td><td style="font-family:var(--mono);font-size:10px;">${m.nopr||'—'}</td><td style="font-family:var(--mono);font-size:10px;">${fmt(m.tglpr)}</td></tr>`; }).join('') : `<tr><td colspan="7" style="text-align:center;color:var(--accent3);padding:12px;font-size:12px;">✓ Semua material ready</td></tr>`;
 }
 
 // ===== TO DO LIST =====
@@ -1349,8 +1568,55 @@ function renderAllProjects() {
 
 // ===== MATERIALS =====
 function renderMaterials() {
-  document.getElementById('mat-tbody').innerHTML = materials.length ? materials.map(m=>{ const proj=projects.find(p=>p.id===m.projectId); return `<tr><td style="font-size:11px;">${proj?proj.name:'—'}</td><td style="font-weight:500;">${m.name}</td><td style="font-family:var(--mono);font-size:9px;">${m.partno||'—'}</td><td style="font-family:var(--mono);font-size:10px;">${m.qty||'—'}</td><td style="font-size:11px;">${m.unit||'—'}</td><td>${matBadge(m.status)}</td><td style="font-family:var(--mono);font-size:9px;">${fmt(m.eta)}</td><td style="font-size:11px;">${m.supplier||'—'}</td><td style="font-size:11px;color:var(--text-dim);">${m.notes||'—'}</td><td><select onchange="updMatStatus('${m.id}',this.value)" style="font-size:10px;padding:3px;width:95px;" onclick="event.stopPropagation()"><option value="pending" ${m.status==='pending'?'selected':''}>Pending</option><option value="order" ${m.status==='order'?'selected':''}>On Order</option><option value="ready" ${m.status==='ready'?'selected':''}>Ready</option></select></td></tr>`; }).join('') : `<tr><td colspan="10" class="empty-state"><div class="empty-icon">⬡</div>Belum ada material.</td></tr>`;
+  // Populate project filter
+  const projSel = document.getElementById('mat-filter-proj');
+  if (projSel) {
+    const cur = projSel.value;
+    projSel.innerHTML = '<option value="">— Semua Project —</option>' + projects.map(p=>`<option value="${p.id}" ${p.id===cur?'selected':''}>${p.name}</option>`).join('');
+  }
+
+  const search  = (document.getElementById('mat-search')?.value||'').toLowerCase();
+  const projF   = document.getElementById('mat-filter-proj')?.value || '';
+  const statusF = document.getElementById('mat-filter-status')?.value || '';
+
+  // Auto-mark as 'used' if project is done
+  materials.forEach(m => {
+    const proj = projects.find(p=>p.id===m.projectId);
+    if (proj && proj.status==='done' && m.status==='ready') m.status='used';
+  });
+
+  let list = materials.filter(m => {
+    if (projF   && m.projectId !== projF) return false;
+    if (statusF && m.status    !== statusF) return false;
+    if (search  && ![m.name,m.partno,m.nopr,m.notes].some(x=>(x||'').toLowerCase().includes(search))) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('mat-tbody');
+  tbody.innerHTML = list.length ? list.map(m => {
+    const proj = projects.find(p=>p.id===m.projectId);
+    const isUsed = m.status==='used';
+    const rowCls = isUsed ? 'mat-used' : '';
+    return `<tr class="${rowCls}">
+      <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${proj?proj.name:'—'}</td>
+      <td style="font-weight:500;">${m.name}</td>
+      <td style="font-family:var(--mono);font-size:9px;">${m.partno||'—'}</td>
+      <td style="font-family:var(--mono);font-size:10px;">${m.qty||'—'}</td>
+      <td style="font-size:11px;">${m.unit||'—'}</td>
+      <td>${isUsed?'<span class="mat-status ready" style="opacity:0.6;">✓ Used</span>':matBadge(m.status)}</td>
+      <td style="font-family:var(--mono);font-size:9px;">${fmt(m.eta)}</td>
+      <td style="font-family:var(--mono);font-size:10px;">${m.nopr||'—'}</td>
+      <td style="font-family:var(--mono);font-size:9px;">${fmt(m.tglpr)}</td>
+      <td>${isUsed?'<span style="font-size:10px;color:var(--text-muted);">Used</span>':`<select onchange="updMatStatus('${m.id}',this.value)" style="font-size:10px;padding:3px;width:95px;" onclick="event.stopPropagation()">
+        <option value="pending" ${m.status==='pending'?'selected':''}>Pending</option>
+        <option value="order"   ${m.status==='order'  ?'selected':''}>On Order</option>
+        <option value="ready"   ${m.status==='ready'  ?'selected':''}>Ready</option>
+      </select>`}</td>
+      <td><button class="btn-danger" style="padding:2px 7px;font-size:10px;" onclick="delMat('${m.id}')">×</button></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="11" class="empty-state"><div class="empty-icon">⬡</div>Tidak ada material ditemukan.</td></tr>`;
 }
+function delMat(id){if(!confirm('Hapus material ini?'))return;materials=materials.filter(m=>m.id!==id);save();renderMaterials();renderDashboard();}
 function updMatStatus(id,val){const m=materials.find(x=>x.id===id);if(m){m.status=val;save();renderMaterials();renderDashboard();}}
 
 // ===== ISSUES =====
@@ -1586,7 +1852,8 @@ let phaseCount=0;
 function openNewProject() {
   editingId=null;
   document.getElementById('modal-proj-title').textContent='NEW PROJECT';
-  ['f-name','f-ejo','f-location','f-pic','f-rootcause','f-notes','f-start','f-end'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-name','f-ejo','f-location','f-pic','f-rootcause','f-notes','f-start','f-end','f-gdrive'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})
+  pendingPhotos=[]; renderPhotoPreview();;
   document.getElementById('f-category').value='perbaikan';
   document.getElementById('f-priority').value='M';
   document.getElementById('f-status').value='open';
@@ -1610,7 +1877,7 @@ function saveProject() {
   if(!name){alert('Nama project harus diisi!');return;}
   const isEdit = !!editingId;
   const prevId = editingId;
-  const data={name,category:document.getElementById('f-category').value,ejo:document.getElementById('f-ejo').value.trim(),location:document.getElementById('f-location').value,pic:document.getElementById('f-pic').value,priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,startDate:document.getElementById('f-start').value,endDate:document.getElementById('f-end').value,matStatus:document.getElementById('f-mat-status').value,rootcause:document.getElementById('f-rootcause').value,notes:document.getElementById('f-notes').value,phases:getPhases()};
+  const data={name,category:document.getElementById('f-category').value,ejo:document.getElementById('f-ejo').value.trim(),location:document.getElementById('f-location').value,pic:document.getElementById('f-pic').value,priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,startDate:document.getElementById('f-start').value,endDate:document.getElementById('f-end').value,matStatus:document.getElementById('f-mat-status').value,rootcause:document.getElementById('f-rootcause').value,notes:document.getElementById('f-notes').value,gdrive:document.getElementById('f-gdrive').value.trim(),photos:[...pendingPhotos],phases:getPhases()};
   if(isEdit){Object.assign(projects.find(p=>p.id===prevId),data);}
   else{projects.unshift({id:genId('PRJ'),...data,progress:0,createdAt:Date.now()});}
   logActivity(isEdit?'Update Project':'Tambah Project', name, isEdit ? prevId : projects[0]?.id);
@@ -1637,6 +1904,7 @@ function openDetail(id) {
   document.getElementById('d-end').textContent=fmt(p.endDate);
   document.getElementById('d-rootcause').textContent=p.rootcause||'—';
   document.getElementById('d-notes').textContent=p.notes||'—';
+  renderDetailPhotos(p);
   document.getElementById('d-status-sel').value=p.status;
   document.getElementById('d-prog-input').value=p.progress||0;
   document.getElementById('d-phases').innerHTML=(p.phases||[]).length?p.phases.map(ph=>`<div style="display:grid;grid-template-columns:110px 1fr 75px;gap:4px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="font-weight:500;">${ph.name}</span><span style="color:var(--text-dim);">${ph.desc||''}</span><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${ph.start?fmt(ph.start):''}</span></div>`).join(''):'<span style="color:var(--text-muted);font-size:11px;">Tidak ada fase.</span>';
@@ -1678,7 +1946,7 @@ function renderDetailMaterials(projId) {
           ${m.partno?`<span>PN: <span style="color:var(--text-dim)">${m.partno}</span></span>`:''}
           <span>Qty: <span style="color:var(--text-dim)">${m.qty||'—'} ${m.unit||''}</span></span>
           ${m.eta?`<span>ETA: <span style="color:var(--text-dim)">${fmt(m.eta)}</span></span>`:''}
-          ${m.supplier?`<span>Supplier: <span style="color:var(--text-dim)">${m.supplier}</span></span>`:''}
+          ${m.nopr?`<span>No PR: <span style="color:var(--text-dim)">${m.nopr}</span></span>`:''}
           ${m.notes?`<span style="grid-column:1/-1">Catatan: <span style="color:var(--text-dim)">${m.notes}</span></span>`:''}
         </div>
         <div style="display:flex;gap:5px;align-items:center;">
@@ -1700,7 +1968,7 @@ function toggleMatForm() {
   const isOpen = form.style.display !== 'none';
   form.style.display = isOpen ? 'none' : 'block';
   if (!isOpen) {
-    ['im-name','im-partno','im-supplier','im-notes'].forEach(x=>document.getElementById(x).value='');
+    ['im-name','im-partno','im-nopr','im-notes'].forEach(x=>{ const el=document.getElementById(x); if(el) el.value=''; });
     document.getElementById('im-qty').value='';
     document.getElementById('im-eta').value='';
     document.getElementById('im-status').value='pending';
@@ -1720,7 +1988,7 @@ function saveInlineMat() {
     unit: document.getElementById('im-unit').value,
     status: document.getElementById('im-status').value,
     eta: document.getElementById('im-eta').value,
-    supplier: document.getElementById('im-supplier').value,
+    nopr: document.getElementById('im-nopr')?.value || '',
     notes: document.getElementById('im-notes').value,
     createdAt: Date.now()
   });
@@ -1745,11 +2013,340 @@ function delInlineMat(id) {
 }
 function closeDetail(e){if(!e||e.target===document.getElementById('detail-overlay'))document.getElementById('detail-overlay').classList.remove('open');}
 function updateStatus(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;p.status=document.getElementById('d-status-sel').value;p.progress=parseInt(document.getElementById('d-prog-input').value)||0;if(p.status==='done')p.progress=100;save();openDetail(currentDetailId);renderDashboard();renderAllProjects();}
-function editProject(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;closeDetail();editingId=p.id;document.getElementById('modal-proj-title').textContent='EDIT PROJECT';document.getElementById('f-name').value=p.name;document.getElementById('f-category').value=p.category||'perbaikan';document.getElementById('f-ejo').value=p.ejo||'';document.getElementById('f-location').value=p.location||'';document.getElementById('f-pic').value=p.pic||'';document.getElementById('f-priority').value=p.priority||'M';document.getElementById('f-status').value=p.status;document.getElementById('f-start').value=p.startDate||'';document.getElementById('f-end').value=p.endDate||'';document.getElementById('f-mat-status').value=p.matStatus||'pending';document.getElementById('f-rootcause').value=p.rootcause||'';document.getElementById('f-notes').value=p.notes||'';document.getElementById('phase-rows').innerHTML='';phaseCount=0;(p.phases||[]).forEach(ph=>addPhaseRow(ph));document.getElementById('modal-project').classList.add('open');}
+function editProject(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;closeDetail();editingId=p.id;document.getElementById('modal-proj-title').textContent='EDIT PROJECT';document.getElementById('f-name').value=p.name;document.getElementById('f-category').value=p.category||'perbaikan';document.getElementById('f-ejo').value=p.ejo||'';document.getElementById('f-location').value=p.location||'';document.getElementById('f-pic').value=p.pic||'';document.getElementById('f-priority').value=p.priority||'M';document.getElementById('f-status').value=p.status;document.getElementById('f-start').value=p.startDate||'';document.getElementById('f-end').value=p.endDate||'';document.getElementById('f-mat-status').value=p.matStatus||'pending';document.getElementById('f-rootcause').value=p.rootcause||'';document.getElementById('f-notes').value=p.notes||'';document.getElementById('f-gdrive').value=p.gdrive||'';pendingPhotos=[...(p.photos||[])];renderPhotoPreview();document.getElementById('phase-rows').innerHTML='';phaseCount=0;(p.phases||[]).forEach(ph=>addPhaseRow(ph));document.getElementById('modal-project').classList.add('open');}
 
 // ===== MATERIAL MODAL =====
-function openMatModal(){document.getElementById('mf-project').innerHTML=projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');['mf-name','mf-partno','mf-eta','mf-supplier','mf-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('mf-qty').value='';document.getElementById('mf-status').value='pending';document.getElementById('modal-mat').classList.add('open');}
-function saveMaterial(){const name=document.getElementById('mf-name').value.trim();if(!name){alert('Nama material harus diisi!');return;}materials.push({id:genId('MAT'),projectId:document.getElementById('mf-project').value,name,partno:document.getElementById('mf-partno').value,qty:document.getElementById('mf-qty').value,unit:document.getElementById('mf-unit').value,status:document.getElementById('mf-status').value,eta:document.getElementById('mf-eta').value,supplier:document.getElementById('mf-supplier').value,notes:document.getElementById('mf-notes').value,createdAt:Date.now()});save();closeModal('modal-mat');renderMaterials();renderDashboard();}
+function openMatModal() {
+  document.getElementById('mf-project').innerHTML = projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  ['mf-name','mf-partno','mf-nopr','mf-notes'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['mf-qty','mf-eta','mf-tglpr'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const s=document.getElementById('mf-status'); if(s) s.value='pending';
+  switchMatTab('single');
+  initBulkTable();
+  document.getElementById('modal-mat').classList.add('open');
+}
+
+function switchMatTab(tab) {
+  currentMatTab = tab;
+  document.getElementById('mat-mode-single').style.display = tab==='single'?'block':'none';
+  document.getElementById('mat-mode-bulk').style.display   = tab==='bulk'?'block':'none';
+  document.getElementById('mat-tab-single').classList.toggle('active', tab==='single');
+  document.getElementById('mat-tab-bulk').classList.toggle('active', tab==='bulk');
+  document.getElementById('mat-save-btn').textContent = tab==='bulk'?'SIMPAN SEMUA MATERIAL':'SIMPAN MATERIAL';
+}
+
+// ===== BULK TABLE =====
+const ALL_UNITS = ['pcs','meter','liter','kg','set','roll','box','lbr','klg','btg','un','gln','tbg'];
+function unitOpts(sel='pcs'){return ALL_UNITS.map(u=>`<option ${u===sel?'selected':''}>${u}</option>`).join('');}
+
+function initBulkTable(rows=[]) {
+  const tbody = document.getElementById('bulk-mat-body');
+  tbody.innerHTML = '';
+  if (!rows.length) { for(let i=0;i<5;i++) addBulkRow(); }
+  else rows.forEach(r=>addBulkRow(r));
+  updateBulkCount();
+}
+
+function addBulkRow(data={}) {
+  const tbody = document.getElementById('bulk-mat-body');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" value="${data.partno||''}" placeholder="PN-001" onpaste="handleBulkPaste(event,this)"></td>
+    <td><input type="text" value="${data.name||''}" placeholder="Nama material..."></td>
+    <td><input type="number" value="${data.qty||''}" placeholder="0" min="1" style="text-align:center;"></td>
+    <td><select>${unitOpts(data.unit||'pcs')}</select></td>
+    <td><button onclick="this.closest('tr').remove();updateBulkCount()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:2px 4px;">×</button></td>`;
+  tbody.appendChild(tr);
+  updateBulkCount();
+}
+
+function clearBulkTable(){initBulkTable();}
+
+function updateBulkCount() {
+  const rows=[...document.querySelectorAll('#bulk-mat-body tr')];
+  const filled=rows.filter(r=>r.querySelectorAll('input')[1]?.value.trim());
+  const el=document.getElementById('bulk-row-count');
+  if(el) el.textContent=`${filled.length} baris terisi`;
+}
+
+function handleBulkPaste(e, el) {
+  const text=(e.clipboardData||window.clipboardData).getData('text');
+  const lines=text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length<=1) return;
+  e.preventDefault();
+  document.getElementById('bulk-mat-body').innerHTML='';
+  lines.forEach(line=>{
+    const cols=line.split('\t');
+    let partno='',name='',qty='',unit='pcs';
+    if(cols.length>=4){partno=cols[0]?.trim()||'';name=cols[1]?.trim()||'';qty=cols[2]?.trim()||'';unit=ALL_UNITS.includes(cols[3]?.trim())?cols[3].trim():'pcs';}
+    else if(cols.length===3){name=cols[0]?.trim()||'';qty=cols[1]?.trim()||'';unit=ALL_UNITS.includes(cols[2]?.trim())?cols[2].trim():'pcs';}
+    else if(cols.length===2){name=cols[0]?.trim()||'';qty=cols[1]?.trim()||'';}
+    else{name=cols[0]?.trim()||'';}
+    if(name) addBulkRow({partno,name,qty,unit});
+  });
+  updateBulkCount();
+}
+
+function getBulkRows() {
+  return [...document.querySelectorAll('#bulk-mat-body tr')].map(tr=>{
+    const inputs=tr.querySelectorAll('input');
+    const sel=tr.querySelector('select');
+    return{partno:inputs[0]?.value.trim()||'',name:inputs[1]?.value.trim()||'',qty:inputs[2]?.value.trim()||'',unit:sel?.value||'pcs'};
+  }).filter(r=>r.name);
+}
+
+function saveMaterialModal() {
+  const projId=document.getElementById('mf-project').value;
+  if(!projId){alert('Pilih project terlebih dahulu!');return;}
+  if(currentMatTab==='single'){
+    const name=document.getElementById('mf-name').value.trim();
+    if(!name){alert('Nama material harus diisi!');return;}
+    const m={id:genId('MAT'),projectId:projId,name,partno:document.getElementById('mf-partno').value,qty:document.getElementById('mf-qty').value,unit:document.getElementById('mf-unit').value,status:document.getElementById('mf-status').value,eta:document.getElementById('mf-eta').value,nopr:document.getElementById('mf-nopr').value,tglpr:document.getElementById('mf-tglpr').value,notes:document.getElementById('mf-notes').value,createdAt:Date.now()};
+    materials.push(m);
+    const proj=projects.find(p=>p.id===projId);
+    if(proj) logActivity('Tambah Material',`${name} → ${proj.name}`,proj.id);
+  } else {
+    const rows=getBulkRows();
+    if(!rows.length){alert('Minimal 1 baris harus diisi!');return;}
+    const proj=projects.find(p=>p.id===projId);
+    rows.forEach(r=>materials.push({id:genId('MAT'),projectId:projId,name:r.name,partno:r.partno,qty:r.qty,unit:r.unit,status:'pending',createdAt:Date.now()}));
+    if(proj) logActivity('Bulk Tambah Material',`${rows.length} item → ${proj.name}`,proj.id);
+  }
+  save();closeModal('modal-mat');renderMaterials();renderDashboard();
+}
+function saveMaterial(){saveMaterialModal();}
+
+
+// ===== PHOTO UPLOAD =====
+function handlePhotoUpload(e) {
+  const files = [...e.target.files];
+  let added=0;
+  files.forEach(file=>{
+    if(file.size > 2*1024*1024){ alert(`${file.name} terlalu besar (max 2MB)`); return; }
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      pendingPhotos.push({src:ev.target.result, name:file.name, uploadedAt:Date.now()});
+      added++;
+      if(added===files.length) renderPhotoPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value=''; // reset input
+}
+
+function renderPhotoPreview() {
+  const el=document.getElementById('f-photo-preview'); if(!el) return;
+  if(!pendingPhotos.length){ el.innerHTML=''; return; }
+  el.innerHTML=pendingPhotos.map((p,i)=>`
+    <div style="position:relative;width:64px;height:64px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;">
+      <img src="${p.src}" style="width:100%;height:100%;object-fit:cover;">
+      <button onclick="removePhoto(${i})" style="position:absolute;top:1px;right:1px;background:rgba(0,0,0,0.7);border:none;color:#fff;cursor:pointer;font-size:11px;padding:0 4px;line-height:18px;">×</button>
+    </div>`).join('');
+}
+
+function removePhoto(i) {
+  pendingPhotos.splice(i,1);
+  renderPhotoPreview();
+}
+
+// Render photos in detail panel
+function renderDetailPhotos(p) {
+  const sec = document.getElementById('d-gdrive-section');
+  const link = document.getElementById('d-gdrive-link');
+  if(!sec||!link) return;
+  const hasPhotos = p.photos && p.photos.length;
+  const hasDrive  = !!p.gdrive;
+  if(!hasPhotos && !hasDrive){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  let html='';
+  if(hasDrive) html+=`<div style="margin-bottom:6px;"><a href="${p.gdrive}" target="_blank" style="color:var(--accent2);font-size:12px;word-break:break-all;">🔗 Buka di Google Drive</a></div>`;
+  if(hasPhotos) html+=`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">`+
+    p.photos.map(ph=>`<a href="${ph.src}" target="_blank"><img src="${ph.src}" style="width:72px;height:72px;object-fit:cover;border:1px solid var(--border);" title="${ph.name}"></a>`).join('')+`</div>`;
+  link.innerHTML=html;
+}
+
+// ===== CI NOTE — TAG SYSTEM =====
+// Tags stored as array of strings per note, global tag pool derived from all notes
+
+let pendingNoteTags = []; // tags being edited in modal
+
+// --- Tag color generator (consistent per tag name) ---
+const TAG_PALETTE = [
+  ['#f59e0b','#1a1200'],['#3b82f6','#001233'],['#10b981','#001a12'],
+  ['#a855f7','#150026'],['#f43f5e','#200010'],['#06b6d4','#001820'],
+  ['#f97316','#1a0900'],['#84cc16','#0d1a00'],['#e879f9','#1a0020'],
+  ['#22d3ee','#001a1f'],['#fb923c','#1a0a00'],['#4ade80','#0a1a0a']
+];
+function tagColor(tag) {
+  let h=0; for(let i=0;i<tag.length;i++) h=(h*31+tag.charCodeAt(i))&0xffffff;
+  return TAG_PALETTE[Math.abs(h)%TAG_PALETTE.length];
+}
+function tagStyle(tag) {
+  const [bg,text]=tagColor(tag);
+  return `background:${bg};color:${text};border-color:${bg};`;
+}
+
+// --- Collect all unique tags across all notes ---
+function getAllTags() {
+  const set = new Set();
+  cinotes.forEach(n=>(n.tags||[]).forEach(t=>set.add(t)));
+  return [...set].sort();
+}
+
+// --- Delete a tag globally (removes from all notes) ---
+function deleteTagGlobal(tag) {
+  if(!confirm(`Hapus tag "${tag}" dari semua catatan?`)) return;
+  cinotes.forEach(n=>{ if(n.tags) n.tags=n.tags.filter(t=>t!==tag); });
+  if(noteFilter===tag) noteFilter='all';
+  save(); renderNotes(); renderNoteTags();
+}
+
+// --- Filter bar ---
+function renderNoteTags() {
+  const bar = document.getElementById('note-tag-bar');
+  if(!bar) return;
+  const allTags = getAllTags();
+  const allBtn = `<button class="note-tag-filter${noteFilter==='all'?' active':''}" onclick="setNoteFilter('all')" style="${noteFilter==='all'?'background:var(--teal);color:#000;border-color:var(--teal);':''}">Semua <span style="opacity:0.6;">(${cinotes.length})</span></button>`;
+  const tagBtns = allTags.map(t=>{
+    const [bg,text]=tagColor(t);
+    const count = cinotes.filter(n=>(n.tags||[]).includes(t)).length;
+    const active = noteFilter===t;
+    return `<div style="display:inline-flex;align-items:center;gap:0;">
+      <button class="note-tag-filter${active?' active':''}" onclick="setNoteFilter('${t}')"
+        style="${active?`background:${bg};color:${text};border-color:${bg};`:`border-color:${bg};color:${bg};`}">${t} <span style="opacity:0.6;">(${count})</span></button>
+      <button class="note-tag-filter del-tag" onclick="deleteTagGlobal('${t}')" title="Hapus tag ini">×</button>
+    </div>`;
+  }).join('');
+  bar.innerHTML = allBtn + tagBtns;
+}
+
+function setNoteFilter(tag) { noteFilter=tag; renderNotes(); renderNoteTags(); }
+
+// --- Tag input in modal ---
+function renderTagChipsInModal() {
+  const container = document.getElementById('nf-tags-container');
+  const input = document.getElementById('nf-tag-input');
+  // Remove old chips (keep input)
+  [...container.children].forEach(el=>{ if(el!==input) el.remove(); });
+  pendingNoteTags.forEach(t=>{
+    const chip = document.createElement('span');
+    chip.className='tag-chip-rm';
+    chip.style.cssText = tagStyle(t);
+    chip.innerHTML=`${t}<button onclick="removeNoteTag('${t}')">×</button>`;
+    container.insertBefore(chip, input);
+  });
+}
+
+function addNoteTag(tag) {
+  tag = tag.trim().toLowerCase().replace(/\s+/g,'-').slice(0,20);
+  if(!tag || pendingNoteTags.includes(tag)) return;
+  pendingNoteTags.push(tag);
+  renderTagChipsInModal();
+  renderTagSuggestions();
+}
+
+function removeNoteTag(tag) {
+  pendingNoteTags = pendingNoteTags.filter(t=>t!==tag);
+  renderTagChipsInModal();
+  renderTagSuggestions();
+}
+
+function handleTagInput(e) {
+  if(e.key==='Enter'||e.key===','||e.key===' ') {
+    e.preventDefault();
+    const val = e.target.value.trim();
+    if(val) { addNoteTag(val); e.target.value=''; }
+  } else if(e.key==='Backspace' && !e.target.value && pendingNoteTags.length) {
+    removeNoteTag(pendingNoteTags[pendingNoteTags.length-1]);
+  }
+}
+
+function renderTagSuggestions() {
+  const q = (document.getElementById('nf-tag-input')?.value||'').toLowerCase();
+  const existing = getAllTags().filter(t=>!pendingNoteTags.includes(t)&&(q?t.includes(q):true));
+  const sug = document.getElementById('nf-tag-suggestions');
+  if(!sug) return;
+  if(!existing.length){ sug.innerHTML=''; return; }
+  sug.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);align-self:center;">Pilih tag:</span> ' +
+    existing.map(t=>`<button class="note-tag-chip" onclick="addNoteTag('${t}');document.getElementById('nf-tag-input').value='';renderTagSuggestions()" style="${tagStyle(t)}">${t}</button>`).join('');
+}
+
+// --- Modal open/save/delete ---
+function openNoteModal(id) {
+  editingNoteId=id||null;
+  pendingNoteTags=[];
+  document.getElementById('modal-note-title').textContent=id?'EDIT CI NOTE':'TAMBAH CI NOTE';
+  document.getElementById('nf-project').innerHTML='<option value="">— Tidak terkait —</option>'+projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  if(id){
+    const n=cinotes.find(x=>x.id===id); if(!n)return;
+    document.getElementById('nf-title').value=n.title||'';
+    document.getElementById('nf-body').value=n.body||'';
+    document.getElementById('nf-link').value=n.link||'';
+    document.getElementById('nf-project').value=n.projectId||'';
+    pendingNoteTags=[...(n.tags||[])];
+  } else {
+    ['nf-title','nf-body','nf-link'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('nf-project').value='';
+  }
+  renderTagChipsInModal();
+  renderTagSuggestions();
+  document.getElementById('modal-note').classList.add('open');
+}
+
+function saveNote() {
+  const title=document.getElementById('nf-title').value.trim();
+  const body=document.getElementById('nf-body').value.trim();
+  // Also grab any typed but not confirmed tag
+  const typed=(document.getElementById('nf-tag-input')?.value||'').trim();
+  if(typed) pendingNoteTags.push(typed.toLowerCase().replace(/\s+/g,'-').slice(0,20));
+  if(!title){alert('Judul catatan harus diisi!');return;}
+  if(!body){alert('Isi catatan harus diisi!');return;}
+  const data={title,tags:[...new Set(pendingNoteTags)],body,link:document.getElementById('nf-link').value.trim(),projectId:document.getElementById('nf-project').value,updatedAt:Date.now()};
+  if(editingNoteId){Object.assign(cinotes.find(n=>n.id===editingNoteId),data);}
+  else{cinotes.unshift({id:genId('NOTE'),createdAt:Date.now(),...data});}
+  logActivity(editingNoteId?'Update CI Note':'Tambah CI Note',title);
+  save();closeModal('modal-note');renderNotes();renderNoteTags();
+}
+
+function delNote(id){if(!confirm('Hapus catatan ini?'))return;cinotes=cinotes.filter(n=>n.id!==id);save();renderNotes();renderNoteTags();}
+
+// --- Render notes grid ---
+function renderNotes() {
+  renderNoteTags();
+  const search=(document.getElementById('note-search')?.value||'').toLowerCase();
+  let list=cinotes.filter(n=>{
+    if(noteFilter!=='all'&&!(n.tags||[]).includes(noteFilter)) return false;
+    if(search&&!n.title.toLowerCase().includes(search)&&!n.body.toLowerCase().includes(search)&&!(n.tags||[]).some(t=>t.includes(search))) return false;
+    return true;
+  });
+  const grid=document.getElementById('note-grid');
+  if(!list.length){
+    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📝</div>Belum ada catatan${noteFilter!=='all'?` dengan tag "${noteFilter}"`:''}.<br><br><button class="btn-teal" onclick="openNoteModal()">+ Tambah Note Pertama</button></div>`;
+    return;
+  }
+  grid.innerHTML=list.map(n=>{
+    const proj=projects.find(p=>p.id===n.projectId);
+    const ts=new Date(n.createdAt);
+    const tsStr=ts.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' '+ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    const tagChips=(n.tags||[]).map(t=>`<span class="note-tag-chip" onclick="setNoteFilter('${t}')" style="${tagStyle(t)}" title="Filter tag ini">${t}</span>`).join('');
+    // Pick card accent color from first tag
+    const firstTagColor = (n.tags&&n.tags[0]) ? tagColor(n.tags[0])[0] : 'var(--teal)';
+    return `<div class="note-card" style="border-top-color:${firstTagColor};">
+      <div class="note-card-header">
+        <div class="note-tags-row">${tagChips||'<span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">No tag</span>'}</div>
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <button class="btn-secondary btn-sm" onclick="openNoteModal('${n.id}')">✏️</button>
+          <button class="btn-danger" style="padding:2px 7px;" onclick="delNote('${n.id}')">×</button>
+        </div>
+      </div>
+      <div class="note-title">${n.title}</div>
+      <div class="note-body" style="font-size:12px;color:var(--text-dim);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${n.body.length>280?n.body.slice(0,280)+'…':n.body}</div>
+      ${proj?`<div style="margin-top:6px;"><span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">📌 ${proj.name}</span></div>`:''}
+      ${n.link?`<div style="margin-top:4px;"><a href="${n.link}" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--accent2);">🔗 Buka Link</a></div>`:''}
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:8px;">🕐 ${tsStr}</div>
+    </div>`;
+  }).join('');
+}
 
 // ===== ISSUE MODAL =====
 function openIssueModal(){document.getElementById('if-project').innerHTML='<option value="">— General —</option>'+projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');['if-title','if-desc','if-deadline'].forEach(id=>document.getElementById(id).value='');document.getElementById('if-date').value=todayStr();document.getElementById('modal-issue').classList.add('open');}
