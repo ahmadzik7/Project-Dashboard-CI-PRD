@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CI Project Command Center v3</title>
+<title>CI Project Command Center </title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -428,7 +428,7 @@ select option{background:var(--surface);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept · v3</div>
+      <div class="header-sub">Continuous Improvement · Production Dept </div>
     </div>
   </div>
   <div class="header-right">
@@ -947,7 +947,7 @@ Ada update? cc: [Atasan jika perlu]</div>
 // ===================================================
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxQMwQhmNOL3sEG9cMars_ISpEpxox3cjiLyyPKMX4zdIu8RHd-rSBi7UKdAHb8JcND/exec';
 const SYNC_ENABLED = SYNC_URL !== 'https://script.google.com/macros/s/AKfycbxQMwQhmNOL3sEG9cMars_ISpEpxox3cjiLyyPKMX4zdIu8RHd-rSBi7UKdAHb8JcND/exec';
-const SYNC_INTERVAL_MS = 30000; // auto-pull tiap 30 detik
+const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
 let isSyncing = false;
 let pendingSave = false;
@@ -960,6 +960,9 @@ let issues     = [];
 let todos      = [];
 let libFolders = [];
 let libDocs    = [];
+let activityLog = [];
+let unreadCount = 0;
+let _lastDataHash = '';
 
 let editingId       = null;
 let currentDetailId = null;
@@ -970,40 +973,97 @@ let todoFilter= 'all';
 let libActiveCat    = '';
 let libActiveFolder = '';
 let editingDocId    = null;
+let currentUser     = null;
 
 function genId(p) { return p + '-' + Date.now() + Math.floor(Math.random()*999); }
 
-// ===== SYNC STATUS UI =====
+// ===== SYNC STATUS =====
 function setSyncStatus(state, msg) {
   const el = document.getElementById('sync-status');
   if (!el) return;
-  const icons   = { syncing:'⟳', ok:'✓', error:'✗', waiting:'…' };
-  const colors  = { syncing:'var(--accent)', ok:'var(--accent3)', error:'var(--danger)', waiting:'var(--text-muted)' };
+  const icons  = { syncing:'⟳', ok:'✓', error:'✗', waiting:'…', offline:'◉' };
+  const colors = { syncing:'var(--accent)', ok:'var(--accent3)', error:'var(--danger)', waiting:'var(--text-muted)', offline:'var(--text-muted)' };
   el.textContent = (icons[state]||'') + ' ' + msg;
   el.style.color = colors[state] || 'var(--text-muted)';
 }
 
+// ===== applyData — core function (defined FIRST so it's available everywhere) =====
+function applyData(data) {
+  const newLog = data.activityLog || [];
+  const newHash = JSON.stringify(newLog.slice(0,5).map(e=>e.id));
+  // Show toasts for new entries from OTHER users
+  if (_lastDataHash && newHash !== _lastDataHash && currentUser) {
+    const lastKnownId = localStorage.getItem('ci3_last_log_id') || '';
+    const newEntries = newLog.filter(e =>
+      e.user !== currentUser.name &&
+      e.id !== lastKnownId &&
+      e.ts > (Date.now() - 120000)
+    );
+    newEntries.slice().reverse().forEach(e => showNotifToast(e));
+    if (newLog[0]) localStorage.setItem('ci3_last_log_id', newLog[0].id);
+  }
+  _lastDataHash = newHash;
+  activityLog = newLog;
+  projects   = data.projects   || [];
+  materials  = data.materials  || [];
+  issues     = data.issues     || [];
+  todos      = data.todos      || [];
+  libFolders = data.libFolders || [];
+  libDocs    = data.libDocs    || [];
+  if (!libFolders.length) {
+    libFolders = [
+      { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
+      { id:'F2', cat:'SOP',  name:'SOP Maintenance',       desc:'SOP perawatan mesin',          createdAt:Date.now() },
+      { id:'F3', cat:'SOP',  name:'SOP SHE',               desc:'SOP keselamatan & lingkungan', createdAt:Date.now() },
+      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',       desc:'Work instruction line 1',      createdAt:Date.now() },
+      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',       desc:'Work instruction line 2',      createdAt:Date.now() },
+      { id:'F6', cat:'Form', name:'Form Checklist Harian', desc:'Form inspeksi harian',         createdAt:Date.now() },
+      { id:'F7', cat:'Form', name:'Form SHE',              desc:'Form laporan insiden SHE',     createdAt:Date.now() },
+    ];
+  }
+  refreshAllUI();
+}
+
+// ===== save — defined FIRST so all functions can call it =====
+function save() {
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, activityLog });
+  localStorage.setItem('ci3_cache', payload);
+  if (!SYNC_ENABLED) { setSyncStatus('offline', 'Lokal saja'); return; }
+  clearTimeout(saveDebounceTimer);
+  setSyncStatus('waiting', 'Menyimpan...');
+  saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
+}
+
 // ===== LOAD FROM SHEETS =====
 async function loadFromSheets() {
-  if (!SYNC_ENABLED) { loadFromLocal(); return; }
+  if (!SYNC_ENABLED) {
+    setSyncStatus('offline', 'Belum ada URL Sheets');
+    loadFromLocal();
+    return;
+  }
   setSyncStatus('syncing', 'Memuat data...');
   try {
-    const res  = await fetch(SYNC_URL, { method:'GET', cache:'no-store' });
+    const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
     const text = await res.text();
+    // Validate it's JSON before using
     const data = JSON.parse(text);
     localStorage.setItem('ci3_cache', text);
     applyData(data);
     lastSyncTime = new Date();
     setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
   } catch(e) {
-    setSyncStatus('error', 'Offline — pakai data lokal');
+    console.warn('Sheets load failed:', e);
+    setSyncStatus('error', 'Gagal konek — pakai lokal');
     loadFromLocal();
   }
 }
 
 function loadFromLocal() {
   const cached = localStorage.getItem('ci3_cache');
-  if (cached) { try { applyData(JSON.parse(cached)); return; } catch(e){} }
+  if (cached) {
+    try { applyData(JSON.parse(cached)); return; } catch(e) { console.warn('Cache parse error', e); }
+  }
+  // Migrate from older versions
   applyData({
     projects:  JSON.parse(localStorage.getItem('ci3_projects')  || localStorage.getItem('ci2_projects')  || '[]'),
     materials: JSON.parse(localStorage.getItem('ci3_materials') || localStorage.getItem('ci2_materials') || '[]'),
@@ -1014,40 +1074,47 @@ function loadFromLocal() {
   });
 }
 
-// applyData and save defined below (after activity log system is ready)
-
+// ===== PUSH TO SHEETS =====
 async function pushToSheets(payload) {
   if (isSyncing) { pendingSave = true; return; }
   isSyncing = true;
   setSyncStatus('syncing', 'Menyimpan...');
   try {
-    await fetch(SYNC_URL, { method:'POST', body: payload, headers:{'Content-Type':'text/plain'} });
+    const res = await fetch(SYNC_URL, {
+      method: 'POST',
+      body: payload,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+    const txt = await res.text();
+    if (txt.includes('ERROR')) throw new Error(txt);
     lastSyncTime = new Date();
     setSyncStatus('ok', 'Tersimpan ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
     if (pendingSave) { pendingSave=false; isSyncing=false; pushToSheets(localStorage.getItem('ci3_cache')); return; }
   } catch(e) {
-    setSyncStatus('error', 'Gagal — data tersimpan lokal');
+    console.warn('Push failed:', e);
+    setSyncStatus('error', 'Gagal simpan — coba lagi');
     pendingSave = false;
   }
   isSyncing = false;
 }
 
-// ===== AUTO-PULL (30 detik) =====
+// ===== AUTO-PULL every 30s =====
 function startAutoSync() {
   if (!SYNC_ENABLED) return;
   setInterval(async () => {
     if (isSyncing || saveDebounceTimer) return;
     try {
-      const res  = await fetch(SYNC_URL, { method:'GET', cache:'no-store' });
+      const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
       const text = await res.text();
       const cached = localStorage.getItem('ci3_cache');
       if (text !== cached) {
+        const data = JSON.parse(text);
         localStorage.setItem('ci3_cache', text);
-        applyData(JSON.parse(text));
+        applyData(data);
         lastSyncTime = new Date();
         setSyncStatus('ok', 'Updated ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
       }
-    } catch(e) { /* silent */ }
+    } catch(e) { /* silent fail on auto-pull */ }
   }, SYNC_INTERVAL_MS);
 }
 
@@ -1058,8 +1125,8 @@ function refreshAllUI() {
   renderTodo();
   const ap = document.querySelector('.page.active');
   if (ap) {
-    const id = ap.id.replace('page-','');
-    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar })[id]?.();
+    const pid = ap.id.replace('page-','');
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar })[pid]?.();
   }
   if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
 }
@@ -1693,7 +1760,6 @@ function delIssue(id){if(!confirm('Hapus issue?'))return;issues=issues.filter(i=
 // ===== USER IDENTITY SYSTEM =====
 // =============================================
 const USER_COLORS = ['#f59e0b','#3b82f6','#10b981','#a855f7','#f43f5e','#06b6d4','#f97316','#84cc16'];
-let currentUser = null; // { name, color, initials }
 
 function getInitials(name) {
   return name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
@@ -1715,28 +1781,19 @@ function setCurrentUser(name) {
   const initials = getInitials(name);
   currentUser = { name, color, initials };
   localStorage.setItem('ci3_user', JSON.stringify(currentUser));
-
-  // Save to known users list
   let knownUsers = JSON.parse(localStorage.getItem('ci3_known_users') || '[]');
   if (!knownUsers.includes(name)) { knownUsers.unshift(name); knownUsers = knownUsers.slice(0,8); localStorage.setItem('ci3_known_users', JSON.stringify(knownUsers)); }
-
-  // Update header
   document.getElementById('user-overlay').style.display = 'none';
   document.getElementById('user-chip').style.display = 'flex';
   const av = document.getElementById('header-avatar');
-  av.textContent = initials;
-  av.style.background = color;
-  av.style.color = '#000';
+  av.textContent = initials; av.style.background = color; av.style.color = '#000';
   document.getElementById('header-username').textContent = name;
-
-  // Start app
   loadFromSheets().then(() => startAutoSync());
 }
 
 function switchUser() {
-  if (!confirm('Ganti user? Anda akan diminta memasukkan nama kembali.')) return;
-  currentUser = null;
-  localStorage.removeItem('ci3_user');
+  if (!confirm('Ganti user?')) return;
+  currentUser = null; localStorage.removeItem('ci3_user');
   document.getElementById('user-chip').style.display = 'none';
   showUserOverlay();
 }
@@ -1754,9 +1811,6 @@ function showUserOverlay() {
 // =============================================
 // ===== ACTIVITY LOG =====
 // =============================================
-let activityLog = [];
-let unreadCount = 0;
-
 function logActivity(action, target, projId) {
   if (!currentUser) return;
   const entry = {
@@ -1850,55 +1904,6 @@ function showNotifToast(entry) {
     toast.classList.add('leaving');
     setTimeout(() => toast.remove(), 300);
   }, 6000);
-}
-
-// =============================================
-
-// =============================================
-// ===== PATCH save() — include activityLog =====
-// =============================================
-function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, activityLog });
-  localStorage.setItem('ci3_cache', payload);
-  if (!SYNC_ENABLED) return;
-  clearTimeout(saveDebounceTimer);
-  setSyncStatus('waiting', 'Menyimpan...');
-  saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
-}
-
-// =============================================
-// ===== PATCH applyData — detect remote changes =====
-// =============================================
-let _lastDataHash = '';
-function applyData(data) {
-  const newLog = data.activityLog || [];
-  const newHash = JSON.stringify(newLog.slice(0,5).map(e=>e.id));
-  if (_lastDataHash && newHash !== _lastDataHash && currentUser) {
-    const lastKnownId = localStorage.getItem('ci3_last_log_id') || '';
-    const newEntries = newLog.filter(e => e.user !== currentUser.name && e.id !== lastKnownId && e.ts > (Date.now()-60000));
-    newEntries.slice().reverse().forEach(e => showNotifToast(e));
-    if (newLog[0]) localStorage.setItem('ci3_last_log_id', newLog[0].id);
-  }
-  _lastDataHash = newHash;
-  activityLog = newLog;
-  projects   = data.projects   || [];
-  materials  = data.materials  || [];
-  issues     = data.issues     || [];
-  todos      = data.todos      || [];
-  libFolders = data.libFolders || [];
-  libDocs    = data.libDocs    || [];
-  if (!libFolders.length) {
-    libFolders = [
-      { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
-      { id:'F2', cat:'SOP',  name:'SOP Maintenance',       desc:'SOP perawatan mesin',          createdAt:Date.now() },
-      { id:'F3', cat:'SOP',  name:'SOP SHE',               desc:'SOP keselamatan & lingkungan', createdAt:Date.now() },
-      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',       desc:'Work instruction line 1',      createdAt:Date.now() },
-      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',       desc:'Work instruction line 2',      createdAt:Date.now() },
-      { id:'F6', cat:'Form', name:'Form Checklist Harian', desc:'Form inspeksi harian',         createdAt:Date.now() },
-      { id:'F7', cat:'Form', name:'Form SHE',              desc:'Form laporan insiden SHE',     createdAt:Date.now() },
-    ];
-  }
-  refreshAllUI();
 }
 
 // =============================================
