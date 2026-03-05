@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CI Project Command Center </title>
+<title>CI Project Command Center v3</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -331,9 +331,96 @@ select option{background:var(--surface);}
 .day-popup-item-label{font-weight:500;margin-bottom:3px;}
 .day-popup-item-meta{font-family:var(--mono);font-size:9px;color:var(--text-muted);}
 .day-popup-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;}
+
+/* ===== USER LOGIN OVERLAY ===== */
+.user-overlay{position:fixed;inset:0;background:rgba(13,15,18,0.97);z-index:999;display:flex;align-items:center;justify-content:center;}
+.user-box{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);padding:36px 40px;width:380px;text-align:center;}
+.user-box-logo{background:var(--accent);color:#000;font-family:var(--mono);font-weight:700;font-size:14px;padding:6px 14px;display:inline-block;margin-bottom:20px;letter-spacing:2px;}
+.user-box h2{font-size:16px;font-weight:600;margin-bottom:6px;}
+.user-box p{font-size:12px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;}
+.user-box input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:11px 14px;outline:none;text-align:center;margin-bottom:12px;}
+.user-box input:focus{border-color:var(--accent);}
+.user-avatars{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+.avatar-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:11px;padding:5px 12px;cursor:pointer;transition:all 0.15s;}
+.avatar-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ===== NOTIFICATION TOAST ===== */
+.notif-container{position:fixed;top:64px;right:16px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.notif-toast{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent2);padding:12px 16px;width:320px;pointer-events:all;animation:slideIn 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+.notif-toast.entering{animation:slideIn 0.3s ease;}
+.notif-toast.leaving{animation:slideOut 0.3s ease forwards;}
+@keyframes slideIn{from{transform:translateX(340px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1;}to{transform:translateX(340px);opacity:0;}}
+.notif-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.notif-user{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent2);}
+.notif-time{font-family:var(--mono);font-size:9px;color:var(--text-muted);}
+.notif-msg{font-size:12px;color:var(--text);line-height:1.4;margin-bottom:4px;}
+.notif-detail{font-family:var(--mono);font-size:10px;color:var(--text-muted);}
+.notif-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0;line-height:1;}
+.notif-close:hover{color:var(--text);}
+.notif-link{font-family:var(--mono);font-size:10px;color:var(--accent2);cursor:pointer;margin-top:4px;display:inline-block;}
+.notif-link:hover{text-decoration:underline;}
+
+/* ===== NOTIFICATION BELL ===== */
+.notif-bell{position:relative;cursor:pointer;padding:5px 8px;display:flex;align-items:center;}
+.notif-bell-icon{font-size:16px;color:var(--text-muted);transition:color 0.15s;}
+.notif-bell:hover .notif-bell-icon{color:var(--text);}
+.notif-badge{position:absolute;top:2px;right:2px;background:var(--danger);color:#fff;font-family:var(--mono);font-size:8px;font-weight:700;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;display:none;}
+.notif-badge.show{display:flex;}
+
+/* ===== ACTIVITY LOG PANEL ===== */
+.actlog-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;justify-content:flex-end;}
+.actlog-overlay.open{display:flex;}
+.actlog-panel{background:var(--surface);border-left:1px solid var(--border);width:360px;height:100vh;overflow-y:auto;border-top:3px solid var(--accent2);}
+.actlog-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1;}
+.actlog-title{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent2);letter-spacing:1px;}
+.actlog-body{padding:12px;}
+.actlog-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.actlog-item:last-child{border-bottom:none;}
+.actlog-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.actlog-content{flex:1;}
+.actlog-user{font-family:var(--mono);font-size:10px;font-weight:700;margin-bottom:2px;}
+.actlog-action{font-size:12px;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.actlog-target{font-family:var(--mono);font-size:10px;color:var(--text-muted);}
+.actlog-ts{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:3px;}
+
+/* USER CHIP header */
+.user-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);padding:4px 10px;cursor:pointer;transition:border-color 0.15s;}
+.user-chip:hover{border-color:var(--accent);}
+.user-avatar-sm{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;}
+.user-name-sm{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
 </style>
 </head>
 <body>
+
+<!-- USER LOGIN OVERLAY -->
+<div class="user-overlay" id="user-overlay">
+  <div class="user-box">
+    <div class="user-box-logo">CI</div>
+    <h2>Siapa Anda?</h2>
+    <p>Masukkan nama Anda agar rekan tim tahu siapa yang melakukan perubahan data.</p>
+    <input type="text" id="user-name-input" placeholder="Ketik nama Anda..." maxlength="30" onkeydown="if(event.key==='Enter')loginUser()">
+    <div class="user-avatars" id="quick-users"></div>
+    <button class="btn-primary" style="width:100%;padding:11px;" onclick="loginUser()">MASUK →</button>
+  </div>
+</div>
+
+<!-- NOTIFICATION TOASTS -->
+<div class="notif-container" id="notif-container"></div>
+
+<!-- ACTIVITY LOG PANEL -->
+<div class="actlog-overlay" id="actlog-overlay" onclick="closeActLog(event)">
+  <div class="actlog-panel" onclick="event.stopPropagation()">
+    <div class="actlog-header">
+      <span class="actlog-title">📋 ACTIVITY LOG</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-secondary btn-sm" onclick="clearActivityLog()">Clear</button>
+        <button class="modal-close" onclick="closeActLog()">×</button>
+      </div>
+    </div>
+    <div class="actlog-body" id="actlog-body"></div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -341,10 +428,24 @@ select option{background:var(--surface);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept </div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v3</div>
     </div>
   </div>
   <div class="header-right">
+    <!-- Sync Status -->
+    <span id="sync-status" style="font-family:var(--mono);font-size:10px;color:var(--text-muted);cursor:pointer;white-space:nowrap;" onclick="manualSync()" title="Klik untuk refresh">◉ Loading...</span>
+    <div style="width:1px;height:20px;background:var(--border);"></div>
+    <!-- Notification Bell -->
+    <div class="notif-bell" onclick="openActLog()" title="Activity Log">
+      <span class="notif-bell-icon">🔔</span>
+      <span class="notif-badge" id="notif-badge"></span>
+    </div>
+    <!-- User Chip -->
+    <div class="user-chip" onclick="switchUser()" title="Ganti user" id="user-chip" style="display:none;">
+      <div class="user-avatar-sm" id="header-avatar"></div>
+      <span class="user-name-sm" id="header-username"></span>
+    </div>
+    <div style="width:1px;height:20px;background:var(--border);"></div>
     <button class="btn-teal" onclick="openTodoModal()">+ TO DO</button>
     <button class="btn-primary" onclick="openNewProject()">+ PROJECT</button>
   </div>
@@ -840,64 +941,157 @@ Ada update? cc: [Atasan jika perlu]</div>
 <div id="day-popup" class="day-popup"></div>
 
 <script>
-// ===== STORAGE =====
-let projects  = JSON.parse(localStorage.getItem('ci3_projects')  || '[]');
-let materials = JSON.parse(localStorage.getItem('ci3_materials') || '[]');
-let issues    = JSON.parse(localStorage.getItem('ci3_issues')    || '[]');
-let todos     = JSON.parse(localStorage.getItem('ci3_todos')     || '[]');
-let libFolders= JSON.parse(localStorage.getItem('ci3_folders')   || '[]');
-let libDocs   = JSON.parse(localStorage.getItem('ci3_docs')      || '[]');
+// ===================================================
+// GOOGLE SHEETS SYNC — Ganti URL di bawah ini
+// Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
+// ===================================================
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxQMwQhmNOL3sEG9cMars_ISpEpxox3cjiLyyPKMX4zdIu8RHd-rSBi7UKdAHb8JcND/exec';
+const SYNC_ENABLED = SYNC_URL !== 'https://script.google.com/macros/s/AKfycbxQMwQhmNOL3sEG9cMars_ISpEpxox3cjiLyyPKMX4zdIu8RHd-rSBi7UKdAHb8JcND/exec';
+const SYNC_INTERVAL_MS = 30000; // auto-pull tiap 30 detik
+let saveDebounceTimer = null;
+let isSyncing = false;
+let pendingSave = false;
+let lastSyncTime = null;
 
-// Migrate from v2 if present
-function migrateFromV2() {
-  if (!projects.length) {
-    const v2p = localStorage.getItem('ci2_projects');
-    if (v2p) { projects = JSON.parse(v2p); save(); }
-  }
-  if (!materials.length) {
-    const v2m = localStorage.getItem('ci2_materials');
-    if (v2m) { materials = JSON.parse(v2m); save(); }
-  }
-  if (!issues.length) {
-    const v2i = localStorage.getItem('ci2_issues');
-    if (v2i) { issues = JSON.parse(v2i); save(); }
-  }
-}
-migrateFromV2();
+// ===== DATA =====
+let projects   = [];
+let materials  = [];
+let issues     = [];
+let todos      = [];
+let libFolders = [];
+let libDocs    = [];
 
-// Seed default folders if none
-if (!libFolders.length) {
-  libFolders = [
-    { id:'F1', cat:'SOP', name:'SOP Produksi', desc:'SOP umum produksi', createdAt: Date.now() },
-    { id:'F2', cat:'SOP', name:'SOP Maintenance', desc:'SOP untuk kegiatan perawatan mesin', createdAt: Date.now() },
-    { id:'F3', cat:'SOP', name:'SOP SHE', desc:'SOP keselamatan dan lingkungan', createdAt: Date.now() },
-    { id:'F4', cat:'WI', name:'WI Mesin Line 1', desc:'Work instruction mesin line 1', createdAt: Date.now() },
-    { id:'F5', cat:'WI', name:'WI Mesin Line 2', desc:'Work instruction mesin line 2', createdAt: Date.now() },
-    { id:'F6', cat:'Form', name:'Form Checklist Harian', desc:'Form inspeksi dan checklist harian', createdAt: Date.now() },
-    { id:'F7', cat:'Form', name:'Form SHE', desc:'Form laporan insiden dan inspeksi SHE', createdAt: Date.now() },
-  ];
-  save();
-}
-
-let editingId      = null;
-let currentDetailId= null;
-let currentCatFilter='';
-let calYear  = new Date().getFullYear();
-let calMonth = new Date().getMonth();
-let todoFilter = 'all';
-let libActiveCat = '';
+let editingId       = null;
+let currentDetailId = null;
+let currentCatFilter= '';
+let calYear   = new Date().getFullYear();
+let calMonth  = new Date().getMonth();
+let todoFilter= 'all';
+let libActiveCat    = '';
 let libActiveFolder = '';
-let editingDocId = null;
+let editingDocId    = null;
 
-function save() {
-  localStorage.setItem('ci3_projects',  JSON.stringify(projects));
-  localStorage.setItem('ci3_materials', JSON.stringify(materials));
-  localStorage.setItem('ci3_issues',    JSON.stringify(issues));
-  localStorage.setItem('ci3_todos',     JSON.stringify(todos));
-  localStorage.setItem('ci3_folders',   JSON.stringify(libFolders));
-  localStorage.setItem('ci3_docs',      JSON.stringify(libDocs));
-}
 function genId(p) { return p + '-' + Date.now() + Math.floor(Math.random()*999); }
+
+// ===== SYNC STATUS UI =====
+function setSyncStatus(state, msg) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const icons   = { syncing:'⟳', ok:'✓', error:'✗', waiting:'…' };
+  const colors  = { syncing:'var(--accent)', ok:'var(--accent3)', error:'var(--danger)', waiting:'var(--text-muted)' };
+  el.textContent = (icons[state]||'') + ' ' + msg;
+  el.style.color = colors[state] || 'var(--text-muted)';
+}
+
+// ===== LOAD FROM SHEETS =====
+async function loadFromSheets() {
+  if (!SYNC_ENABLED) { loadFromLocal(); return; }
+  setSyncStatus('syncing', 'Memuat data...');
+  try {
+    const res  = await fetch(SYNC_URL, { method:'GET', cache:'no-store' });
+    const text = await res.text();
+    const data = JSON.parse(text);
+    localStorage.setItem('ci3_cache', text);
+    applyData(data);
+    lastSyncTime = new Date();
+    setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+  } catch(e) {
+    setSyncStatus('error', 'Offline — pakai data lokal');
+    loadFromLocal();
+  }
+}
+
+function loadFromLocal() {
+  const cached = localStorage.getItem('ci3_cache');
+  if (cached) { try { applyData(JSON.parse(cached)); return; } catch(e){} }
+  applyData({
+    projects:  JSON.parse(localStorage.getItem('ci3_projects')  || localStorage.getItem('ci2_projects')  || '[]'),
+    materials: JSON.parse(localStorage.getItem('ci3_materials') || localStorage.getItem('ci2_materials') || '[]'),
+    issues:    JSON.parse(localStorage.getItem('ci3_issues')    || localStorage.getItem('ci2_issues')    || '[]'),
+    todos:     JSON.parse(localStorage.getItem('ci3_todos')     || '[]'),
+    libFolders:JSON.parse(localStorage.getItem('ci3_folders')   || '[]'),
+    libDocs:   JSON.parse(localStorage.getItem('ci3_docs')      || '[]'),
+  });
+}
+
+function applyData(data) {
+  projects   = data.projects   || [];
+  materials  = data.materials  || [];
+  issues     = data.issues     || [];
+  todos      = data.todos      || [];
+  libFolders = data.libFolders || [];
+  libDocs    = data.libDocs    || [];
+  if (!libFolders.length) {
+    libFolders = [
+      { id:'F1', cat:'SOP',  name:'SOP Produksi',         desc:'SOP umum produksi',           createdAt: Date.now() },
+      { id:'F2', cat:'SOP',  name:'SOP Maintenance',      desc:'SOP perawatan mesin',          createdAt: Date.now() },
+      { id:'F3', cat:'SOP',  name:'SOP SHE',              desc:'SOP keselamatan & lingkungan', createdAt: Date.now() },
+      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',      desc:'Work instruction line 1',      createdAt: Date.now() },
+      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',      desc:'Work instruction line 2',      createdAt: Date.now() },
+      { id:'F6', cat:'Form', name:'Form Checklist Harian',desc:'Form inspeksi harian',         createdAt: Date.now() },
+      { id:'F7', cat:'Form', name:'Form SHE',             desc:'Form laporan insiden SHE',     createdAt: Date.now() },
+    ];
+  }
+  refreshAllUI();
+}
+
+// ===== SAVE TO SHEETS (debounced) =====
+function save() {
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs });
+  localStorage.setItem('ci3_cache', payload);
+  if (!SYNC_ENABLED) return;
+  clearTimeout(saveDebounceTimer);
+  setSyncStatus('waiting', 'Menyimpan...');
+  saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
+}
+
+async function pushToSheets(payload) {
+  if (isSyncing) { pendingSave = true; return; }
+  isSyncing = true;
+  setSyncStatus('syncing', 'Menyimpan...');
+  try {
+    await fetch(SYNC_URL, { method:'POST', body: payload, headers:{'Content-Type':'text/plain'} });
+    lastSyncTime = new Date();
+    setSyncStatus('ok', 'Tersimpan ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+    if (pendingSave) { pendingSave=false; isSyncing=false; pushToSheets(localStorage.getItem('ci3_cache')); return; }
+  } catch(e) {
+    setSyncStatus('error', 'Gagal — data tersimpan lokal');
+    pendingSave = false;
+  }
+  isSyncing = false;
+}
+
+// ===== AUTO-PULL (30 detik) =====
+function startAutoSync() {
+  if (!SYNC_ENABLED) return;
+  setInterval(async () => {
+    if (isSyncing || saveDebounceTimer) return;
+    try {
+      const res  = await fetch(SYNC_URL, { method:'GET', cache:'no-store' });
+      const text = await res.text();
+      const cached = localStorage.getItem('ci3_cache');
+      if (text !== cached) {
+        localStorage.setItem('ci3_cache', text);
+        applyData(JSON.parse(text));
+        lastSyncTime = new Date();
+        setSyncStatus('ok', 'Updated ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+      }
+    } catch(e) { /* silent */ }
+  }, SYNC_INTERVAL_MS);
+}
+
+function manualSync() { loadFromSheets(); }
+
+function refreshAllUI() {
+  renderDashboard();
+  renderTodo();
+  const ap = document.querySelector('.page.active');
+  if (ap) {
+    const id = ap.id.replace('page-','');
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar })[id]?.();
+  }
+  if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
+}
 
 // ===== NAV =====
 function showPage(name, el) {
@@ -1517,12 +1711,267 @@ function saveMaterial(){const name=document.getElementById('mf-name').value.trim
 
 // ===== ISSUE MODAL =====
 function openIssueModal(){document.getElementById('if-project').innerHTML='<option value="">— General —</option>'+projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');['if-title','if-desc','if-deadline'].forEach(id=>document.getElementById(id).value='');document.getElementById('if-date').value=todayStr();document.getElementById('modal-issue').classList.add('open');}
-function saveIssue(){const title=document.getElementById('if-title').value.trim();if(!title){alert('Judul issue harus diisi!');return;}issues.unshift({id:genId('ISS'),projectId:document.getElementById('if-project').value,title,severity:document.getElementById('if-severity').value,desc:document.getElementById('if-desc').value,date:document.getElementById('if-date').value,deadline:document.getElementById('if-deadline').value,createdAt:Date.now()});save();closeModal('modal-issue');renderIssues();}
+function saveIssue(){const title=document.getElementById('if-title').value.trim();if(!title){alert('Judul issue harus diisi!');return;}issues.unshift({id:genId('ISS'),projectId:document.getElementById('if-project').value,title,severity:document.getElementById('if-severity').value,desc:document.getElementById('if-desc').value,date:document.getElementById('if-date').value,deadline:document.getElementById('if-deadline').value,createdAt:Date.now()});logActivity('Tambah Issue',title);save();closeModal('modal-issue');renderIssues();}
 function delIssue(id){if(!confirm('Hapus issue?'))return;issues=issues.filter(i=>i.id!==id);save();renderIssues();}
 
+// =============================================
+// ===== USER IDENTITY SYSTEM =====
+// =============================================
+const USER_COLORS = ['#f59e0b','#3b82f6','#10b981','#a855f7','#f43f5e','#06b6d4','#f97316','#84cc16'];
+let currentUser = null; // { name, color, initials }
+
+function getInitials(name) {
+  return name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+function hashColor(name) {
+  let h = 0;
+  for (let i=0;i<name.length;i++) h = (h*31+name.charCodeAt(i))&0xffffff;
+  return USER_COLORS[Math.abs(h) % USER_COLORS.length];
+}
+
+function loginUser() {
+  const name = document.getElementById('user-name-input').value.trim();
+  if (!name) { document.getElementById('user-name-input').focus(); return; }
+  setCurrentUser(name);
+}
+
+function setCurrentUser(name) {
+  const color = hashColor(name);
+  const initials = getInitials(name);
+  currentUser = { name, color, initials };
+  localStorage.setItem('ci3_user', JSON.stringify(currentUser));
+
+  // Save to known users list
+  let knownUsers = JSON.parse(localStorage.getItem('ci3_known_users') || '[]');
+  if (!knownUsers.includes(name)) { knownUsers.unshift(name); knownUsers = knownUsers.slice(0,8); localStorage.setItem('ci3_known_users', JSON.stringify(knownUsers)); }
+
+  // Update header
+  document.getElementById('user-overlay').style.display = 'none';
+  document.getElementById('user-chip').style.display = 'flex';
+  const av = document.getElementById('header-avatar');
+  av.textContent = initials;
+  av.style.background = color;
+  av.style.color = '#000';
+  document.getElementById('header-username').textContent = name;
+
+  // Start app
+  loadFromSheets().then(() => startAutoSync());
+}
+
+function switchUser() {
+  if (!confirm('Ganti user? Anda akan diminta memasukkan nama kembali.')) return;
+  currentUser = null;
+  localStorage.removeItem('ci3_user');
+  document.getElementById('user-chip').style.display = 'none';
+  showUserOverlay();
+}
+
+function showUserOverlay() {
+  document.getElementById('user-name-input').value = '';
+  const knownUsers = JSON.parse(localStorage.getItem('ci3_known_users') || '[]');
+  document.getElementById('quick-users').innerHTML = knownUsers.map(u =>
+    `<div class="avatar-btn" onclick="document.getElementById('user-name-input').value='${u}';loginUser()">${u}</div>`
+  ).join('');
+  document.getElementById('user-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('user-name-input').focus(), 100);
+}
+
+// =============================================
+// ===== ACTIVITY LOG =====
+// =============================================
+let activityLog = [];
+let unreadCount = 0;
+
+function logActivity(action, target, projId) {
+  if (!currentUser) return;
+  const entry = {
+    id: genId('ACT'),
+    user: currentUser.name,
+    color: currentUser.color,
+    initials: currentUser.initials,
+    action,
+    target,
+    projId: projId || null,
+    ts: Date.now()
+  };
+  activityLog.unshift(entry);
+  activityLog = activityLog.slice(0, 100); // keep last 100
+  localStorage.setItem('ci3_actlog', JSON.stringify(activityLog));
+}
+
+function loadActivityLog() {
+  activityLog = JSON.parse(localStorage.getItem('ci3_actlog') || '[]');
+}
+
+function clearActivityLog() {
+  if (!confirm('Hapus semua activity log?')) return;
+  activityLog = [];
+  localStorage.setItem('ci3_actlog', JSON.stringify([]));
+  renderActivityLog();
+}
+
+function openActLog() {
+  unreadCount = 0;
+  document.getElementById('notif-badge').classList.remove('show');
+  document.getElementById('notif-badge').textContent = '';
+  renderActivityLog();
+  document.getElementById('actlog-overlay').classList.add('open');
+}
+function closeActLog(e) {
+  if (!e || e.target === document.getElementById('actlog-overlay'))
+    document.getElementById('actlog-overlay').classList.remove('open');
+}
+
+function renderActivityLog() {
+  const body = document.getElementById('actlog-body');
+  if (!activityLog.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>Belum ada aktivitas.</div>';
+    return;
+  }
+  body.innerHTML = activityLog.map(e => {
+    const ts = new Date(e.ts);
+    const timeStr = ts.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}) + ' ' + ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="actlog-item">
+      <div class="actlog-avatar" style="background:${e.color||'var(--accent)'};color:#000;">${e.initials||'?'}</div>
+      <div class="actlog-content">
+        <div class="actlog-user" style="color:${e.color||'var(--accent2)'};">${e.user}</div>
+        <div class="actlog-action"><strong>${e.action}</strong></div>
+        <div class="actlog-target">${e.target||''}</div>
+        ${e.projId ? `<span class="notif-link" onclick="closeActLog();openDetail('${e.projId}')">→ Lihat Project</span>` : ''}
+        <div class="actlog-ts">${timeStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// ===== IN-APP NOTIFICATION TOASTS =====
+// =============================================
+function showNotifToast(entry) {
+  const container = document.getElementById('notif-container');
+  const toast = document.createElement('div');
+  toast.className = 'notif-toast';
+  const ts = new Date(entry.ts);
+  const timeStr = ts.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  toast.innerHTML = `
+    <div class="notif-header">
+      <span class="notif-user" style="color:${entry.color||'var(--accent2)'};">👤 ${entry.user}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="notif-time">${timeStr}</span>
+        <button class="notif-close" onclick="this.closest('.notif-toast').remove()">×</button>
+      </div>
+    </div>
+    <div class="notif-msg"><strong>${entry.action}</strong></div>
+    <div class="notif-detail">${entry.target||''}</div>
+    ${entry.projId ? `<span class="notif-link" onclick="openDetail('${entry.projId}');this.closest('.notif-toast').remove()">→ Lihat Project</span>` : ''}`;
+  container.appendChild(toast);
+  // Bell badge
+  unreadCount++;
+  const badge = document.getElementById('notif-badge');
+  badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+  badge.classList.add('show');
+  // Auto dismiss after 6s
+  setTimeout(() => {
+    toast.classList.add('leaving');
+    setTimeout(() => toast.remove(), 300);
+  }, 6000);
+}
+
+// =============================================
+// ===== OVERRIDE SAVE WITH ACTIVITY LOGGING =====
+// =============================================
+// Wrap saveProject, saveTodo, saveMaterial, etc. to auto-log
+const _origSaveProject = saveProject;
+function saveProject() {
+  const name = document.getElementById('f-name').value.trim();
+  const isEdit = !!editingId;
+  _origSaveProject();
+  if (name) logActivity(isEdit ? 'Update Project' : 'Tambah Project', name, isEdit ? editingId : (projects[0]?.id || null));
+}
+
+// ===== PATCH SAVE to include actlog in payload =====
+const _baseSave = save;
+function save() {
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, activityLog });
+  localStorage.setItem('ci3_cache', payload);
+  if (!SYNC_ENABLED) return;
+  clearTimeout(saveDebounceTimer);
+  setSyncStatus('waiting', 'Menyimpan...');
+  saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
+}
+
+// ===== PATCH applyData to detect remote changes and notify =====
+const _baseApplyData = applyData;
+let _lastDataHash = '';
+function applyData(data) {
+  const newLog = data.activityLog || [];
+  const newHash = JSON.stringify(newLog.slice(0,5).map(e=>e.id));
+
+  // Detect new entries from OTHER users → show toast
+  if (_lastDataHash && newHash !== _lastDataHash && currentUser) {
+    const lastKnown = JSON.parse(localStorage.getItem('ci3_last_log_id') || '""');
+    const newEntries = newLog.filter(e => e.user !== currentUser.name && e.id !== lastKnown && e.ts > (Date.now() - 60000));
+    newEntries.reverse().forEach(e => showNotifToast(e));
+    if (newLog[0]) localStorage.setItem('ci3_last_log_id', JSON.stringify(newLog[0].id));
+  }
+  _lastDataHash = newHash;
+  activityLog = newLog;
+
+  // Call original
+  projects   = data.projects   || [];
+  materials  = data.materials  || [];
+  issues     = data.issues     || [];
+  todos      = data.todos      || [];
+  libFolders = data.libFolders || [];
+  libDocs    = data.libDocs    || [];
+  if (!libFolders.length) {
+    libFolders = [
+      { id:'F1', cat:'SOP',  name:'SOP Produksi',         desc:'SOP umum produksi',           createdAt: Date.now() },
+      { id:'F2', cat:'SOP',  name:'SOP Maintenance',      desc:'SOP perawatan mesin',          createdAt: Date.now() },
+      { id:'F3', cat:'SOP',  name:'SOP SHE',              desc:'SOP keselamatan & lingkungan', createdAt: Date.now() },
+      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',      desc:'Work instruction line 1',      createdAt: Date.now() },
+      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',      desc:'Work instruction line 2',      createdAt: Date.now() },
+      { id:'F6', cat:'Form', name:'Form Checklist Harian',desc:'Form inspeksi harian',         createdAt: Date.now() },
+      { id:'F7', cat:'Form', name:'Form SHE',             desc:'Form laporan insiden SHE',     createdAt: Date.now() },
+    ];
+  }
+  refreshAllUI();
+}
+
+// ===== INLINE MAT: add logging =====
+const _origSaveInlineMat = saveInlineMat;
+function saveInlineMat() {
+  const name = document.getElementById('im-name').value.trim();
+  _origSaveInlineMat();
+  const proj = projects.find(p=>p.id===currentDetailId);
+  if (name && proj) logActivity('Tambah Material', `${name} → ${proj.name}`, proj.id);
+  save();
+}
+
+// ===== TODO: add logging =====
+const _origSaveTodo = saveTodo;
+function saveTodo() {
+  const title = document.getElementById('tf-title').value.trim();
+  const isEdit = !!editingId;
+  _origSaveTodo();
+  if (title) logActivity(isEdit ? 'Update To Do' : 'Tambah To Do', title);
+}
+
+// =============================================
 // ===== INIT =====
-renderDashboard();
-renderTodo();
+// =============================================
+loadActivityLog();
+
+// Check if user already set
+const savedUser = localStorage.getItem('ci3_user');
+if (savedUser) {
+  try {
+    const u = JSON.parse(savedUser);
+    setCurrentUser(u.name);
+  } catch(e) { showUserOverlay(); }
+} else {
+  showUserOverlay();
+}
 </script>
 </body>
 </html>
