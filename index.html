@@ -1014,36 +1014,7 @@ function loadFromLocal() {
   });
 }
 
-function applyData(data) {
-  projects   = data.projects   || [];
-  materials  = data.materials  || [];
-  issues     = data.issues     || [];
-  todos      = data.todos      || [];
-  libFolders = data.libFolders || [];
-  libDocs    = data.libDocs    || [];
-  if (!libFolders.length) {
-    libFolders = [
-      { id:'F1', cat:'SOP',  name:'SOP Produksi',         desc:'SOP umum produksi',           createdAt: Date.now() },
-      { id:'F2', cat:'SOP',  name:'SOP Maintenance',      desc:'SOP perawatan mesin',          createdAt: Date.now() },
-      { id:'F3', cat:'SOP',  name:'SOP SHE',              desc:'SOP keselamatan & lingkungan', createdAt: Date.now() },
-      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',      desc:'Work instruction line 1',      createdAt: Date.now() },
-      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',      desc:'Work instruction line 2',      createdAt: Date.now() },
-      { id:'F6', cat:'Form', name:'Form Checklist Harian',desc:'Form inspeksi harian',         createdAt: Date.now() },
-      { id:'F7', cat:'Form', name:'Form SHE',             desc:'Form laporan insiden SHE',     createdAt: Date.now() },
-    ];
-  }
-  refreshAllUI();
-}
-
-// ===== SAVE TO SHEETS (debounced) =====
-function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs });
-  localStorage.setItem('ci3_cache', payload);
-  if (!SYNC_ENABLED) return;
-  clearTimeout(saveDebounceTimer);
-  setSyncStatus('waiting', 'Menyimpan...');
-  saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
-}
+// applyData and save defined below (after activity log system is ready)
 
 async function pushToSheets(payload) {
   if (isSyncing) { pendingSave = true; return; }
@@ -1213,9 +1184,11 @@ function openTodoModal(id) {
 function saveTodo() {
   const title = document.getElementById('tf-title').value.trim();
   if (!title) { alert('Judul task harus diisi!'); return; }
+  const isEdit = !!editingId;
   const data = { title, desc:document.getElementById('tf-desc').value, dueDate:document.getElementById('tf-date').value, priority:document.getElementById('tf-priority').value, projectId:document.getElementById('tf-project').value, done:false, createdAt:Date.now() };
-  if (editingId) { Object.assign(todos.find(t=>t.id===editingId), data); }
+  if (isEdit) { Object.assign(todos.find(t=>t.id===editingId), data); }
   else { todos.unshift({id:genId('TODO'),...data}); }
+  logActivity(isEdit ? 'Update To Do' : 'Tambah To Do', title);
   save(); closeModal('modal-todo'); renderTodo(); renderDashboard();
 }
 
@@ -1568,9 +1541,12 @@ function getPhases(){return[...document.querySelectorAll('.phase-row')].map(r=>(
 function saveProject() {
   const name=document.getElementById('f-name').value.trim();
   if(!name){alert('Nama project harus diisi!');return;}
+  const isEdit = !!editingId;
+  const prevId = editingId;
   const data={name,category:document.getElementById('f-category').value,ejo:document.getElementById('f-ejo').value.trim(),location:document.getElementById('f-location').value,pic:document.getElementById('f-pic').value,priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,startDate:document.getElementById('f-start').value,endDate:document.getElementById('f-end').value,matStatus:document.getElementById('f-mat-status').value,rootcause:document.getElementById('f-rootcause').value,notes:document.getElementById('f-notes').value,phases:getPhases()};
-  if(editingId){Object.assign(projects.find(p=>p.id===editingId),data);}
+  if(isEdit){Object.assign(projects.find(p=>p.id===prevId),data);}
   else{projects.unshift({id:genId('PRJ'),...data,progress:0,createdAt:Date.now()});}
+  logActivity(isEdit?'Update Project':'Tambah Project', name, isEdit ? prevId : projects[0]?.id);
   save();closeModal('modal-project');renderDashboard();renderAllProjects();
 }
 function delProject(id){if(!confirm('Hapus project?'))return;projects=projects.filter(p=>p.id!==id);save();renderAllProjects();renderDashboard();}
@@ -1681,11 +1657,10 @@ function saveInlineMat() {
     notes: document.getElementById('im-notes').value,
     createdAt: Date.now()
   });
-  save();
-  // Auto-update project matStatus if any pending
   const proj = projects.find(p=>p.id===currentDetailId);
-  if(proj && proj.matStatus==='pending') { proj.matStatus='pending'; }
+  if (proj) logActivity('Tambah Material', `${name} → ${proj.name}`, proj.id);
   document.getElementById('inline-mat-form').style.display='none';
+  save();
   renderDetailMaterials();
   renderDashboard();
   if(document.getElementById('mat-tbody')) renderMaterials();
@@ -1878,19 +1853,10 @@ function showNotifToast(entry) {
 }
 
 // =============================================
-// ===== OVERRIDE SAVE WITH ACTIVITY LOGGING =====
-// =============================================
-// Wrap saveProject, saveTodo, saveMaterial, etc. to auto-log
-const _origSaveProject = saveProject;
-function saveProject() {
-  const name = document.getElementById('f-name').value.trim();
-  const isEdit = !!editingId;
-  _origSaveProject();
-  if (name) logActivity(isEdit ? 'Update Project' : 'Tambah Project', name, isEdit ? editingId : (projects[0]?.id || null));
-}
 
-// ===== PATCH SAVE to include actlog in payload =====
-const _baseSave = save;
+// =============================================
+// ===== PATCH save() — include activityLog =====
+// =============================================
 function save() {
   const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, activityLog });
   localStorage.setItem('ci3_cache', payload);
@@ -1900,24 +1866,21 @@ function save() {
   saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
 }
 
-// ===== PATCH applyData to detect remote changes and notify =====
-const _baseApplyData = applyData;
+// =============================================
+// ===== PATCH applyData — detect remote changes =====
+// =============================================
 let _lastDataHash = '';
 function applyData(data) {
   const newLog = data.activityLog || [];
   const newHash = JSON.stringify(newLog.slice(0,5).map(e=>e.id));
-
-  // Detect new entries from OTHER users → show toast
   if (_lastDataHash && newHash !== _lastDataHash && currentUser) {
-    const lastKnown = JSON.parse(localStorage.getItem('ci3_last_log_id') || '""');
-    const newEntries = newLog.filter(e => e.user !== currentUser.name && e.id !== lastKnown && e.ts > (Date.now() - 60000));
-    newEntries.reverse().forEach(e => showNotifToast(e));
-    if (newLog[0]) localStorage.setItem('ci3_last_log_id', JSON.stringify(newLog[0].id));
+    const lastKnownId = localStorage.getItem('ci3_last_log_id') || '';
+    const newEntries = newLog.filter(e => e.user !== currentUser.name && e.id !== lastKnownId && e.ts > (Date.now()-60000));
+    newEntries.slice().reverse().forEach(e => showNotifToast(e));
+    if (newLog[0]) localStorage.setItem('ci3_last_log_id', newLog[0].id);
   }
   _lastDataHash = newHash;
   activityLog = newLog;
-
-  // Call original
   projects   = data.projects   || [];
   materials  = data.materials  || [];
   issues     = data.issues     || [];
@@ -1926,49 +1889,26 @@ function applyData(data) {
   libDocs    = data.libDocs    || [];
   if (!libFolders.length) {
     libFolders = [
-      { id:'F1', cat:'SOP',  name:'SOP Produksi',         desc:'SOP umum produksi',           createdAt: Date.now() },
-      { id:'F2', cat:'SOP',  name:'SOP Maintenance',      desc:'SOP perawatan mesin',          createdAt: Date.now() },
-      { id:'F3', cat:'SOP',  name:'SOP SHE',              desc:'SOP keselamatan & lingkungan', createdAt: Date.now() },
-      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',      desc:'Work instruction line 1',      createdAt: Date.now() },
-      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',      desc:'Work instruction line 2',      createdAt: Date.now() },
-      { id:'F6', cat:'Form', name:'Form Checklist Harian',desc:'Form inspeksi harian',         createdAt: Date.now() },
-      { id:'F7', cat:'Form', name:'Form SHE',             desc:'Form laporan insiden SHE',     createdAt: Date.now() },
+      { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
+      { id:'F2', cat:'SOP',  name:'SOP Maintenance',       desc:'SOP perawatan mesin',          createdAt:Date.now() },
+      { id:'F3', cat:'SOP',  name:'SOP SHE',               desc:'SOP keselamatan & lingkungan', createdAt:Date.now() },
+      { id:'F4', cat:'WI',   name:'WI Mesin Line 1',       desc:'Work instruction line 1',      createdAt:Date.now() },
+      { id:'F5', cat:'WI',   name:'WI Mesin Line 2',       desc:'Work instruction line 2',      createdAt:Date.now() },
+      { id:'F6', cat:'Form', name:'Form Checklist Harian', desc:'Form inspeksi harian',         createdAt:Date.now() },
+      { id:'F7', cat:'Form', name:'Form SHE',              desc:'Form laporan insiden SHE',     createdAt:Date.now() },
     ];
   }
   refreshAllUI();
-}
-
-// ===== INLINE MAT: add logging =====
-const _origSaveInlineMat = saveInlineMat;
-function saveInlineMat() {
-  const name = document.getElementById('im-name').value.trim();
-  _origSaveInlineMat();
-  const proj = projects.find(p=>p.id===currentDetailId);
-  if (name && proj) logActivity('Tambah Material', `${name} → ${proj.name}`, proj.id);
-  save();
-}
-
-// ===== TODO: add logging =====
-const _origSaveTodo = saveTodo;
-function saveTodo() {
-  const title = document.getElementById('tf-title').value.trim();
-  const isEdit = !!editingId;
-  _origSaveTodo();
-  if (title) logActivity(isEdit ? 'Update To Do' : 'Tambah To Do', title);
 }
 
 // =============================================
 // ===== INIT =====
 // =============================================
 loadActivityLog();
-
-// Check if user already set
 const savedUser = localStorage.getItem('ci3_user');
 if (savedUser) {
-  try {
-    const u = JSON.parse(savedUser);
-    setCurrentUser(u.name);
-  } catch(e) { showUserOverlay(); }
+  try { const u = JSON.parse(savedUser); setCurrentUser(u.name); }
+  catch(e) { showUserOverlay(); }
 } else {
   showUserOverlay();
 }
