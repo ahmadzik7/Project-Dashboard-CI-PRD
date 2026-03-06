@@ -2,8 +2,16 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CI Project Command Center v3</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CI Planner">
+  <meta name="application-name" content="CI Planner">
+  <meta name="theme-color" content="#0f1117">
+  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22CI%20Project%20Planner%22%2C%22short_name%22%3A%22CI%20Planner%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%220f1117%22%2C%22theme_color%22%3A%22f59e0b%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgZmlsbD0iIzBmMTExNyIvPjxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIxMTIiIGhlaWdodD0iMTEyIiByeD0iMTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y1OWUwYiIgc3Ryb2tlLXdpZHRoPSI0Ii8%2BPHRleHQgeD0iNjQiIHk9Ijg0IiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjYwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2Y1OWUwYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI%2BQ0k8L3RleHQ%2BPC9zdmc%2B%22%2C%22sizes%22%3A%22128x128%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgZmlsbD0iIzBmMTExNyIvPjxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSIxMTIiIGhlaWdodD0iMTEyIiByeD0iMTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y1OWUwYiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHRleHQgeD0iNjQiIHk9Ijg0IiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjYwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2Y1OWUwYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q0k8L3RleHQ+PC9zdmc+">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI Project Command Center </title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -482,6 +490,76 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   .header-right{gap:4px;}
   #sync-status .sync-status-text{display:none;}
 }
+
+/* ===== MATERIAL EDIT MODAL ===== */
+.mat-row-click{cursor:pointer;transition:background 0.12s;}
+.mat-row-click:hover td{background:rgba(245,158,11,0.06);}
+
+/* ===== CALENDAR DAY POPUP UPGRADE ===== */
+.day-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:450;align-items:center;justify-content:center;}
+.day-modal-overlay.open{display:flex;}
+.day-modal{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);width:360px;max-width:92vw;max-height:80vh;display:flex;flex-direction:column;}
+.day-modal-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.day-modal-title{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;}
+.day-modal-body{overflow-y:auto;padding:10px 16px;}
+.day-modal-item{padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.day-modal-item:last-child{border-bottom:none;}
+.day-modal-item:hover .day-modal-item-label{color:var(--accent);}
+
+/* ===== GANTT CHART ===== */
+.gantt-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.gantt-view-btn{padding:5px 13px;font-family:var(--mono);font-size:10px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.15s;}
+.gantt-view-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.gantt-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px);border:1px solid var(--border);}
+.gantt-table{border-collapse:collapse;min-width:100%;}
+.gantt-table th{background:var(--surface2);padding:6px 8px;font-family:var(--mono);font-size:9px;color:var(--text-muted);border:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;}
+.gantt-table td{border:1px solid var(--border);padding:0;height:32px;vertical-align:middle;}
+.gantt-label-cell{padding:6px 10px;font-size:11px;font-weight:500;white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:1;min-width:180px;max-width:220px;}
+.gantt-type-cell{padding:4px 8px;font-family:var(--mono);font-size:9px;white-space:nowrap;position:sticky;left:180px;background:var(--surface);z-index:1;width:60px;}
+.gantt-day-cell{width:28px;min-width:28px;cursor:pointer;transition:background 0.1s;}
+.gantt-day-cell:hover{background:rgba(245,158,11,0.1);}
+.gantt-day-cell.today-col{background:rgba(245,158,11,0.08);}
+.gantt-day-cell.weekend{background:rgba(255,255,255,0.02);}
+.gantt-bar{height:18px;border-radius:2px;margin:0 1px;display:flex;align-items:center;padding:0 5px;font-family:var(--mono);font-size:8px;font-weight:700;color:#000;white-space:nowrap;overflow:hidden;cursor:pointer;transition:filter 0.15s;}
+.gantt-bar:hover{filter:brightness(1.15);}
+.gantt-bar.cip{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.gantt-bar.sip{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+.gantt-bar.cop{background:linear-gradient(90deg,#10b981,#34d399);}
+.gantt-bar.project{background:linear-gradient(90deg,#a855f7,#c084fc);}
+.gantt-bar.maintenance{background:linear-gradient(90deg,#f43f5e,#fb7185);}
+.gantt-bar.other{background:linear-gradient(90deg,#6b7280,#9ca3af);}
+.gantt-row-head td{background:var(--surface2)!important;}
+.gantt-week-label{text-align:center;font-family:var(--mono);font-size:9px;color:var(--accent);font-weight:700;letter-spacing:0.5px;padding:4px 0;position:sticky;top:0;}
+.gantt-today-marker{width:2px;background:var(--accent);position:absolute;top:0;bottom:0;pointer-events:none;z-index:5;}
+.gantt-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.gantt-leg-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.gantt-leg-dot{width:12px;height:12px;border-radius:2px;}
+
+/* ===== FLOW CANVAS ===== */
+.flow-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);}
+.flow-tool-btn{padding:5px 10px;font-family:var(--mono);font-size:10px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.15s;display:flex;align-items:center;gap:4px;}
+.flow-tool-btn:hover,.flow-tool-btn.active{background:var(--surface2);color:var(--text);border-color:var(--accent);}
+.flow-tool-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+.flow-canvas-wrap{border:1px solid var(--border);background:var(--bg);overflow:hidden;position:relative;height:calc(100vh - 320px);min-height:400px;cursor:default;}
+.flow-canvas{position:absolute;inset:0;}
+.flow-node{position:absolute;cursor:move;user-select:none;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:500;padding:10px 14px;border:2px solid;transition:box-shadow 0.15s;min-width:100px;word-break:break-word;}
+.flow-node.selected{box-shadow:0 0 0 2px var(--accent),0 4px 16px rgba(245,158,11,0.3);}
+.flow-node.process{background:rgba(59,130,246,0.15);border-color:#3b82f6;color:#93c5fd;}
+.flow-node.decision{background:rgba(245,158,11,0.15);border-color:#f59e0b;color:#fcd34d;transform:rotate(0deg);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);min-width:110px;min-height:70px;}
+.flow-node.start{background:rgba(16,185,129,0.15);border-color:#10b981;color:#6ee7b7;border-radius:999px;min-width:80px;}
+.flow-node.end{background:rgba(244,63,94,0.15);border-color:#f43f5e;color:#fda4af;border-radius:999px;min-width:80px;}
+.flow-node.note{background:rgba(168,85,247,0.12);border-color:#a855f7;color:#d8b4fe;border-style:dashed;font-size:11px;font-style:italic;}
+.flow-node-resize{position:absolute;bottom:2px;right:2px;width:10px;height:10px;cursor:se-resize;opacity:0.4;}
+.flow-node-resize:hover{opacity:1;}
+.flow-arrow-btn{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:crosshair;opacity:0;transition:opacity 0.15s;transform:translate(-50%,-50%);}
+.flow-node:hover .flow-arrow-btn{opacity:0.8;}
+.flow-sidebar{width:180px;flex-shrink:0;border:1px solid var(--border);background:var(--surface);padding:10px;}
+.flow-shape-btn{width:100%;padding:7px;margin-bottom:6px;font-size:11px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-dim);text-align:left;transition:all 0.15s;}
+.flow-shape-btn:hover{border-color:var(--accent);color:var(--text);}
+.flow-project-sel{display:flex;flex-direction:column;gap:5px;margin-top:10px;}
+
+/* ===== PWA META ===== */
+.me-label{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:0.8px;display:block;margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -557,6 +635,8 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
   <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP & WI Library</div>
   <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
+  <div class="nav-item" onclick="showPage('gantt',this)"><span class="nav-icon">📊</span> Gantt Chart</div>
+  <div class="nav-item" onclick="showPage('flowcanvas',this)"><span class="nav-icon">🔀</span> Flow Canvas</div>
   <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
   <hr class="nav-sep">
   <div class="nav-label">Kategori Project</div>
@@ -759,53 +839,82 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="note-grid" id="note-grid"></div>
 </div>
 
-<!-- ===== CI FRAMEWORK ===== -->
-<div class="page" id="page-framework">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
-    <div style="background:var(--surface);border:1px solid var(--border);padding:16px;">
-      <div class="detail-sec-label">⚡ Problem-Solving Framework (DMAPM)</div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text-dim);line-height:1.6;">
-        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--danger);"><strong style="color:var(--danger);">1. DEFINE</strong><br>Apa masalahnya? Di mana? Kapan? Dampak ke produksi?</div>
-        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--warn);"><strong style="color:var(--warn);">2. MEASURE</strong><br>Frekuensi, downtime, estimasi kerugian. Data untuk prioritas.</div>
-        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--accent);"><strong style="color:var(--accent);">3. ANALYZE</strong><br>5-Why atau Fishbone. Root cause, bukan symptom.</div>
-        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--accent2);"><strong style="color:var(--accent2);">4. PLAN</strong><br>Buat project entry. Konfirmasi material & jadwal Engineering.</div>
-        <div style="background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--accent3);"><strong style="color:var(--accent3);">5. MONITOR</strong><br>Update tiap 2-3 hari. Hambatan → log Issue → eskalasi.</div>
-      </div>
+<!-- ===== GANTT CHART ===== -->
+<div class="page" id="page-gantt">
+  <div class="gantt-toolbar">
+    <div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:1px;">📊 Gantt Chart</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Jadwal CIP · SIP · COP · Project Engineering — tampilan per minggu</div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);padding:16px;">
-      <div class="detail-sec-label">📧 Template Komunikasi ke Engineering</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:5px;">REQUEST PERTAMA</div>
-          <div style="background:var(--bg);border:1px solid var(--border);padding:9px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.8;white-space:pre-wrap;">Halo [Nama PIC Engineering],
-
-🔧 ISSUE: [Deskripsi masalah]
-📍 LOKASI: [Mesin/Area]
-💥 DAMPAK: [Dampak ke produksi]
-
-Mohon konfirmasi:
-1. Kebutuhan material (list + part no.)
-2. Estimasi hari kerja
-3. Jadwal availability tim
-
-Target: [tanggal] | EJO: [nomor]
-Terima kasih 🙏</div>
-        </div>
-        <div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:5px;">FOLLOW-UP</div>
-          <div style="background:var(--bg);border:1px solid var(--border);padding:9px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.8;white-space:pre-wrap;">Halo [Nama],
-
-Follow-up: [nama project / EJO]
-
-✅ Issue sudah diidentifikasi
-⏳ Menunggu info material & jadwal
-
-Ada update? cc: [Atasan jika perlu]</div>
-        </div>
-      </div>
+    <div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;">
+      <button class="gantt-view-btn" onclick="ganttShiftWeeks(-1)">‹ Mundur</button>
+      <button class="gantt-view-btn active" onclick="ganttToday()">Hari Ini</button>
+      <button class="gantt-view-btn" onclick="ganttShiftWeeks(1)">Maju ›</button>
+      <select id="gantt-weeks-sel" onchange="renderGantt()" style="font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;">
+        <option value="4">4 Minggu</option>
+        <option value="8" selected>8 Minggu</option>
+        <option value="12">12 Minggu</option>
+      </select>
+      <button class="btn-primary" onclick="openGanttModal()">+ Jadwal</button>
     </div>
   </div>
+  <div class="gantt-wrap" id="gantt-wrap">
+    <table class="gantt-table" id="gantt-table"></table>
+  </div>
+  <div class="gantt-legend">
+    <div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div>CIP</div>
+    <div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>SIP</div>
+    <div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:linear-gradient(90deg,#10b981,#34d399)"></div>COP</div>
+    <div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:linear-gradient(90deg,#a855f7,#c084fc)"></div>Project CI</div>
+    <div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:linear-gradient(90deg,#f43f5e,#fb7185)"></div>Maintenance</div>
+    <div class="gantt-leg-item"><div class="gantt-leg-dot" style="background:linear-gradient(90deg,#6b7280,#9ca3af)"></div>Lainnya</div>
+  </div>
 </div>
+
+<!-- ===== FLOW CANVAS ===== -->
+<div class="page" id="page-flowcanvas">
+  <div class="flow-toolbar">
+    <div>
+      <div style="font-size:15px;font-weight:600;">🔀 Flow Canvas</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Buat flowchart / diagram alur setiap project</div>
+    </div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;">
+      <select id="flow-project-sel" onchange="loadFlowForProject()" style="font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;max-width:180px;">
+        <option value="">— Pilih Project —</option>
+      </select>
+      <button class="flow-tool-btn" onclick="addFlowNode('start')" title="Tambah node Start">⬤ Start</button>
+      <button class="flow-tool-btn" onclick="addFlowNode('process')" title="Tambah Process">▭ Proses</button>
+      <button class="flow-tool-btn" onclick="addFlowNode('decision')" title="Tambah Decision">◇ Decision</button>
+      <button class="flow-tool-btn" onclick="addFlowNode('end')" title="Tambah End">⬤ End</button>
+      <button class="flow-tool-btn" onclick="addFlowNode('note')" title="Tambah Catatan">✎ Note</button>
+      <div style="width:1px;background:var(--border);height:24px;"></div>
+      <button class="flow-tool-btn" id="flow-connect-btn" onclick="toggleConnectMode()" title="Mode sambung node">🔗 Connect</button>
+      <button class="flow-tool-btn danger" onclick="deleteSelectedFlowNode()" title="Hapus node terpilih">🗑 Hapus</button>
+      <button class="flow-tool-btn" onclick="clearFlowCanvas()" title="Bersihkan canvas">✕ Clear</button>
+      <button class="flow-tool-btn" onclick="autoLayoutFlow()" title="Auto rapikan posisi">⟳ Layout</button>
+      <button class="btn-teal" onclick="saveFlowCanvas()" style="font-size:10px;padding:5px 12px;">💾 Simpan</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:0;height:calc(100vh - 260px);min-height:420px;">
+    <div class="flow-canvas-wrap" id="flow-canvas-wrap">
+      <svg id="flow-svg" class="flow-canvas" style="width:100%;height:100%;">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="var(--border)"/>
+          </marker>
+          <marker id="arrowhead-sel" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent)"/>
+          </marker>
+        </defs>
+      </svg>
+      <div id="flow-nodes-layer" style="position:absolute;inset:0;pointer-events:none;"></div>
+    </div>
+  </div>
+  <div style="margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--text-muted);">
+    💡 Klik node untuk pilih · Drag untuk geser · <strong style="color:var(--teal)">Connect mode</strong> → klik node asal lalu node tujuan untuk sambungkan · Double-click node untuk edit teks
+  </div>
+</div>
+
 
 </div><!-- /main -->
 </div><!-- /app -->
@@ -962,195 +1071,136 @@ Ada update? cc: [Atasan jika perlu]</div>
   </div>
 </div>
 
-<!-- ===== MODAL ISSUE ===== -->
-<div class="modal-overlay" id="modal-issue">
-  <div class="modal" style="width:490px;">
-    <div class="modal-header"><span class="modal-title">LOG ISSUE BARU</span><button class="modal-close" onclick="closeModal('modal-issue')">×</button></div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Judul Issue *</label><input type="text" id="if-title"></div>
-        <div class="form-group"><label>Terkait Project</label><select id="if-project"></select></div>
-        <div class="form-group"><label>Urgensi</label><select id="if-severity"><option value="critical">Critical</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
-        <div class="form-group full"><label>Deskripsi & Rencana Tindak Lanjut</label><textarea id="if-desc"></textarea></div>
-        <div class="form-group"><label>Tanggal Temukan</label><input type="date" id="if-date"></div>
-        <div class="form-group"><label>Deadline Resolve</label><input type="date" id="if-deadline"></div>
+
+</div>
+
+<!-- ===== POPUP EDIT MATERIAL (slide panel) ===== -->
+<div id="mat-edit-backdrop" onclick="closeMatEditModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;"></div>
+<div id="mat-edit-popup" style="display:none;position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--surface);border-left:2px solid var(--teal);z-index:501;flex-direction:column;">
+  <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--teal);letter-spacing:1px;">EDIT MATERIAL</div>
+      <div id="me-mat-name-label" style="font-size:11px;color:var(--text-dim);margin-top:2px;"></div>
+    </div>
+    <button onclick="closeMatEditModal()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;line-height:1;padding:0 4px;">×</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+    <div>
+      <label class="me-label">NAMA MATERIAL *</label>
+      <input type="text" id="me-name" style="width:100%;">
+    </div>
+    <div>
+      <label class="me-label">PART NUMBER</label>
+      <input type="text" id="me-partno" style="width:100%;">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <label class="me-label">QTY</label>
+        <input type="number" id="me-qty" min="0" style="width:100%;">
+      </div>
+      <div>
+        <label class="me-label">SATUAN</label>
+        <select id="me-unit" style="width:100%;">
+          <option>pcs</option><option>meter</option><option>liter</option><option>kg</option>
+          <option>set</option><option>roll</option><option>box</option>
+          <option>lbr</option><option>klg</option><option>btg</option><option>un</option><option>gln</option><option>tbg</option>
+        </select>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-issue')">Batal</button><button class="btn-primary" onclick="saveIssue()">LOG ISSUE</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <label class="me-label">STATUS</label>
+        <select id="me-status" style="width:100%;">
+          <option value="pending">⏳ Pending</option>
+          <option value="order">🚚 On Order</option>
+          <option value="ready">✅ Ready</option>
+        </select>
+      </div>
+      <div>
+        <label class="me-label">ETA</label>
+        <input type="date" id="me-eta" style="width:100%;">
+      </div>
+    </div>
+    <div>
+      <label class="me-label">NO PR</label>
+      <input type="text" id="me-nopr" placeholder="PR-2024-XXX" style="width:100%;">
+    </div>
+    <div>
+      <label class="me-label">TANGGAL NAIK PR</label>
+      <input type="date" id="me-tglpr" style="width:100%;">
+    </div>
+    <div>
+      <label class="me-label">CATATAN</label>
+      <textarea id="me-notes" rows="3" style="width:100%;resize:vertical;"></textarea>
+    </div>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid var(--border);background:var(--surface2);display:flex;gap:6px;">
+    <button onclick="deleteMaterialFromEdit()" style="background:transparent;border:1px solid var(--danger);color:var(--danger);padding:8px 10px;cursor:pointer;font-family:var(--mono);font-size:10px;">🗑</button>
+    <button onclick="closeMatEditModal()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:8px;cursor:pointer;font-family:var(--mono);font-size:10px;flex:1;">Batal</button>
+    <button onclick="saveMatEdit()" style="background:var(--teal);border:none;color:#000;padding:8px 14px;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;flex:2;">SIMPAN ✓</button>
   </div>
 </div>
 
-<!-- ===== MODAL CI NOTE ===== -->
-<div class="modal-overlay" id="modal-note">
-  <div class="modal" style="width:600px;border-top-color:var(--teal);">
-    <div class="modal-header"><span class="modal-title" id="modal-note-title">TAMBAH CI NOTE</span><button class="modal-close" onclick="closeModal('modal-note')">×</button></div>
+<!-- ===== MODAL GANTT ENTRY ===== -->
+<div class="modal-overlay" id="modal-gantt">
+  <div class="modal" style="width:560px;border-top-color:var(--accent);">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-gantt-title">TAMBAH JADWAL</span>
+      <button class="modal-close" onclick="closeModal('modal-gantt')">×</button>
+    </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group full"><label>Judul Catatan *</label><input type="text" id="nf-title" placeholder="Contoh: Toleransi Ukuran Part X, Flow Proses Filling, dll"></div>
-        <div class="form-group full">
-          <label>Tag (klik tag yang ada, atau ketik + Enter untuk buat baru)</label>
-          <div class="tag-input-row" id="nf-tags-container" onclick="document.getElementById('nf-tag-input').focus()">
-            <!-- selected tags will be inserted here as chips -->
-            <input type="text" id="nf-tag-input" class="tag-input-inline" placeholder="Ketik tag baru lalu Enter..." maxlength="20" onkeydown="handleTagInput(event)" oninput="renderTagSuggestions()">
-          </div>
-          <!-- Existing tag suggestions -->
-          <div id="nf-tag-suggestions" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;"></div>
+        <div class="form-group full"><label>Nama Jadwal / Kegiatan *</label>
+          <input type="text" id="gf-name" placeholder="Contoh: CIP Line 1, SIP Mesin Filling, dll"></div>
+        <div class="form-group"><label>Tipe *</label>
+          <select id="gf-type">
+            <option value="cip">CIP — Cleaning In Place</option>
+            <option value="sip">SIP — Sterilization In Place</option>
+            <option value="cop">COP — Cleaning Out of Place</option>
+            <option value="project">Project CI</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="other">Lainnya</option>
+          </select>
         </div>
-        <div class="form-group"><label>Terkait Project (Opsional)</label>
-          <select id="nf-project"><option value="">— Tidak terkait —</option></select>
+        <div class="form-group"><label>PIC / Tim</label><input type="text" id="gf-pic" placeholder="Nama PIC atau tim"></div>
+        <div class="form-group"><label>Lokasi / Mesin</label><input type="text" id="gf-loc" placeholder="Line 1, Mesin Filling, dll"></div>
+        <div class="form-group"><label>Tanggal Mulai *</label><input type="date" id="gf-start"></div>
+        <div class="form-group"><label>Tanggal Selesai *</label><input type="date" id="gf-end"></div>
+        <div class="form-group full"><label>Catatan</label><textarea id="gf-notes" rows="2" placeholder="Info tambahan, repeat schedule, dll"></textarea></div>
+        <div class="form-group"><label>Ulangi Tiap (opsional)</label>
+          <select id="gf-repeat">
+            <option value="">Tidak berulang</option>
+            <option value="weekly">Mingguan</option>
+            <option value="biweekly">2 Minggu sekali</option>
+            <option value="monthly">Bulanan</option>
+          </select>
         </div>
-        <div class="form-group"><label>Link Referensi / Drive (Opsional)</label>
-          <input type="text" id="nf-link" placeholder="https://drive.google.com/... atau link lain">
-        </div>
-        <div class="form-group full"><label>Isi Catatan *</label>
-          <textarea id="nf-body" rows="7" placeholder="Tulis catatan detail di sini...&#10;Contoh:&#10;- Toleransi ukuran part A: ±0.05 mm&#10;- Cek dengan alat ukur setiap 2 jam&#10;- Jika melebihi toleransi → stop produksi"></textarea>
-        </div>
+        <div class="form-group"><label>Sampai Tanggal</label><input type="date" id="gf-repeat-until" placeholder="Batas pengulangan"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('modal-note')">Batal</button>
-      <button class="btn-teal" onclick="saveNote()">SIMPAN NOTE</button>
+      <button class="btn-danger" id="gantt-del-btn" onclick="deleteGanttEntry()" style="display:none;">Hapus</button>
+      <button class="btn-secondary" onclick="closeModal('modal-gantt')">Batal</button>
+      <button class="btn-primary" onclick="saveGanttEntry()">SIMPAN JADWAL</button>
     </div>
   </div>
 </div>
 
-<!-- ===== MODAL FOLDER ===== -->
-<div class="modal-overlay" id="modal-folder">
-  <div class="modal" style="width:420px;border-top-color:var(--purple);">
-    <div class="modal-header"><span class="modal-title">BUAT FOLDER BARU</span><button class="modal-close" onclick="closeModal('modal-folder')">×</button></div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group"><label>Kategori Utama *</label>
-          <select id="ff-cat">
-            <option value="SOP">SOP (Standard Operating Procedure)</option>
-            <option value="WI">WI (Work Instruction)</option>
-            <option value="Form">Form / Checklist</option>
-            <option value="Other">Lainnya</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Nama Sub-Folder *</label><input type="text" id="ff-name" placeholder="Contoh: SOP Produksi Line 1"></div>
-        <div class="form-group full"><label>Deskripsi (Opsional)</label><input type="text" id="ff-desc" placeholder="Deskripsi singkat folder ini"></div>
-      </div>
+<!-- ===== MODAL CALENDAR DAY (full event list) ===== -->
+<div class="day-modal-overlay" id="day-modal-overlay" onclick="closeDayModal(event)">
+  <div class="day-modal" onclick="event.stopPropagation()">
+    <div class="day-modal-header">
+      <span class="day-modal-title" id="day-modal-title">EVENT</span>
+      <button class="modal-close" onclick="closeDayModal()">×</button>
     </div>
-    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-folder')">Batal</button><button class="btn-primary" style="background:var(--purple);" onclick="saveFolder()">BUAT FOLDER</button></div>
-  </div>
-</div>
-
-<!-- ===== MODAL DOCUMENT ===== -->
-<div class="modal-overlay" id="modal-doc">
-  <div class="modal" style="width:600px;border-top-color:var(--purple);">
-    <div class="modal-header"><span class="modal-title" id="modal-doc-title">TAMBAH DOKUMEN</span><button class="modal-close" onclick="closeModal('modal-doc')">×</button></div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full"><label>Nama Dokumen *</label><input type="text" id="df-name" placeholder="Contoh: SOP Penanganan Mesin Bocor"></div>
-        <div class="form-group"><label>Nomor Dokumen</label><input type="text" id="df-number" placeholder="Contoh: SOP-PRD-001"></div>
-        <div class="form-group"><label>Tipe Dokumen</label>
-          <select id="df-type"><option value="sop">SOP</option><option value="wi">WI</option><option value="form">Form</option><option value="other">Lainnya</option></select>
-        </div>
-        <div class="form-group"><label>Versi / Revisi</label><input type="text" id="df-rev" placeholder="Contoh: Rev.02"></div>
-        <div class="form-group"><label>Tanggal Efektif</label><input type="date" id="df-date"></div>
-        <div class="form-group"><label>PIC / Pembuat</label><input type="text" id="df-pic" placeholder="Nama pembuat / penanggung jawab"></div>
-        <div class="form-group full"><label>Folder</label><select id="df-folder"></select></div>
-        <div class="form-group full" style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.2);padding:12px;gap:8px;">
-          <label style="color:var(--purple);">Link Dokumen (Google Drive / SharePoint / URL)</label>
-          <input type="url" id="df-link" placeholder="https://drive.google.com/... atau link eksternal lainnya" style="border-color:rgba(168,85,247,0.3);">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:2px;">Tempel link dari Google Drive, SharePoint, OneDrive, atau sistem DMS perusahaan</div>
-        </div>
-        <div class="form-group full"><label>Catatan / Scope</label><textarea id="df-notes" placeholder="Ruang lingkup, catatan khusus, atau keterangan tambahan..."></textarea></div>
-      </div>
-    </div>
-    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('modal-doc')">Batal</button><button class="btn-primary" style="background:var(--purple);" onclick="saveDoc()">SIMPAN DOKUMEN</button></div>
-  </div>
-</div>
-
-<!-- ===== DETAIL PANEL ===== -->
-<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
-  <div class="detail-panel" onclick="event.stopPropagation()">
-    <div class="detail-header">
-      <div>
-        <div class="detail-id" id="d-id"></div>
-        <div style="margin-bottom:3px;" id="d-cat-badge"></div>
-        <div class="detail-title-text" id="d-title"></div>
-      </div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <button class="btn-secondary btn-sm" onclick="editProject()">Edit</button>
-        <button class="modal-close" onclick="closeDetail()">×</button>
-      </div>
-    </div>
-    <div class="detail-body">
-      <div class="detail-section">
-        <div class="detail-sec-label">Info Project</div>
-        <div class="detail-row"><span class="detail-key">EJO</span><span class="detail-val" id="d-ejo"></span></div>
-        <div class="detail-row"><span class="detail-key">Lokasi</span><span class="detail-val" id="d-loc"></span></div>
-        <div class="detail-row"><span class="detail-key">PIC Engineering</span><span class="detail-val" id="d-pic"></span></div>
-        <div class="detail-row"><span class="detail-key">Prioritas</span><span class="detail-val" id="d-prio"></span></div>
-        <div class="detail-row"><span class="detail-key">Status</span><span id="d-status"></span></div>
-        <div class="detail-row"><span class="detail-key">Material</span><span id="d-mat"></span></div>
-        <div class="detail-row"><span class="detail-key">Start Plan</span><span class="detail-val" id="d-start"></span></div>
-        <div class="detail-row"><span class="detail-key">Deadline</span><span class="detail-val" id="d-end"></span></div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-sec-label">Root Cause</div>
-        <div id="d-rootcause" style="font-size:12px;color:var(--text-dim);line-height:1.6;"></div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-sec-label">Catatan</div>
-        <div id="d-notes" style="font-size:12px;color:var(--text-dim);line-height:1.6;"></div>
-      </div>
-      <div class="detail-section" id="d-gdrive-section" style="display:none;">
-        <div class="detail-sec-label">📸 Foto / Google Drive</div>
-        <div id="d-gdrive-link" style="font-size:12px;"></div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-sec-label">Fase Pengerjaan</div>
-        <div id="d-phases"></div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-sec-label">Update Status & Progress</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
-          <select id="d-status-sel"><option value="open">Open</option><option value="inprogress">In Progress</option><option value="waiting">Waiting Material</option><option value="blocked">Blocked</option><option value="done">Done</option></select>
-          <input type="number" id="d-prog-input" placeholder="Progress %" min="0" max="100">
-        </div>
-        <button class="btn-primary" style="width:100%;font-size:11px;" onclick="updateStatus()">UPDATE STATUS</button>
-      </div>
-      <div class="detail-section">
-        <div class="detail-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Material Kebutuhan Project</span>
-          <button class="btn-teal" style="font-size:10px;padding:3px 9px;" onclick="toggleMatForm()">+ Tambah</button>
-        </div>
-
-        <!-- INLINE MATERIAL FORM -->
-        <div id="inline-mat-form" style="display:none;background:var(--bg);border:1px solid var(--border);border-top:2px solid var(--teal);padding:12px;margin-bottom:10px;">
-          <div style="font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:1px;margin-bottom:10px;">INPUT MATERIAL BARU</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-            <div class="form-group full"><label>Nama Material *</label><input type="text" id="im-name" placeholder="Contoh: Pipa PVC 2 inch"></div>
-            <div class="form-group"><label>Part Number</label><input type="text" id="im-partno" placeholder="Opsional"></div>
-            <div class="form-group"><label>Qty</label><input type="number" id="im-qty" min="1" placeholder="0"></div>
-            <div class="form-group"><label>Satuan</label>
-              <select id="im-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option><option>lbr</option><option>klg</option><option>btg</option><option>un</option><option>gln</option><option>tbg</option></select>
-            </div>
-            <div class="form-group"><label>Status</label>
-              <select id="im-status"><option value="pending">Pending / Belum Diorder</option><option value="order">Sudah Diorder</option><option value="ready">Ready di Gudang</option></select>
-            </div>
-            <div class="form-group"><label>ETA (Est. Tiba)</label><input type="date" id="im-eta"></div>
-            <div class="form-group full"><label>No PR</label><input type="text" id="im-nopr" placeholder="Nomor Purchase Request"></div>
-            <div class="form-group full"><label>Catatan</label><input type="text" id="im-notes" placeholder="Catatan tambahan..."></div>
-          </div>
-          <div style="display:flex;gap:6px;justify-content:flex-end;">
-            <button class="btn-secondary btn-sm" onclick="toggleMatForm()">Batal</button>
-            <button class="btn-teal" style="font-size:10px;padding:4px 12px;" onclick="saveInlineMat()">SIMPAN MATERIAL</button>
-          </div>
-        </div>
-
-        <!-- MATERIAL LIST -->
-        <div id="d-materials"></div>
-      </div>
-    </div>
+    <div class="day-modal-body" id="day-modal-body"></div>
   </div>
 </div>
 
 <!-- DAY POPUP -->
 <div id="day-popup" class="day-popup"></div>
+<!-- ===== DAY DETAIL MODAL ===== -->
+
 
 <script>
 // ===================================================
@@ -1172,7 +1222,9 @@ let issues     = [];
 let todos      = [];
 let libFolders = [];
 let libDocs    = [];
-let cinotes    = [];
+let cinotes      = [];
+let ganttEntries = [];
+let flowData     = {}; // { projectId: { nodes:[], edges:[] }, '__standalone__':{nodes:[],edges:[]} }
 let activityLog = [];
 let unreadCount = 0;
 let _lastDataHash = '';
@@ -1191,6 +1243,17 @@ let editingNoteId   = null;
 let currentUser     = null;
 let currentMatTab   = 'single';
 let pendingPhotos   = []; // base64 photos for new/edit project
+let editingMatId    = null;
+let editingGanttId  = null;
+let ganttStartDate  = null; // Date object — first day shown
+let flowNodes       = [];
+let flowEdges       = [];
+let selectedFlowId  = null;
+let connectMode     = false;
+let connectFromId   = null;
+let currentFlowProject = '';
+let dragNode        = null;
+let dragOffX=0, dragOffY=0;
 
 function genId(p) { return p + '-' + Date.now() + Math.floor(Math.random()*999); }
 
@@ -1227,7 +1290,9 @@ function applyData(data) {
   todos      = data.todos      || [];
   libFolders = data.libFolders || [];
   libDocs    = data.libDocs    || [];
-  cinotes    = data.cinotes    || [];
+  cinotes     = data.cinotes     || [];
+  ganttEntries= data.ganttEntries|| [];
+  flowData    = data.flowData    || {};
   if (!libFolders.length) {
     libFolders = [
       { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
@@ -1244,7 +1309,7 @@ function applyData(data) {
 
 // ===== save — defined FIRST so all functions can call it =====
 function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, activityLog });
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttEntries, flowData, activityLog });
   localStorage.setItem('ci3_cache', payload);
   if (!SYNC_ENABLED) { setSyncStatus('offline', 'Lokal saja'); return; }
   clearTimeout(saveDebounceTimer);
@@ -1254,14 +1319,32 @@ function save() {
 
 // ===== LOAD FROM SHEETS =====
 async function loadFromSheets() {
+  // Jika dibuka dari file lokal atau preview (bukan server), skip sync langsung
+  const isLocal = location.protocol === 'file:' || 
+                  location.hostname === 'localhost' || 
+                  location.hostname === '127.0.0.1' ||
+                  location.hostname.includes('github.io') === false && location.hostname !== '';
+  
   if (!SYNC_ENABLED) {
-    setSyncStatus('offline', 'Belum ada URL Sheets');
+    setSyncStatus('offline', 'Lokal saja');
     loadFromLocal();
     return;
   }
+
+  // Jika file:// protocol, langsung pakai lokal — fetch tidak bisa berjalan
+  if (location.protocol === 'file:') {
+    setSyncStatus('offline', 'Mode lokal (preview)');
+    loadFromLocal();
+    return;
+  }
+
   setSyncStatus('syncing', 'Memuat data...');
   try {
-    const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
+    // Timeout 8 detik agar tidak stuck
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET', signal: controller.signal });
+    clearTimeout(timeout);
     const text = await res.text();
     // Validate it's JSON before using
     const data = JSON.parse(text);
@@ -1270,7 +1353,7 @@ async function loadFromSheets() {
     lastSyncTime = new Date();
     setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
   } catch(e) {
-    console.warn('Sheets load failed:', e);
+    console.warn('Sheets load failed:', e.message || e);
     setSyncStatus('error', 'Gagal konek — pakai lokal');
     loadFromLocal();
   }
@@ -1289,7 +1372,9 @@ function loadFromLocal() {
     todos:     JSON.parse(localStorage.getItem('ci3_todos')     || '[]'),
     libFolders:JSON.parse(localStorage.getItem('ci3_folders')   || '[]'),
     libDocs:   JSON.parse(localStorage.getItem('ci3_docs')      || '[]'),
-    cinotes:   JSON.parse(localStorage.getItem('ci3_cinotes')   || '[]'),
+    cinotes:     JSON.parse(localStorage.getItem('ci3_cinotes')     || '[]'),
+    ganttEntries:JSON.parse(localStorage.getItem('ci4_gantt')        || '[]'),
+    flowData:    JSON.parse(localStorage.getItem('ci4_flow')         || '{}'),
   });
 }
 
@@ -1345,7 +1430,7 @@ function refreshAllUI() {
   const ap = document.querySelector('.page.active');
   if (ap) {
     const pid = ap.id.replace('page-','');
-    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes })[pid]?.();
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt, flowcanvas:initFlowCanvas })[pid]?.();
   }
   if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
 }
@@ -1357,7 +1442,7 @@ function showPage(name, el) {
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
   currentCatFilter = '';
-  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, framework: ()=>{} };
+  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: ()=>{ renderGantt(); }, flowcanvas: ()=>{ initFlowCanvas(); }, framework: ()=>{} };
   if (renders[name]) renders[name]();
 }
 function filterCat(cat, el) {
@@ -1597,7 +1682,7 @@ function renderMaterials() {
     const proj = projects.find(p=>p.id===m.projectId);
     const isUsed = m.status==='used';
     const rowCls = isUsed ? 'mat-used' : '';
-    return `<tr class="${rowCls}">
+    return `<tr class="mat-row-click ${rowCls}" onclick="openMatEdit('${m.id}')" title="Klik untuk edit material">
       <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${proj?proj.name:'—'}</td>
       <td style="font-weight:500;">${m.name}</td>
       <td style="font-family:var(--mono);font-size:9px;">${m.partno||'—'}</td>
@@ -1607,12 +1692,12 @@ function renderMaterials() {
       <td style="font-family:var(--mono);font-size:9px;">${fmt(m.eta)}</td>
       <td style="font-family:var(--mono);font-size:10px;">${m.nopr||'—'}</td>
       <td style="font-family:var(--mono);font-size:9px;">${fmt(m.tglpr)}</td>
-      <td>${isUsed?'<span style="font-size:10px;color:var(--text-muted);">Used</span>':`<select onchange="updMatStatus('${m.id}',this.value)" style="font-size:10px;padding:3px;width:95px;" onclick="event.stopPropagation()">
+      <td onclick="event.stopPropagation()">${isUsed?'<span style="font-size:10px;color:var(--text-muted);">Used</span>':`<select onclick="event.stopPropagation()" onchange="updMatStatus('${m.id}',this.value)" style="font-size:10px;padding:3px;width:95px;">
         <option value="pending" ${m.status==='pending'?'selected':''}>Pending</option>
         <option value="order"   ${m.status==='order'  ?'selected':''}>On Order</option>
         <option value="ready"   ${m.status==='ready'  ?'selected':''}>Ready</option>
       </select>`}</td>
-      <td><button class="btn-danger" style="padding:2px 7px;font-size:10px;" onclick="delMat('${m.id}')">×</button></td>
+      <td onclick="event.stopPropagation()"><button class="btn-danger" style="padding:2px 7px;font-size:10px;" onclick="event.stopPropagation();delMat('${m.id}')">×</button></td>
     </tr>`;
   }).join('') : `<tr><td colspan="11" class="empty-state"><div class="empty-icon">⬡</div>Tidak ada material ditemukan.</td></tr>`;
 }
@@ -1812,40 +1897,21 @@ function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalend
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 function calToday(){calYear=new Date().getFullYear();calMonth=new Date().getMonth();renderCalendar();}
 
-function calCellClick(dateStr,event) {
-  const popup=document.getElementById('day-popup');
+function calCellClick(dateStr, ev) {
+  ev && ev.stopPropagation();
+  document.getElementById('day-popup').style.display='none';
   const items=[];
   projects.forEach(p=>{
-    if(p.startDate===dateStr) items.push({label:`▶ Start: ${p.name}`,cat:p.category,ejo:p.ejo,projId:p.id,type:'project'});
-    if(p.endDate===dateStr) items.push({label:`■ Deadline: ${p.name}`,cat:p.category,ejo:p.ejo,projId:p.id,type:'project'});
-    (p.phases||[]).forEach(ph=>{
-      if(ph.start===dateStr) items.push({label:`◆ Fase: ${ph.name} (${p.name})`,cat:p.category,projId:p.id,type:'phase'});
-      if(ph.end===dateStr) items.push({label:`◇ Selesai: ${ph.name} (${p.name})`,cat:p.category,projId:p.id,type:'phase'});
-    });
+    if(p.startDate&&p.endDate&&dateStr>=p.startDate&&dateStr<=p.endDate){
+      items.push({label:p.name,type:'project',cat:p.category,ejo:p.ejo,status:p.status,projId:p.id});
+    }
   });
   todos.filter(t=>t.dueDate===dateStr).forEach(t=>{
-    items.push({label:`☑ ${t.title}`,prio:t.priority,done:t.done,todoId:t.id,type:'todo'});
+    items.push({label:t.title,type:'todo',todoId:t.id,prio:t.priority,done:t.done});
   });
-  materials.filter(m=>m.eta===dateStr&&m.status!=='ready').forEach(m=>{
-    const proj=projects.find(p=>p.id===m.projectId);
-    items.push({label:`📦 ETA: ${m.name}${proj?` (${proj.name})`:''}`,type:'mat'});
-  });
-  if(!items.length)return;
-  const rect=event.currentTarget.getBoundingClientRect();
-  const x=Math.min(rect.left,window.innerWidth-290);
-  const y=Math.min(rect.bottom+4,window.innerHeight-200);
-  popup.style.left=x+'px'; popup.style.top=y+'px';
-  popup.innerHTML=`<div class="day-popup-title">${fmt(dateStr)}<button class="day-popup-close" onclick="document.getElementById('day-popup').style.display='none'">×</button></div>`+
-    items.map(it=>`<div class="day-popup-item" style="cursor:${it.projId||it.todoId?'pointer':'default'}" onclick="${it.projId?`openDetail('${it.projId}');document.getElementById('day-popup').style.display='none'`:it.todoId?`openTodoModal('${it.todoId}');document.getElementById('day-popup').style.display='none'`:''}">
-      <div class="day-popup-item-label" style="${it.done?'text-decoration:line-through;color:var(--text-muted)':''}${it.type==='todo'?';color:var(--teal)':''}">${it.label}</div>
-      <div class="day-popup-item-meta">${it.cat?catBadge(it.cat):''}${it.ejo?`<span class="ejo-badge">${it.ejo}</span>`:''}${it.prio?`<span class="todo-prio-badge ${it.prio}">${it.prio}</span>`:''}</div>
-    </div>`).join('');
-  popup.style.display='block';
+  openDayModal(dateStr, items);
 }
-document.addEventListener('click',e=>{
-  const p=document.getElementById('day-popup');
-  if(p.style.display!=='none'&&!p.contains(e.target)) p.style.display='none';
-});
+function closeDayModal(ev){if(!ev||ev.target===document.getElementById('day-modal-overlay')) document.getElementById('day-modal-overlay').classList.remove('open');}
 
 // ===== PROJECT MODAL =====
 let phaseCount=0;
@@ -2385,7 +2451,12 @@ function setCurrentUser(name) {
   const av = document.getElementById('header-avatar');
   av.textContent = initials; av.style.background = color; av.style.color = '#000';
   document.getElementById('header-username').textContent = name;
-  loadFromSheets().then(() => startAutoSync());
+  // Langsung load dari lokal dulu agar app langsung bisa dipakai
+  loadFromLocal();
+  // Lalu sync dari Sheets di background (tidak blokir UI)
+  if (SYNC_ENABLED && location.protocol !== 'file:') {
+    setTimeout(() => loadFromSheets().then(() => startAutoSync()), 500);
+  }
 }
 
 function switchUser() {
@@ -2394,6 +2465,497 @@ function switchUser() {
   document.getElementById('user-chip').style.display = 'none';
   showUserOverlay();
 }
+
+
+// ============================================================
+// ===== MATERIAL EDIT MODAL =====
+// ============================================================
+function openMatEdit(id) {
+  const m = materials.find(x=>x.id===id);
+  if(!m) return;
+  editingMatId = id;
+  document.getElementById('me-name').value   = m.name||'';
+  document.getElementById('me-partno').value = m.partno||'';
+  document.getElementById('me-qty').value    = m.qty||'';
+  document.getElementById('me-unit').value   = m.unit||'pcs';
+  document.getElementById('me-status').value = m.status||'pending';
+  document.getElementById('me-eta').value    = m.eta||'';
+  document.getElementById('me-nopr').value   = m.nopr||'';
+  document.getElementById('me-tglpr').value  = m.tglpr||'';
+  document.getElementById('me-notes').value  = m.notes||'';
+  const label = document.getElementById('me-mat-name-label');
+  if(label) label.textContent = m.name || '';
+  document.getElementById('mat-edit-backdrop').style.display='block';
+  document.getElementById('mat-edit-popup').style.display='flex';
+  // Focus first field
+  setTimeout(()=>document.getElementById('me-name')?.focus(),50);
+}
+function closeMatEditModal() {
+  document.getElementById('mat-edit-backdrop').style.display='none';
+  document.getElementById('mat-edit-popup').style.display='none';
+  editingMatId = null;
+}
+function saveMatEdit() {
+  const m = materials.find(x=>x.id===editingMatId);
+  if(!m) return;
+  const name = document.getElementById('me-name').value.trim();
+  if(!name) { alert('Nama material harus diisi!'); return; }
+  m.name   = name;
+  m.partno = document.getElementById('me-partno').value;
+  m.qty    = document.getElementById('me-qty').value;
+  m.unit   = document.getElementById('me-unit').value;
+  m.status = document.getElementById('me-status').value;
+  m.eta    = document.getElementById('me-eta').value;
+  m.nopr   = document.getElementById('me-nopr').value;
+  m.tglpr  = document.getElementById('me-tglpr').value;
+  m.notes  = document.getElementById('me-notes').value;
+  logActivity('Edit Material', name);
+  save(); closeMatEditModal(); renderMaterials(); renderDashboard();
+}
+function deleteMaterialFromEdit() {
+  if(!editingMatId) return;
+  const m = materials.find(x=>x.id===editingMatId);
+  if(!confirm(`Hapus material "${m?.name}"?`)) return;
+  materials = materials.filter(x=>x.id!==editingMatId);
+  logActivity('Hapus Material', m?.name||'');
+  save(); closeMatEditModal(); renderMaterials(); renderDashboard();
+}
+
+// ============================================================
+// ===== GANTT CHART =====
+// ============================================================
+function ganttToday() { ganttStartDate=null; renderGantt(); }
+function ganttShiftWeeks(n) {
+  if(!ganttStartDate) ganttStartDate = getGanttStart();
+  ganttStartDate = new Date(ganttStartDate.getTime() + n*7*86400000);
+  renderGantt();
+}
+function getGanttStart() {
+  if(ganttStartDate) return ganttStartDate;
+  const d = new Date(); d.setDate(d.getDate()-d.getDay()); // Start of current week (Sun)
+  d.setHours(0,0,0,0); return d;
+}
+
+function renderGantt() {
+  const weeksEl = document.getElementById('gantt-weeks-sel');
+  const numWeeks = weeksEl ? parseInt(weeksEl.value)||8 : 8;
+  const startD = getGanttStart();
+  const todayStr2 = new Date().toISOString().slice(0,10);
+
+  // Build date array
+  const dates = [];
+  for(let i=0;i<numWeeks*7;i++){
+    const d=new Date(startD.getTime()+i*86400000);
+    dates.push(d.toISOString().slice(0,10));
+  }
+
+  // Build weeks array
+  const weeks=[];
+  for(let w=0;w<numWeeks;w++){
+    const wd=new Date(startD.getTime()+w*7*86400000);
+    const mo=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+    weeks.push(`W${w+1} ${mo[wd.getMonth()]} ${wd.getDate()}`);
+  }
+
+  const DAY=['M','S','S','R','K','J','S'];
+  let thead=`<tr><th class="gantt-label-cell" style="min-width:180px;position:sticky;left:0;z-index:3;">Kegiatan</th><th style="width:55px;position:sticky;left:180px;z-index:3;">Tipe</th>`;
+  // Week headers
+  weeks.forEach(w=>`<th colspan="7" style="text-align:center;">${w}</th>`);
+  // Merge week headers
+  let weekHeader=`<tr><th class="gantt-label-cell" style="min-width:180px;position:sticky;left:0;z-index:3;background:var(--surface2);">Kegiatan / Jadwal</th><th style="width:55px;position:sticky;left:180px;z-index:3;background:var(--surface2);">Tipe</th>`;
+  weeks.forEach(w=>{ weekHeader+=`<th colspan="7" class="gantt-week-label">${w}</th>`; });
+  weekHeader+='</tr>';
+  let dayHeader=`<tr><th style="position:sticky;left:0;z-index:3;background:var(--surface2);"></th><th style="position:sticky;left:180px;z-index:3;background:var(--surface2);"></th>`;
+  dates.forEach(ds=>{
+    const d=new Date(ds+'T00:00:00');
+    const isWE=d.getDay()===0||d.getDay()===6;
+    const isTd=ds===todayStr2;
+    dayHeader+=`<th style="width:28px;min-width:28px;${isWE?'color:var(--text-muted);':''}${isTd?'color:var(--accent);font-weight:900;':''}">${DAY[d.getDay()]}<br><span style="font-size:8px;">${d.getDate()}</span></th>`;
+  });
+  dayHeader+='</tr>';
+
+  // Build rows — ganttEntries + projects
+  const typeLabel={cip:'CIP',sip:'SIP',cop:'COP',project:'PRJ',maintenance:'MNT',other:'OTH'};
+  const typeColor={cip:'cip',sip:'sip',cop:'cop',project:'project',maintenance:'maintenance',other:'other'};
+
+  let rows='';
+  // Production schedules
+  ganttEntries.forEach(g=>{
+    rows+=buildGanttRow(g.name, typeLabel[g.type]||g.type, typeColor[g.type]||'other', g.start, g.end, dates, todayStr2, `openGanttEdit('${g.id}')`);
+  });
+  // Projects
+  projects.filter(p=>p.startDate&&p.endDate).forEach(p=>{
+    const cat=p.category||'perbaikan';
+    const barClass=cat==='5r'?'project':cat==='she'?'maintenance':cat==='improve'?'project':'other';
+    rows+=buildGanttRow(p.name, 'PRJ', barClass, p.startDate, p.endDate, dates, todayStr2, `openDetail('${p.id}')`);
+  });
+
+  if(!rows) rows=`<tr><td colspan="${dates.length+2}" class="empty-state" style="text-align:center;padding:30px;color:var(--text-muted);">Belum ada jadwal. Klik <strong style="color:var(--accent)">+ Jadwal</strong> untuk tambah CIP/SIP/COP.</td></tr>`;
+
+  const tbl=document.getElementById('gantt-table');
+  if(tbl) tbl.innerHTML=weekHeader+dayHeader+rows;
+}
+
+function buildGanttRow(name, typeStr, barClass, startStr, endStr, dates, todayStr2, onclick) {
+  let cells='';
+  dates.forEach(ds=>{
+    const d=new Date(ds+'T00:00:00');
+    const isWE=d.getDay()===0||d.getDay()===6;
+    const isTd=ds===todayStr2;
+    const inRange = ds>=startStr && ds<=endStr;
+    const isStart = ds===startStr;
+    const isEnd   = ds===endStr;
+    let bar='';
+    if(inRange) {
+      const label = isStart?name:'';
+      bar=`<div class="gantt-bar ${barClass}" style="${isStart?'border-radius:3px 0 0 3px;':isEnd?'border-radius:0 3px 3px 0;':''}" onclick="${onclick}" title="${name} (${startStr} → ${endStr})">${label}</div>`;
+    }
+    cells+=`<td class="gantt-day-cell${isWE?' weekend':''}${isTd?' today-col':''}" style="padding:0;">${bar}</td>`;
+  });
+  return `<tr class="gantt-row">
+    <td class="gantt-label-cell" onclick="${onclick}" title="${name}" style="cursor:pointer;">${name}</td>
+    <td class="gantt-type-cell"><span class="gantt-sched-badge ${barClass}">${typeStr}</span></td>
+    ${cells}
+  </tr>`;
+}
+
+function openGanttModal(id) {
+  editingGanttId = id||null;
+  const el = id ? ganttEntries.find(g=>g.id===id) : null;
+  document.getElementById('modal-gantt-title').textContent = id?'EDIT JADWAL':'TAMBAH JADWAL';
+  document.getElementById('gf-name').value   = el?.name||'';
+  document.getElementById('gf-type').value   = el?.type||'cip';
+  document.getElementById('gf-pic').value    = el?.pic||'';
+  document.getElementById('gf-loc').value    = el?.loc||'';
+  document.getElementById('gf-start').value  = el?.start||new Date().toISOString().slice(0,10);
+  document.getElementById('gf-end').value    = el?.end||'';
+  document.getElementById('gf-notes').value  = el?.notes||'';
+  document.getElementById('gf-repeat').value = el?.repeat||'';
+  document.getElementById('gf-repeat-until').value=el?.repeatUntil||'';
+  const delBtn = document.getElementById('gantt-del-btn');
+  if (delBtn) delBtn.style.display = id ? 'inline-flex' : 'none';
+  document.getElementById('modal-gantt').classList.add('open');
+}
+function openGanttEdit(id) { openGanttModal(id); }
+
+function saveGanttEntry() {
+  const name=document.getElementById('gf-name').value.trim();
+  const start=document.getElementById('gf-start').value;
+  const end=document.getElementById('gf-end').value;
+  if(!name) { alert('Nama jadwal harus diisi!'); return; }
+  if(!start||!end) { alert('Tanggal mulai dan selesai harus diisi!'); return; }
+  if(end<start) { alert('Tanggal selesai tidak boleh sebelum tanggal mulai!'); return; }
+  const entry={
+    id: editingGanttId||genId('GNT'),
+    name, type:document.getElementById('gf-type').value,
+    pic:document.getElementById('gf-pic').value,
+    loc:document.getElementById('gf-loc').value,
+    start, end,
+    notes:document.getElementById('gf-notes').value,
+    repeat:document.getElementById('gf-repeat').value,
+    repeatUntil:document.getElementById('gf-repeat-until').value,
+    createdAt:Date.now()
+  };
+  // Handle repeating
+  if(entry.repeat && entry.repeatUntil) {
+    const toAdd=[entry];
+    const diff=new Date(end)-new Date(start);
+    const step={weekly:7,biweekly:14,monthly:30}[entry.repeat]||7;
+    let cur=new Date(start+'T00:00:00');
+    const until=new Date(entry.repeatUntil+'T00:00:00');
+    cur.setDate(cur.getDate()+step);
+    while(cur<=until) {
+      const ns=cur.toISOString().slice(0,10);
+      const ne=new Date(cur.getTime()+diff).toISOString().slice(0,10);
+      toAdd.push({...entry,id:genId('GNT'),start:ns,end:ne});
+      cur.setDate(cur.getDate()+step);
+    }
+    if(editingGanttId) ganttEntries=ganttEntries.filter(g=>g.id!==editingGanttId);
+    ganttEntries.push(...toAdd);
+  } else {
+    if(editingGanttId) {
+      const idx=ganttEntries.findIndex(g=>g.id===editingGanttId);
+      if(idx>=0) ganttEntries[idx]=entry; else ganttEntries.push(entry);
+    } else ganttEntries.push(entry);
+  }
+  logActivity(editingGanttId?'Edit Jadwal':'Tambah Jadwal',name);
+  save(); closeModal('modal-gantt'); renderGantt();
+}
+
+// ============================================================
+// ===== FLOW CANVAS =====
+// ============================================================
+function initFlowCanvas() {
+  const projSel=document.getElementById('flow-project-sel');
+  if(projSel){
+    const cur=projSel.value;
+    projSel.innerHTML='<option value="">— Standalone Canvas —</option>'+
+      projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+    if(cur) projSel.value=cur;
+  }
+  loadFlowForProject();
+}
+
+function loadFlowForProject() {
+  currentFlowProject=document.getElementById('flow-project-sel')?.value||'';
+  const key=currentFlowProject||'__standalone__';
+  const saved=flowData[key]||{nodes:[],edges:[]};
+  flowNodes=[...saved.nodes.map(n=>({...n}))];
+  flowEdges=[...saved.edges.map(e=>({...e}))];
+  selectedFlowId=null; connectMode=false; connectFromId=null;
+  document.getElementById('flow-connect-btn')?.classList.remove('active');
+  renderFlow();
+}
+
+function saveFlowCanvas() {
+  const key=currentFlowProject||'__standalone__';
+  flowData[key]={nodes:flowNodes.map(n=>({...n})),edges:flowEdges.map(e=>({...e}))};
+  save();
+  showToast('Flow canvas tersimpan ✓','ok');
+}
+
+function clearFlowCanvas() {
+  if(!confirm('Bersihkan semua node dan koneksi?')) return;
+  flowNodes=[]; flowEdges=[]; selectedFlowId=null;
+  renderFlow();
+}
+
+let nodeIdCounter=1;
+function addFlowNode(type) {
+  const wrap=document.getElementById('flow-canvas-wrap');
+  if(!wrap) return;
+  const rect=wrap.getBoundingClientRect();
+  const defaultLabels={start:'Start',end:'End',process:'Proses',decision:'Decision (Ya/Tidak)',note:'Catatan'};
+  const n={
+    id:'node'+(nodeIdCounter++),
+    type, label:defaultLabels[type]||'Node',
+    x:80+Math.random()*Math.max(200,rect.width-200),
+    y:60+Math.random()*Math.max(100,rect.height-180),
+    w:type==='decision'?130:type==='start'||type==='end'?100:140,
+    h:type==='decision'?70:type==='start'||type==='end'?40:50,
+  };
+  flowNodes.push(n);
+  selectedFlowId=n.id;
+  renderFlow();
+}
+
+function deleteSelectedFlowNode() {
+  if(!selectedFlowId) { alert('Pilih node terlebih dahulu!'); return; }
+  flowNodes=flowNodes.filter(n=>n.id!==selectedFlowId);
+  flowEdges=flowEdges.filter(e=>e.from!==selectedFlowId&&e.to!==selectedFlowId);
+  selectedFlowId=null;
+  renderFlow();
+}
+
+function toggleConnectMode() {
+  connectMode=!connectMode;
+  connectFromId=null;
+  const btn=document.getElementById('flow-connect-btn');
+  btn?.classList.toggle('active',connectMode);
+  renderFlow();
+}
+
+function autoLayoutFlow() {
+  if(!flowNodes.length) return;
+  // Simple top-down layered layout
+  const wrap=document.getElementById('flow-canvas-wrap');
+  const W=wrap?.offsetWidth||800;
+  const cols=Math.ceil(Math.sqrt(flowNodes.length));
+  flowNodes.forEach((n,i)=>{
+    n.x=60+(i%cols)*((W-80)/Math.max(cols,1));
+    n.y=60+Math.floor(i/cols)*110;
+  });
+  renderFlow();
+}
+
+function renderFlow() {
+  const wrap=document.getElementById('flow-canvas-wrap');
+  const svg=document.getElementById('flow-svg');
+  const layer=document.getElementById('flow-nodes-layer');
+  if(!wrap||!svg||!layer) return;
+
+  // Render edges in SVG
+  let edgesHtml='';
+  flowEdges.forEach(e=>{
+    const from=flowNodes.find(n=>n.id===e.from);
+    const to=flowNodes.find(n=>n.id===e.to);
+    if(!from||!to) return;
+    const x1=from.x+from.w/2, y1=from.y+from.h/2;
+    const x2=to.x+to.w/2,   y2=to.y+to.h/2;
+    const cx=(x1+x2)/2, cy=(y1+y2)/2;
+    const dx=x2-x1, dy=y2-y1;
+    const d=`M${x1},${y1} C${x1},${cy} ${x2},${cy} ${x2},${y2}`;
+    const isSel=e.from===selectedFlowId||e.to===selectedFlowId;
+    edgesHtml+=`<path d="${d}" fill="none" stroke="${isSel?'var(--accent)':'rgba(100,116,139,0.6)'}" stroke-width="${isSel?2.5:1.5}" marker-end="url(#${isSel?'arrowhead-sel':'arrowhead'})" data-eid="${e.id}" style="cursor:pointer;" onclick="deleteEdge('${e.id}')"/>`;
+    // Edge label if any
+    if(e.label) edgesHtml+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="9" fill="var(--text-muted)" font-family="monospace">${e.label}</text>`;
+  });
+  svg.innerHTML=`<defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(100,116,139,0.8)"/></marker>
+    <marker id="arrowhead-sel" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="var(--accent)"/></marker>
+  </defs>`+edgesHtml;
+
+  // Render nodes as HTML (better text editing)
+  const typeStyles={
+    start:'background:rgba(16,185,129,0.2);border:2px solid #10b981;color:#6ee7b7;border-radius:999px;',
+    end:'background:rgba(244,63,94,0.2);border:2px solid #f43f5e;color:#fda4af;border-radius:999px;',
+    process:'background:rgba(59,130,246,0.15);border:2px solid #3b82f6;color:#93c5fd;',
+    decision:'background:rgba(245,158,11,0.15);border:2px solid #f59e0b;color:#fcd34d;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);',
+    note:'background:rgba(168,85,247,0.12);border:2px dashed #a855f7;color:#d8b4fe;font-style:italic;font-size:11px;',
+  };
+  layer.innerHTML=flowNodes.map(n=>{
+    const isSel=n.id===selectedFlowId;
+    const isFrom=n.id===connectFromId;
+    const style=typeStyles[n.type]||typeStyles.process;
+    return `<div class="flow-node" id="fn-${n.id}"
+      style="left:${n.x}px;top:${n.y}px;width:${n.w}px;min-height:${n.h}px;
+      ${style}
+      ${isSel?'box-shadow:0 0 0 2px var(--accent),0 4px 20px rgba(245,158,11,0.4);':''}
+      ${isFrom?'box-shadow:0 0 0 3px #10b981;':''}
+      pointer-events:all;display:flex;align-items:center;justify-content:center;
+      text-align:center;font-size:12px;font-weight:500;word-break:break-word;
+      position:absolute;cursor:${connectMode?'crosshair':'move'};"
+      onmousedown="flowNodeDown(event,'${n.id}')"
+      ondblclick="editFlowNodeLabel('${n.id}')">
+      ${n.label.replace(/\n/g,'<br>')}
+    </div>`;
+  }).join('');
+  layer.style.pointerEvents='all';
+}
+
+function flowNodeDown(e, id) {
+  if(e.detail>=2) return; // dblclick
+  if(connectMode) {
+    if(!connectFromId) {
+      connectFromId=id;
+      renderFlow();
+    } else if(connectFromId!==id) {
+      // Check if edge already exists
+      const exists=flowEdges.some(ed=>ed.from===connectFromId&&ed.to===id);
+      if(!exists) {
+        flowEdges.push({id:'edge'+(nodeIdCounter++),from:connectFromId,to:id,label:''});
+      }
+      connectFromId=null;
+      renderFlow();
+    }
+    return;
+  }
+  // Drag
+  selectedFlowId=id;
+  const n=flowNodes.find(x=>x.id===id);
+  if(!n) return;
+  const wrap=document.getElementById('flow-canvas-wrap').getBoundingClientRect();
+  dragNode=n;
+  dragOffX=e.clientX-wrap.left-n.x;
+  dragOffY=e.clientY-wrap.top-n.y;
+  renderFlow();
+  e.preventDefault();
+}
+
+document.addEventListener('mousemove',e=>{
+  if(!dragNode) return;
+  const wrap=document.getElementById('flow-canvas-wrap');
+  if(!wrap) return;
+  const rect=wrap.getBoundingClientRect();
+  dragNode.x=Math.max(0,Math.min(e.clientX-rect.left-dragOffX,rect.width-dragNode.w));
+  dragNode.y=Math.max(0,Math.min(e.clientY-rect.top-dragOffY,rect.height-dragNode.h));
+  renderFlow();
+});
+document.addEventListener('mouseup',()=>{ if(dragNode){dragNode=null;} });
+document.addEventListener('touchmove', e=>{
+  if(!dragNode) return;
+  e.preventDefault();
+  const touch=e.touches[0];
+  const wrap=document.getElementById('flow-canvas-wrap');
+  if(!wrap) return;
+  const rect=wrap.getBoundingClientRect();
+  dragNode.x=Math.max(0,Math.min(touch.clientX-rect.left-dragOffX, rect.width-dragNode.w));
+  dragNode.y=Math.max(0,Math.min(touch.clientY-rect.top-dragOffY,  rect.height-dragNode.h));
+  renderFlow();
+},{passive:false});
+document.addEventListener('touchend',()=>{ if(dragNode){dragNode=null;} });
+
+function editFlowNodeLabel(id) {
+  const n=flowNodes.find(x=>x.id===id);
+  if(!n) return;
+  const newLabel=prompt('Edit teks node:',n.label.replace(/<br>/g,'\n'));
+  if(newLabel!==null) { n.label=newLabel; renderFlow(); }
+}
+
+function deleteEdge(eid) {
+  if(!confirm('Hapus koneksi ini?')) return;
+  flowEdges=flowEdges.filter(e=>e.id!==eid);
+  renderFlow();
+}
+
+// Click canvas to deselect
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('flow-canvas-wrap');
+  if(wrap&&wrap.contains(e.target)&&e.target===wrap) {
+    selectedFlowId=null; connectFromId=null;
+    renderFlow();
+  }
+});
+
+function showToast(msg, type='ok') {
+  const container=document.getElementById('notif-container');
+  if(!container) return;
+  const t=document.createElement('div');
+  t.className='notif-toast';
+  t.innerHTML=`<span>${msg}</span>`;
+  container.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+// ============================================================
+// ===== PWA MANIFEST (inline) =====
+// ============================================================
+function installPWA() {
+  const manifest={
+    name:'CI Project Planner',short_name:'CI Planner',
+    description:'Continuous Improvement Project Command Center',
+    start_url:window.location.href,
+    display:'standalone',
+    theme_color:'#0f172a',background_color:'#0f172a',
+    icons:[{src:getCIIconSVG(),sizes:'192x192',type:'image/svg+xml'},{src:getCIIconSVG(),sizes:'512x512',type:'image/svg+xml'}]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('link');
+  link.rel='manifest'; link.href=url;
+  document.head.appendChild(link);
+}
+function getCIIconSVG(){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="38" fill="#0f172a"/><rect x="8" y="8" width="176" height="176" rx="30" fill="none" stroke="#f59e0b" stroke-width="6"/><text x="96" y="128" text-anchor="middle" font-size="100" font-weight="900" font-family="monospace" fill="#f59e0b">CI</text></svg>`;
+  return 'data:image/svg+xml;base64,'+btoa(svg);
+}
+// Inject PWA manifest on load
+(function(){
+  try {
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="38" fill="#0f172a"/><rect x="8" y="8" width="176" height="176" rx="30" fill="none" stroke="#f59e0b" stroke-width="6"/><text x="96" y="128" text-anchor="middle" font-size="100" font-weight="900" font-family="monospace" fill="#f59e0b">CI</text></svg>`;
+    const icon='data:image/svg+xml;base64,'+btoa(svg);
+    const manifest={name:'CI Project Planner',short_name:'CI Planner',description:'Continuous Improvement · Production Dept',start_url:'./',display:'standalone',theme_color:'#0f172a',background_color:'#0f172a',orientation:'any',icons:[{src:icon,sizes:'192x192',type:'image/svg+xml'},{src:icon,sizes:'512x512',type:'image/svg+xml'}]};
+    const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+    const link=document.createElement('link');
+    link.rel='manifest'; link.href=URL.createObjectURL(blob);
+    document.head.appendChild(link);
+    // Apple touch icon
+    const apl=document.createElement('link');
+    apl.rel='apple-touch-icon'; apl.href=icon;
+    document.head.appendChild(apl);
+    // Theme color
+    const mc=document.createElement('meta');
+    mc.name='theme-color'; mc.content='#0f172a';
+    document.head.appendChild(mc);
+    // Mobile webapp
+    ['apple-mobile-web-app-capable','mobile-web-app-capable'].forEach(n=>{
+      const m=document.createElement('meta'); m.name=n; m.content='yes'; document.head.appendChild(m);
+    });
+    const mt=document.createElement('meta');
+    mt.name='apple-mobile-web-app-title'; mt.content='CI Planner';
+    document.head.appendChild(mt);
+  } catch(e){}
+})();
 
 function showUserOverlay() {
   document.getElementById('user-name-input').value = '';
@@ -2514,6 +3076,39 @@ if (savedUser) {
 } else {
   showUserOverlay();
 }
+
+
+// ===== OPEN DAY MODAL =====
+function openDayModal(dateStr, items) {
+  const overlay = document.getElementById('day-modal-overlay');
+  if (!overlay) return;
+  document.getElementById('day-modal-title').textContent = fmt(dateStr);
+  document.getElementById('day-modal-body').innerHTML = items.length
+    ? items.map(it => `
+      <div class="day-modal-item" onclick="${it.projId ? `openDetail('${it.projId}');document.getElementById('day-modal-overlay').classList.remove('open')` : it.todoId ? `openTodoModal('${it.todoId}');document.getElementById('day-modal-overlay').classList.remove('open')` : ''}">
+        <div class="day-modal-item-label" style="${it.done?'text-decoration:line-through;color:var(--text-muted)':''}${it.type==='todo'?';color:var(--teal)':''}">
+          ${it.type==='todo'?'✅':'📌'} ${it.label}
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;margin-top:3px;flex-wrap:wrap;">
+          ${it.cat?catBadge(it.cat):''}
+          ${it.ejo?`<span class="ejo-badge">${it.ejo}</span>`:''}
+          ${it.prio?`<span class="todo-prio-badge ${it.prio}">${it.prio}</span>`:''}
+          ${it.status?statusBadge(it.status):''}
+        </div>
+      </div>`).join('')
+    : '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">Tidak ada event pada tanggal ini.</div>';
+  overlay.classList.add('open');
+}
+
+// ===== DELETE GANTT ENTRY =====
+function deleteGanttEntry() {
+  if (!editingGanttId) return;
+  if (!confirm('Hapus jadwal ini?')) return;
+  ganttEntries = ganttEntries.filter(e => e.id !== editingGanttId);
+  logActivity('Hapus Jadwal', editingGanttId);
+  save(); closeModal('modal-gantt'); renderGantt();
+}
+
 </script>
 </body>
 </html>
