@@ -14,6 +14,7 @@
 <link rel="manifest" id="pwa-manifest">
 <link rel="apple-touch-icon" id="apple-touch-icon">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#0d0f12;--surface:#151820;--surface2:#1c2130;--border:#2a3145;
@@ -548,6 +549,49 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
 .mat-row-clickable{cursor:pointer;}
 .mat-row-clickable:hover td{background:rgba(245,158,11,0.05)!important;}
 
+/* =================== CALIBRATION =================== */
+.calib-status-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:2px;letter-spacing:0.5px;}
+.calib-status-badge.ok{background:rgba(16,185,129,0.15);color:var(--accent3);border:1px solid rgba(16,185,129,0.2);}
+.calib-status-badge.warn{background:rgba(245,158,11,0.15);color:var(--accent);border:1px solid rgba(245,158,11,0.25);}
+.calib-status-badge.overdue{background:rgba(239,68,68,0.15);color:var(--danger);border:1px solid rgba(239,68,68,0.25);}
+.calib-warn-bar{border:1px solid rgba(239,68,68,0.25);border-left:3px solid var(--danger);background:rgba(239,68,68,0.04);padding:10px 16px;margin-bottom:14px;}
+.calib-warn-bar-title{font-family:var(--mono);font-size:10px;color:var(--danger);letter-spacing:1px;margin-bottom:7px;font-weight:700;}
+.calib-warn-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.calib-warn-chip{font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;transition:opacity 0.12s;}
+.calib-warn-chip:hover{opacity:0.8;}
+.calib-warn-chip.danger{background:rgba(239,68,68,0.12);color:var(--danger);border:1px solid rgba(239,68,68,0.2);}
+.calib-warn-chip.amber{background:rgba(245,158,11,0.12);color:var(--accent);border:1px solid rgba(245,158,11,0.2);}
+
+/* =================== HSE REFRESHMENT =================== */
+.hse-status-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:2px;letter-spacing:0.5px;}
+.hse-status-badge.ok{background:rgba(16,185,129,0.15);color:var(--accent3);border:1px solid rgba(16,185,129,0.2);}
+.hse-status-badge.warn{background:rgba(245,158,11,0.15);color:var(--accent);border:1px solid rgba(245,158,11,0.25);}
+.hse-status-badge.overdue{background:rgba(239,68,68,0.15);color:var(--danger);border:1px solid rgba(239,68,68,0.25);}
+.hse-done-btn{background:rgba(16,185,129,0.1);color:var(--accent3);border:1px solid rgba(16,185,129,0.25);cursor:pointer;font-family:var(--mono);font-size:9px;padding:4px 9px;transition:all 0.15s;font-weight:700;}
+.hse-done-btn:hover{background:rgba(16,185,129,0.22);}
+.hse-warn-bar{border:1px solid rgba(239,68,68,0.25);border-left:3px solid var(--cshe);background:rgba(244,63,94,0.04);padding:10px 16px;margin-bottom:14px;}
+.hse-warn-bar-title{font-family:var(--mono);font-size:10px;color:var(--cshe);letter-spacing:1px;margin-bottom:7px;font-weight:700;}
+.hse-warn-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.hse-warn-chip{font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;transition:opacity 0.12s;}
+.hse-warn-chip:hover{opacity:0.8;}
+.hse-warn-chip.danger{background:rgba(239,68,68,0.12);color:var(--danger);border:1px solid rgba(239,68,68,0.2);}
+.hse-warn-chip.amber{background:rgba(245,158,11,0.12);color:var(--accent);border:1px solid rgba(245,158,11,0.2);}
+
+/* =================== EXPORT =================== */
+.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:12px;margin-bottom:20px;}
+.export-card{background:var(--surface);border:1px solid var(--border);padding:16px 18px;display:flex;flex-direction:column;gap:10px;transition:border-color 0.15s;}
+.export-card:hover{border-color:var(--accent3);}
+.export-card-icon{font-size:22px;margin-bottom:2px;}
+.export-card-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.5px;}
+.export-card-desc{font-size:11px;color:var(--text-muted);line-height:1.6;flex:1;}
+.export-card-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.btn-export{background:rgba(16,185,129,0.1);color:var(--accent3);border:1px solid rgba(16,185,129,0.25);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;padding:6px 13px;letter-spacing:0.5px;transition:all 0.15s;}
+.btn-export:hover{background:rgba(16,185,129,0.22);border-color:var(--accent3);}
+.btn-export-all{background:rgba(16,185,129,0.18);color:var(--accent3);border:1px solid rgba(16,185,129,0.35);cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;padding:9px 20px;letter-spacing:0.5px;transition:all 0.15s;}
+.btn-export-all:hover{background:rgba(16,185,129,0.3);}
+.export-row-count{font-family:var(--mono);font-size:9px;color:var(--text-muted);background:var(--surface2);padding:2px 7px;border-radius:2px;}
+.export-all-card{background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.2);border-top:3px solid var(--accent3);padding:20px;display:flex;flex-direction:column;gap:12px;grid-column:1/-1;}
+
 /* =================== PWA INSTALL BANNER =================== */
 .pwa-banner{display:none;position:fixed;bottom:20px;right:20px;z-index:600;background:var(--surface);border:1px solid var(--accent);border-top:3px solid var(--accent);padding:16px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 .pwa-banner.show{display:block;}
@@ -593,7 +637,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept </div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v5</div>
     </div>
   </div>
   <div class="header-right">
@@ -631,6 +675,9 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
   <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
   <div class="nav-item" onclick="showPage('gantt',this)"><span class="nav-icon">📊</span> Gantt Jadwal</div>
+  <div class="nav-item" onclick="showPage('calibration',this)"><span class="nav-icon">🔬</span> Kalibrasi Alat <span class="nav-badge" id="nav-calib-warn" style="background:var(--danger);display:none;font-size:9px;">!</span></div>
+  <div class="nav-item" onclick="showPage('hse',this)"><span class="nav-icon">🦺</span> HSE Refreshment <span class="nav-badge" id="nav-hse-warn" style="background:var(--danger);display:none;font-size:9px;">!</span></div>
+  <div class="nav-item" onclick="showPage('export',this)"><span class="nav-icon">📤</span> Export Laporan</div>
   <hr class="nav-sep">
   <div class="nav-label">Kategori Project</div>
   <div class="nav-item" onclick="filterCat('5r',this)"><span class="nav-cat-dot" style="background:var(--c5r)"></span>Project 5R</div>
@@ -955,6 +1002,161 @@ Ada update? cc: [Atasan jika perlu]</div>
   <div class="pwa-banner-actions">
     <button class="btn-primary btn-sm" onclick="installPWA()">Install</button>
     <button class="btn-secondary btn-sm" onclick="dismissPWA()">Nanti</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: KALIBRASI ALAT UKUR ===== -->
+<div class="page" id="page-calibration">
+  <div class="section-header">
+    <span class="section-title" style="color:var(--c5r);">🔬 Kalibrasi Alat Ukur</span>
+    <button class="btn-primary" onclick="openCalibModal()" style="background:var(--c5r);color:#000;">+ TAMBAH ALAT</button>
+  </div>
+  <div id="calib-alert-bar"></div>
+  <div class="mat-filter-bar">
+    <input type="text" id="calib-search" placeholder="🔍 Cari nama alat / tag number / kalibrator..." oninput="renderCalibration()" style="flex:1;min-width:200px;">
+    <select id="calib-filter-status" onchange="renderCalibration()" style="min-width:170px;">
+      <option value="">— Semua Status —</option>
+      <option value="ok">✓ Valid</option>
+      <option value="warn">⚠ Segera (≤30 hari)</option>
+      <option value="overdue">🔴 Overdue / Belum</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="max-height:calc(100vh - 310px);">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Nama Alat</th><th>Tag Number</th><th>Kalibrator</th>
+        <th>Tgl Kalibrasi</th><th>Tgl Kalibrasi Ulang</th><th>Faktor Koreksi</th>
+        <th>Sisa (Hari)</th><th>Status</th><th>Aksi</th>
+      </tr></thead>
+      <tbody id="calib-tbody"></tbody>
+    </table>
+  </div>
+  <div class="note-box" style="border-color:rgba(6,182,212,0.3);background:rgba(6,182,212,0.03);">
+    <strong style="color:var(--c5r);">💡 INFO — </strong>Peringatan otomatis muncul <strong>30 hari sebelum</strong> jadwal kalibrasi ulang. Klik baris untuk edit. Hapus alat yang sudah rusak agar data tetap valid.
+  </div>
+</div>
+
+<!-- ===== PAGE: HSE REFRESHMENT ===== -->
+<div class="page" id="page-hse">
+  <div class="section-header">
+    <span class="section-title" style="color:var(--cshe);">🦺 HSE Refreshment Tracker</span>
+    <button class="btn-primary" onclick="openHseModal()" style="background:var(--cshe);color:#fff;">+ TAMBAH GRUP</button>
+  </div>
+  <div id="hse-alert-bar"></div>
+  <div class="mat-filter-bar">
+    <input type="text" id="hse-search" placeholder="🔍 Cari nama grup / topik refreshment..." oninput="renderHSE()" style="flex:1;min-width:200px;">
+    <select id="hse-filter-status" onchange="renderHSE()" style="min-width:170px;">
+      <option value="">— Semua Status —</option>
+      <option value="ok">✓ Terjadwal</option>
+      <option value="warn">⚠ Segera (≤30 hari)</option>
+      <option value="overdue">🔴 Overdue</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="max-height:calc(100vh - 310px);">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Nama Grup</th><th>Topik Refreshment</th><th>PIC</th>
+        <th>Interval</th><th>Terakhir Dilaksanakan</th><th>Jadwal Berikutnya</th>
+        <th>Jam Pelaksanaan</th><th>Jumlah Peserta</th><th>Status</th><th>Aksi</th>
+      </tr></thead>
+      <tbody id="hse-tbody"></tbody>
+    </table>
+  </div>
+  <div class="note-box" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.03);">
+    <strong style="color:var(--cshe);">💡 INFO — </strong>Klik <strong>"✓ Selesai"</strong> setelah refreshment terlaksana — jadwal berikutnya dihitung otomatis. Peringatan muncul 30 hari sebelum jatuh tempo.
+  </div>
+</div>
+
+<!-- ===== PAGE: EXPORT LAPORAN ===== -->
+<div class="page" id="page-export">
+  <div class="section-header">
+    <span class="section-title" style="color:var(--accent3);">📤 Export Laporan ke Excel</span>
+  </div>
+  <div class="note-box" style="margin-bottom:18px;">
+    <strong>💡 TIP — </strong>Export per tabel untuk laporan spesifik, atau gunakan <strong>Export Semua</strong> untuk laporan komprehensif satu file Excel dengan multi-sheet. File langsung ter-download ke perangkatmu.
+  </div>
+  <div class="export-grid" id="export-grid">
+    <div class="export-card" style="border-top:3px solid var(--accent);">
+      <div class="export-card-icon">📋</div>
+      <div class="export-card-title">Project CI</div>
+      <div class="export-card-desc">Semua project: nama, EJO, kategori, status, PIC, progress, start & deadline, material status, lokasi.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('projects')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-projects">0 data</span>
+      </div>
+    </div>
+    <div class="export-card" style="border-top:3px solid var(--accent2);">
+      <div class="export-card-icon">📦</div>
+      <div class="export-card-title">Material Tracker</div>
+      <div class="export-card-desc">Semua material: nama, part no, qty, satuan, status, ETA, No PR, Tgl PR, catatan, project terkait.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('materials')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-materials">0 data</span>
+      </div>
+    </div>
+    <div class="export-card" style="border-top:3px solid var(--danger);">
+      <div class="export-card-icon">⚠</div>
+      <div class="export-card-title">Issue Log</div>
+      <div class="export-card-desc">Semua issue: judul, project, severity, status, deskripsi, tanggal, deadline, tindakan.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('issues')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-issues">0 data</span>
+      </div>
+    </div>
+    <div class="export-card" style="border-top:3px solid var(--teal);">
+      <div class="export-card-icon">✅</div>
+      <div class="export-card-title">To Do List</div>
+      <div class="export-card-desc">Semua task: judul, deskripsi, prioritas, due date, status, project terkait.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('todos')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-todos">0 data</span>
+      </div>
+    </div>
+    <div class="export-card" style="border-top:3px solid var(--c5r);">
+      <div class="export-card-icon">🔬</div>
+      <div class="export-card-title">Kalibrasi Alat Ukur</div>
+      <div class="export-card-desc">Data kalibrasi: nama alat, tag number, kalibrator, tgl kalibrasi, tgl ulang, faktor koreksi, status, sisa hari.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('calibration')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-calibration">0 data</span>
+      </div>
+    </div>
+    <div class="export-card" style="border-top:3px solid var(--cshe);">
+      <div class="export-card-icon">🦺</div>
+      <div class="export-card-title">HSE Refreshment</div>
+      <div class="export-card-desc">Data HSE: nama grup, topik, PIC, interval (bulan), terakhir, jadwal berikutnya, jam, jumlah peserta, status.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('hse')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-hse">0 data</span>
+      </div>
+    </div>
+    <div class="export-card" style="border-top:3px solid var(--purple);">
+      <div class="export-card-icon">📊</div>
+      <div class="export-card-title">Gantt Jadwal Produksi</div>
+      <div class="export-card-desc">Jadwal CIP/SIP/COP: nama, tipe, start, selesai, PIC, frekuensi, catatan.</div>
+      <div class="export-card-footer">
+        <button class="btn-export" onclick="exportSheet('gantt')">⬇ Export</button>
+        <span class="export-row-count" id="exp-count-gantt">0 data</span>
+      </div>
+    </div>
+    <div class="export-all-card">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="font-size:28px;">📁</div>
+        <div style="flex:1;">
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent3);letter-spacing:1px;margin-bottom:4px;">EXPORT SEMUA — LAPORAN KOMPREHENSIF</div>
+          <div style="font-size:12px;color:var(--text-muted);">Satu file Excel dengan <strong>7 sheet</strong> (Projects, Material, Issues, To Do, Kalibrasi, HSE, Gantt). Cocok untuk laporan mingguan / bulanan CI.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="export-period" style="font-size:11px;padding:7px 12px;background:var(--surface2);border:1px solid var(--border);color:var(--text);">
+            <option value="all">Semua Data</option>
+            <option value="thisweek">Minggu Ini</option>
+            <option value="thismonth">Bulan Ini</option>
+            <option value="lastmonth">Bulan Lalu</option>
+          </select>
+          <button class="btn-export-all" onclick="exportAllToXLSX()">⬇ EXPORT SEMUA</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1383,6 +1585,73 @@ Ada update? cc: [Atasan jika perlu]</div>
 <!-- DAY POPUP -->
 <div id="day-popup" class="day-popup"></div>
 
+<!-- ===== MODAL KALIBRASI ===== -->
+<div class="modal-overlay" id="modal-calib">
+  <div class="modal" style="width:600px;max-width:96vw;">
+    <div class="modal-header">
+      <span class="modal-title" id="calib-modal-title">TAMBAH ALAT UKUR</span>
+      <button class="modal-close" onclick="closeModal('modal-calib')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cf-id">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label>Nama Alat *</label><input type="text" id="cf-name" placeholder="Contoh: Thermometer Digital"></div>
+        <div class="form-group"><label>Tag Number</label><input type="text" id="cf-tag" placeholder="Contoh: TG-001"></div>
+        <div class="form-group"><label>Nama Kalibrator / Lab</label><input type="text" id="cf-kalibrator" placeholder="Nama lembaga / personel"></div>
+        <div class="form-group"><label>Faktor Koreksi</label><input type="text" id="cf-faktor" placeholder="Contoh: +0.2°C atau 1.003"></div>
+        <div class="form-group"><label>Tanggal Kalibrasi *</label><input type="date" id="cf-tglkalib"></div>
+        <div class="form-group"><label>Tanggal Kalibrasi Ulang *</label><input type="date" id="cf-tglulang"></div>
+        <div class="form-group" style="grid-column:1/-1;"><label>Catatan / Keterangan</label><textarea id="cf-notes" rows="2" placeholder="Catatan tambahan, lokasi alat, range ukur, dll."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="cf-del-btn" style="display:none;" onclick="delCalibration(document.getElementById('cf-id').value)">🗑 Hapus Alat</button>
+      <button class="btn-secondary" onclick="closeModal('modal-calib')">Batal</button>
+      <button class="btn-primary" style="background:var(--c5r);color:#000;" onclick="saveCalibration()">SIMPAN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL HSE ===== -->
+<div class="modal-overlay" id="modal-hse">
+  <div class="modal" style="width:620px;max-width:96vw;">
+    <div class="modal-header">
+      <span class="modal-title" id="hse-modal-title">TAMBAH GRUP HSE</span>
+      <button class="modal-close" onclick="closeModal('modal-hse')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="hf-id">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label>Nama Grup *</label><input type="text" id="hf-nama" placeholder="Contoh: Operator Produksi A"></div>
+        <div class="form-group"><label>Topik Refreshment *</label><input type="text" id="hf-topik" placeholder="Contoh: APD & LOTO"></div>
+        <div class="form-group"><label>PIC / Trainer</label><input type="text" id="hf-pic" placeholder="Nama PIC pelaksana"></div>
+        <div class="form-group"><label>Jumlah Peserta</label><input type="number" id="hf-peserta" min="1" placeholder="Jumlah orang"></div>
+        <div class="form-group"><label>Interval (bulan) *</label>
+          <select id="hf-interval">
+            <option value="1">Setiap 1 Bulan</option>
+            <option value="2">Setiap 2 Bulan</option>
+            <option value="3" selected>Setiap 3 Bulan</option>
+            <option value="6">Setiap 6 Bulan</option>
+            <option value="12">Setiap 12 Bulan</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Jam Pelaksanaan</label><input type="time" id="hf-jam" value="08:00"></div>
+        <div class="form-group"><label>Terakhir Dilaksanakan</label><input type="date" id="hf-terakhir"></div>
+        <div class="form-group"><label>Jadwal Berikutnya</label><input type="date" id="hf-berikutnya" placeholder="Otomatis dari terakhir + interval"></div>
+        <div class="form-group" style="grid-column:1/-1;"><label>Catatan / Materi</label><textarea id="hf-notes" rows="2" placeholder="Catatan materi, media, ruangan, dll."></textarea></div>
+      </div>
+      <div class="note-box" style="margin-top:4px;padding:8px 12px;">
+        <span style="font-size:11px;color:var(--text-muted);">💡 Jika diisi Terakhir Dilaksanakan, Jadwal Berikutnya akan dihitung otomatis saat simpan (Terakhir + Interval bulan). Bisa diubah manual.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="hf-del-btn" style="display:none;" onclick="delHSE(document.getElementById('hf-id').value)">🗑 Hapus Grup</button>
+      <button class="btn-secondary" onclick="closeModal('modal-hse')">Batal</button>
+      <button class="btn-primary" style="background:var(--cshe);color:#fff;" onclick="saveHSE()">SIMPAN</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===================================================
 // GOOGLE SHEETS SYNC — Ganti URL di bawah ini
@@ -1405,6 +1674,8 @@ let libFolders = [];
 let libDocs    = [];
 let cinotes    = [];
 let ganttSchedules = [];
+let calibrations   = [];
+let hseGroups      = [];
 let activityLog = [];
 let unreadCount = 0;
 let _lastDataHash = '';
@@ -1461,6 +1732,8 @@ function applyData(data) {
   libDocs    = data.libDocs    || [];
   cinotes    = data.cinotes    || [];
   ganttSchedules = data.ganttSchedules || [];
+  calibrations   = data.calibrations   || [];
+  hseGroups      = data.hseGroups      || [];
   if (!libFolders.length) {
     libFolders = [
       { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
@@ -1477,7 +1750,7 @@ function applyData(data) {
 
 // ===== save — defined FIRST so all functions can call it =====
 function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, activityLog });
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, activityLog });
   localStorage.setItem('ci3_cache', payload);
   if (!SYNC_ENABLED) { setSyncStatus('offline', 'Lokal saja'); return; }
   clearTimeout(saveDebounceTimer);
@@ -1576,10 +1849,11 @@ function manualSync() { loadFromSheets(); }
 function refreshAllUI() {
   renderDashboard();
   renderTodo();
+  updateNavWarnings();
   const ap = document.querySelector('.page.active');
   if (ap) {
     const pid = ap.id.replace('page-','');
-    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt })[pid]?.();
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt, calibration:renderCalibration, hse:renderHSE, export:renderExportPage })[pid]?.();
   }
   if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
 }
@@ -1591,7 +1865,7 @@ function showPage(name, el) {
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
   currentCatFilter = '';
-  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: renderGantt, framework: ()=>{} };
+  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: renderGantt, framework: ()=>{}, calibration: renderCalibration, hse: renderHSE, export: renderExportPage };
   if (renders[name]) renders[name]();
 }
 function filterCat(cat, el) {
@@ -1659,6 +1933,18 @@ function renderDashboard() {
     const diff=Math.ceil((d-now)/86400000);
     if(diff<0) alerts.push(`<div class="alert-chip red">📋 To Do OVERDUE: <strong>${t.title}</strong></div>`);
     else if(diff===0) alerts.push(`<div class="alert-chip amber">📋 To Do hari ini: <strong>${t.title}</strong></div>`);
+  });
+  // Calibration alerts
+  calibrations.forEach(c => {
+    const st = calibStatus(c);
+    if(st.code==='overdue') alerts.push(`<div class="alert-chip red" onclick="showPage('calibration',document.querySelector('[onclick*=calibration]'))" style="cursor:pointer;">🔬 Kalibrasi OVERDUE: <strong>${c.nama}</strong>${c.tag?' ('+c.tag+')':''}</div>`);
+    else if(st.code==='warn') alerts.push(`<div class="alert-chip amber" onclick="showPage('calibration',document.querySelector('[onclick*=calibration]'))" style="cursor:pointer;">🔬 Kalibrasi ${st.days} hari: <strong>${c.nama}</strong>${c.tag?' ('+c.tag+')':''}</div>`);
+  });
+  // HSE alerts
+  hseGroups.forEach(h => {
+    const st = hseStatus(h);
+    if(st.code==='overdue') alerts.push(`<div class="alert-chip red" onclick="showPage('hse',document.querySelector('[onclick*=\\'hse\\']'))" style="cursor:pointer;">🦺 HSE OVERDUE: <strong>${h.nama}</strong> — ${h.topik}</div>`);
+    else if(st.code==='warn') alerts.push(`<div class="alert-chip amber" onclick="showPage('hse',document.querySelector('[onclick*=\\'hse\\']'))" style="cursor:pointer;">🦺 HSE ${st.days} hari: <strong>${h.nama}</strong> — ${h.topik}</div>`);
   });
   document.getElementById('alert-row').innerHTML = alerts.length ? alerts.join('') : '<div class="alert-chip green">✓ Tidak ada alert kritis</div>';
 
@@ -3345,6 +3631,502 @@ self.addEventListener('fetch',e=>{
 
 // Init PWA
 setupPWA();
+
+// =============================================
+// ===== KALIBRASI ALAT UKUR =====
+// =============================================
+
+function calibStatus(c) {
+  if(!c.tglulang) return {code:'overdue', label:'Belum Dijadwal', days:null};
+  const today = new Date(); today.setHours(0,0,0,0);
+  const next  = new Date(c.tglulang+'T00:00:00');
+  const diff  = Math.ceil((next - today) / 86400000);
+  if(diff < 0)  return {code:'overdue', label:'OVERDUE '+Math.abs(diff)+' hari', days:diff};
+  if(diff <= 30) return {code:'warn',   label:'⚠ '+diff+' hari lagi', days:diff};
+  return {code:'ok', label:'✓ Valid ('+diff+' hari)', days:diff};
+}
+
+function renderCalibration() {
+  const search = (document.getElementById('calib-search')?.value||'').toLowerCase();
+  const filterSt = document.getElementById('calib-filter-status')?.value||'';
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Alert bar
+  const alerts = calibrations.filter(c => {
+    const st = calibStatus(c);
+    return st.code === 'overdue' || st.code === 'warn';
+  });
+  const alertBar = document.getElementById('calib-alert-bar');
+  if(alerts.length) {
+    const chips = alerts.map(c => {
+      const st = calibStatus(c);
+      return `<span class="calib-warn-chip ${st.code==='overdue'?'danger':'amber'}" onclick="openCalibModal('${c.id}')">
+        ${st.code==='overdue'?'🔴':'⚠'} <strong>${c.nama}</strong> ${c.tag?'('+c.tag+')':''} — ${st.label}
+      </span>`;
+    }).join('');
+    alertBar.innerHTML = `<div class="calib-warn-bar">
+      <div class="calib-warn-bar-title">🔔 PERINGATAN KALIBRASI (${alerts.length} alat)</div>
+      <div class="calib-warn-chips">${chips}</div>
+    </div>`;
+  } else {
+    alertBar.innerHTML = '';
+  }
+
+  // Table
+  let list = calibrations.filter(c => {
+    const q = (c.nama+c.tag+c.kalibrator).toLowerCase();
+    if(search && !q.includes(search)) return false;
+    if(filterSt) { const st = calibStatus(c); if(st.code !== filterSt) return false; }
+    return true;
+  });
+
+  const tbody = document.getElementById('calib-tbody');
+  if(!list.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Belum ada alat terdaftar. Klik <strong>+ TAMBAH ALAT</strong> untuk mulai.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map((c,i) => {
+    const st = calibStatus(c);
+    return `<tr class="mat-row-clickable" onclick="openCalibModal('${c.id}')">
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${i+1}</td>
+      <td style="font-weight:600;">${c.nama||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--c5r);">${c.tag||'—'}</td>
+      <td>${c.kalibrator||'—'}</td>
+      <td style="font-family:var(--mono);font-size:10px;">${fmt(c.tglkalib)}</td>
+      <td style="font-family:var(--mono);font-size:10px;${st.code==='overdue'?'color:var(--danger);font-weight:700;':st.code==='warn'?'color:var(--accent);font-weight:700;':''}">${fmt(c.tglulang)}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--accent3);">${c.faktor||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;text-align:center;${st.days!==null&&st.days<0?'color:var(--danger);':st.days!==null&&st.days<=30?'color:var(--accent);':''}">${st.days!==null?st.days:'—'}</td>
+      <td><span class="calib-status-badge ${st.code}">${st.code==='ok'?'✓ Valid':st.code==='warn'?'⚠ Segera':'🔴 Overdue'}</span></td>
+      <td><button class="btn-danger" style="padding:3px 8px;font-size:9px;" onclick="event.stopPropagation();if(confirm('Hapus alat ini?')){delCalibration('${c.id}')}">Hapus</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openCalibModal(id) {
+  const el = id ? calibrations.find(c=>c.id===id) : null;
+  document.getElementById('calib-modal-title').textContent = el ? 'EDIT ALAT UKUR' : 'TAMBAH ALAT UKUR';
+  document.getElementById('cf-id').value    = el?.id    || '';
+  document.getElementById('cf-name').value  = el?.nama  || '';
+  document.getElementById('cf-tag').value   = el?.tag   || '';
+  document.getElementById('cf-kalibrator').value = el?.kalibrator || '';
+  document.getElementById('cf-faktor').value = el?.faktor || '';
+  document.getElementById('cf-tglkalib').value  = el?.tglkalib  || '';
+  document.getElementById('cf-tglulang').value  = el?.tglulang  || '';
+  document.getElementById('cf-notes').value = el?.notes || '';
+  document.getElementById('cf-del-btn').style.display = el ? 'inline-block' : 'none';
+  document.getElementById('modal-calib').classList.add('open');
+}
+
+function saveCalibration() {
+  const nama = document.getElementById('cf-name').value.trim();
+  if(!nama) { alert('Nama alat harus diisi!'); return; }
+  const tglulang = document.getElementById('cf-tglulang').value;
+  if(!tglulang) { alert('Tanggal Kalibrasi Ulang harus diisi!'); return; }
+  const id = document.getElementById('cf-id').value;
+  const entry = {
+    id: id || genId('CLB'),
+    nama,
+    tag:       document.getElementById('cf-tag').value.trim(),
+    kalibrator:document.getElementById('cf-kalibrator').value.trim(),
+    faktor:    document.getElementById('cf-faktor').value.trim(),
+    tglkalib:  document.getElementById('cf-tglkalib').value,
+    tglulang,
+    notes:     document.getElementById('cf-notes').value.trim(),
+    updatedAt: Date.now()
+  };
+  if(id) { const idx = calibrations.findIndex(c=>c.id===id); if(idx>=0) calibrations[idx]=entry; }
+  else calibrations.push(entry);
+  logActivity(id?'Update Kalibrasi':'Tambah Kalibrasi', `${entry.nama} ${entry.tag?'('+entry.tag+')':''}`);
+  save(); closeModal('modal-calib'); renderCalibration(); updateNavWarnings();
+}
+
+function delCalibration(id) {
+  if(!confirm('Hapus alat ukur ini dari daftar kalibrasi?')) return;
+  calibrations = calibrations.filter(c=>c.id!==id);
+  save(); closeModal('modal-calib'); renderCalibration(); updateNavWarnings();
+}
+
+// =============================================
+// ===== HSE REFRESHMENT =====
+// =============================================
+
+function hseStatus(h) {
+  if(!h.berikutnya) return {code:'warn', label:'Belum Dijadwal'};
+  const today = new Date(); today.setHours(0,0,0,0);
+  const next  = new Date(h.berikutnya+'T00:00:00');
+  const diff  = Math.ceil((next - today) / 86400000);
+  if(diff < 0)  return {code:'overdue', label:'OVERDUE '+Math.abs(diff)+' hari', days:diff};
+  if(diff <= 30) return {code:'warn',   label:'⚠ '+diff+' hari lagi', days:diff};
+  return {code:'ok', label:'✓ '+diff+' hari lagi', days:diff};
+}
+
+function calcHseNext(terakhir, intervalBulan) {
+  if(!terakhir) return '';
+  const d = new Date(terakhir+'T00:00:00');
+  d.setMonth(d.getMonth() + parseInt(intervalBulan||3));
+  return d.toISOString().slice(0,10);
+}
+
+function renderHSE() {
+  const search   = (document.getElementById('hse-search')?.value||'').toLowerCase();
+  const filterSt = document.getElementById('hse-filter-status')?.value||'';
+
+  // Alert bar
+  const alerts = hseGroups.filter(h => {
+    const st = hseStatus(h); return st.code==='overdue'||st.code==='warn';
+  });
+  const alertBar = document.getElementById('hse-alert-bar');
+  if(alerts.length) {
+    const chips = alerts.map(h => {
+      const st = hseStatus(h);
+      return `<span class="hse-warn-chip ${st.code==='overdue'?'danger':'amber'}" onclick="openHseModal('${h.id}')">
+        ${st.code==='overdue'?'🔴':'⚠'} <strong>${h.nama}</strong> — ${h.topik} — ${st.label}
+      </span>`;
+    }).join('');
+    alertBar.innerHTML = `<div class="hse-warn-bar">
+      <div class="hse-warn-bar-title">🔔 PERINGATAN HSE REFRESHMENT (${alerts.length} grup)</div>
+      <div class="hse-warn-chips">${chips}</div>
+    </div>`;
+  } else {
+    alertBar.innerHTML = '';
+  }
+
+  let list = hseGroups.filter(h => {
+    const q = (h.nama+h.topik+h.pic).toLowerCase();
+    if(search && !q.includes(search)) return false;
+    if(filterSt) { const st = hseStatus(h); if(st.code!==filterSt) return false; }
+    return true;
+  });
+
+  const tbody = document.getElementById('hse-tbody');
+  if(!list.length) {
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-state">Belum ada grup HSE terdaftar. Klik <strong>+ TAMBAH GRUP</strong> untuk mulai.</td></tr>`;
+    return;
+  }
+
+  const INTERVAL_LABEL = {'1':'1 Bulan','2':'2 Bulan','3':'3 Bulan','6':'6 Bulan','12':'12 Bulan'};
+  tbody.innerHTML = list.map((h,i) => {
+    const st = hseStatus(h);
+    return `<tr class="mat-row-clickable" onclick="openHseModal('${h.id}')">
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${i+1}</td>
+      <td style="font-weight:600;">${h.nama||'—'}</td>
+      <td style="color:var(--cshe);">${h.topik||'—'}</td>
+      <td>${h.pic||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;text-align:center;">${INTERVAL_LABEL[h.interval]||h.interval+' bln'}</td>
+      <td style="font-family:var(--mono);font-size:10px;">${fmt(h.terakhir)}</td>
+      <td style="font-family:var(--mono);font-size:10px;${st.code==='overdue'?'color:var(--danger);font-weight:700;':st.code==='warn'?'color:var(--accent);font-weight:700;':''}">${fmt(h.berikutnya)}</td>
+      <td style="font-family:var(--mono);font-size:11px;text-align:center;">${h.jam||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;text-align:center;">${h.peserta||'—'}</td>
+      <td><span class="hse-status-badge ${st.code}">${st.code==='ok'?'✓ OK':st.code==='warn'?'⚠ Segera':'🔴 Overdue'}</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="hse-done-btn" onclick="hseMarkDone('${h.id}')">✓ Selesai</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openHseModal(id) {
+  const el = id ? hseGroups.find(h=>h.id===id) : null;
+  document.getElementById('hse-modal-title').textContent = el ? 'EDIT GRUP HSE' : 'TAMBAH GRUP HSE';
+  document.getElementById('hf-id').value       = el?.id       || '';
+  document.getElementById('hf-nama').value     = el?.nama     || '';
+  document.getElementById('hf-topik').value    = el?.topik    || '';
+  document.getElementById('hf-pic').value      = el?.pic      || '';
+  document.getElementById('hf-peserta').value  = el?.peserta  || '';
+  document.getElementById('hf-interval').value = el?.interval || '3';
+  document.getElementById('hf-jam').value      = el?.jam      || '08:00';
+  document.getElementById('hf-terakhir').value = el?.terakhir || '';
+  document.getElementById('hf-berikutnya').value = el?.berikutnya || '';
+  document.getElementById('hf-notes').value    = el?.notes    || '';
+  document.getElementById('hf-del-btn').style.display = el ? 'inline-block' : 'none';
+  document.getElementById('modal-hse').classList.add('open');
+}
+
+// Auto-calc next date when last date changes
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('hf-terakhir')?.addEventListener('change', function() {
+    const interval = document.getElementById('hf-interval').value;
+    const next = calcHseNext(this.value, interval);
+    if(next) document.getElementById('hf-berikutnya').value = next;
+  });
+  document.getElementById('hf-interval')?.addEventListener('change', function() {
+    const terakhir = document.getElementById('hf-terakhir').value;
+    const next = calcHseNext(terakhir, this.value);
+    if(next) document.getElementById('hf-berikutnya').value = next;
+  });
+});
+
+function saveHSE() {
+  const nama  = document.getElementById('hf-nama').value.trim();
+  const topik = document.getElementById('hf-topik').value.trim();
+  if(!nama)  { alert('Nama grup harus diisi!'); return; }
+  if(!topik) { alert('Topik refreshment harus diisi!'); return; }
+  const id       = document.getElementById('hf-id').value;
+  const terakhir = document.getElementById('hf-terakhir').value;
+  const interval = document.getElementById('hf-interval').value;
+  let berikutnya = document.getElementById('hf-berikutnya').value;
+  // Auto-calc if berikutnya not set but terakhir is
+  if(!berikutnya && terakhir) berikutnya = calcHseNext(terakhir, interval);
+  const entry = {
+    id: id || genId('HSE'),
+    nama, topik,
+    pic:      document.getElementById('hf-pic').value.trim(),
+    peserta:  document.getElementById('hf-peserta').value,
+    interval, jam: document.getElementById('hf-jam').value,
+    terakhir, berikutnya,
+    notes:    document.getElementById('hf-notes').value.trim(),
+    updatedAt: Date.now()
+  };
+  if(id) { const idx = hseGroups.findIndex(h=>h.id===id); if(idx>=0) hseGroups[idx]=entry; }
+  else hseGroups.push(entry);
+  logActivity(id?'Update HSE':'Tambah HSE', `${entry.nama} — ${entry.topik}`);
+  save(); closeModal('modal-hse'); renderHSE(); updateNavWarnings();
+}
+
+function hseMarkDone(id) {
+  const h = hseGroups.find(g=>g.id===id);
+  if(!h) return;
+  if(!confirm(`Tandai refreshment "${h.nama} — ${h.topik}" sudah dilaksanakan hari ini?`)) return;
+  h.terakhir   = todayStr();
+  h.berikutnya = calcHseNext(h.terakhir, h.interval);
+  h.updatedAt  = Date.now();
+  logActivity('HSE Selesai', `${h.nama} — ${h.topik}. Berikutnya: ${fmt(h.berikutnya)}`);
+  save(); renderHSE(); updateNavWarnings();
+}
+
+function delHSE(id) {
+  if(!confirm('Hapus grup HSE ini?')) return;
+  hseGroups = hseGroups.filter(h=>h.id!==id);
+  save(); closeModal('modal-hse'); renderHSE(); updateNavWarnings();
+}
+
+// =============================================
+// ===== NAV WARNING BADGES =====
+// =============================================
+
+function updateNavWarnings() {
+  // Calibration badge
+  const calibWarn = calibrations.filter(c => calibStatus(c).code !== 'ok').length;
+  const calibBadge = document.getElementById('nav-calib-warn');
+  if(calibBadge) {
+    calibBadge.style.display = calibWarn > 0 ? 'inline-block' : 'none';
+    calibBadge.textContent   = calibWarn;
+  }
+  // HSE badge
+  const hseWarn = hseGroups.filter(h => hseStatus(h).code !== 'ok').length;
+  const hseBadge = document.getElementById('nav-hse-warn');
+  if(hseBadge) {
+    hseBadge.style.display = hseWarn > 0 ? 'inline-block' : 'none';
+    hseBadge.textContent   = hseWarn;
+  }
+}
+
+// =============================================
+// ===== EXPORT TO XLSX =====
+// =============================================
+
+function renderExportPage() {
+  // Update row counts
+  const counts = {
+    projects:    projects.length,
+    materials:   materials.length,
+    issues:      issues.length,
+    todos:       todos.length,
+    calibration: calibrations.length,
+    hse:         hseGroups.length,
+    gantt:       ganttSchedules.length,
+  };
+  Object.entries(counts).forEach(([k,v]) => {
+    const el = document.getElementById('exp-count-'+k);
+    if(el) el.textContent = v + ' data';
+  });
+}
+
+function getDateFilter() {
+  const period = document.getElementById('export-period')?.value || 'all';
+  const today  = new Date(); today.setHours(0,0,0,0);
+  if(period === 'all') return null;
+  let start, end;
+  if(period === 'thisweek') {
+    const dow = today.getDay(); // 0=Sun
+    start = new Date(today); start.setDate(today.getDate() - (dow===0?6:dow-1));
+    end   = new Date(start); end.setDate(start.getDate()+6);
+  } else if(period === 'thismonth') {
+    start = new Date(today.getFullYear(), today.getMonth(), 1);
+    end   = new Date(today.getFullYear(), today.getMonth()+1, 0);
+  } else if(period === 'lastmonth') {
+    start = new Date(today.getFullYear(), today.getMonth()-1, 1);
+    end   = new Date(today.getFullYear(), today.getMonth(), 0);
+  }
+  return { start: start.toISOString().slice(0,10), end: end.toISOString().slice(0,10) };
+}
+
+function buildProjectsData(filter) {
+  let data = projects;
+  if(filter) data = data.filter(p => (!p.startDate||p.startDate>=filter.start) && (!p.endDate||p.endDate<=filter.end));
+  return {
+    headers: ['No','Nama Project','EJO','Kategori','Status','PIC Engineering','Lokasi','Progress (%)','Start','Deadline','Material Status','Catatan'],
+    rows: data.map((p,i) => [
+      i+1, p.name||'', p.ejo||'', p.category||'', p.status||'', p.pic||'', p.location||'',
+      p.progress||0, p.startDate||'', p.endDate||'',
+      (p.materials||[]).length===0?'N/A': (p.materials||[]).every(m=>m.status==='ready')?'All Ready':'Pending',
+      p.notes||''
+    ])
+  };
+}
+
+function buildMaterialsData(filter) {
+  let data = materials;
+  if(filter) data = data.filter(m => !m.eta || (m.eta >= filter.start && m.eta <= filter.end));
+  return {
+    headers: ['No','Nama Material','Part Number','Qty','Satuan','Status','ETA','No PR','Tgl PR','Project','Catatan'],
+    rows: data.map((m,i) => {
+      const proj = projects.find(p=>p.id===m.projectId);
+      return [i+1, m.name||'', m.partno||'', m.qty||'', m.unit||'', m.status||'', m.eta||'', m.nopr||'', m.tglpr||'', proj?.name||'', m.notes||''];
+    })
+  };
+}
+
+function buildIssuesData(filter) {
+  let data = issues;
+  if(filter) data = data.filter(iss => !iss.createdAt || (() => { const d=new Date(iss.createdAt).toISOString().slice(0,10); return d>=filter.start&&d<=filter.end; })());
+  return {
+    headers: ['No','Judul Issue','Project','Severity','Status','Deskripsi','Tanggal','Deadline','Tindakan'],
+    rows: data.map((iss,i) => {
+      const proj = projects.find(p=>p.id===iss.projectId);
+      return [i+1, iss.title||'', proj?.name||'', iss.severity||'', iss.status||'', iss.desc||'',
+        iss.createdAt?new Date(iss.createdAt).toLocaleDateString('id-ID'):'', iss.deadline||'', iss.action||''];
+    })
+  };
+}
+
+function buildTodosData(filter) {
+  let data = todos;
+  if(filter) data = data.filter(t => !t.dueDate || (t.dueDate >= filter.start && t.dueDate <= filter.end));
+  return {
+    headers: ['No','Judul Task','Deskripsi','Prioritas','Due Date','Status','Project Terkait'],
+    rows: data.map((t,i) => {
+      const proj = projects.find(p=>p.id===t.projectId);
+      return [i+1, t.title||'', t.desc||'', t.priority||'', t.dueDate||'', t.done?'Selesai':'Pending', proj?.name||''];
+    })
+  };
+}
+
+function buildCalibData() {
+  return {
+    headers: ['No','Nama Alat','Tag Number','Kalibrator / Lab','Tgl Kalibrasi','Tgl Kalibrasi Ulang','Faktor Koreksi','Sisa Hari','Status','Catatan'],
+    rows: calibrations.map((c,i) => {
+      const st = calibStatus(c);
+      return [i+1, c.nama||'', c.tag||'', c.kalibrator||'', c.tglkalib||'', c.tglulang||'',
+        c.faktor||'', st.days!==null?st.days:'N/A',
+        st.code==='ok'?'Valid':st.code==='warn'?'Segera Kalibrasi':'Overdue', c.notes||''];
+    })
+  };
+}
+
+function buildHseData() {
+  const INTERVAL_LABEL = {'1':'1 Bulan','2':'2 Bulan','3':'3 Bulan','6':'6 Bulan','12':'12 Bulan'};
+  return {
+    headers: ['No','Nama Grup','Topik Refreshment','PIC / Trainer','Interval','Terakhir Dilaksanakan','Jadwal Berikutnya','Jam Pelaksanaan','Jumlah Peserta','Status','Catatan'],
+    rows: hseGroups.map((h,i) => {
+      const st = hseStatus(h);
+      return [i+1, h.nama||'', h.topik||'', h.pic||'', INTERVAL_LABEL[h.interval]||h.interval,
+        h.terakhir||'', h.berikutnya||'', h.jam||'', h.peserta||'',
+        st.code==='ok'?'OK':st.code==='warn'?'Segera':'Overdue', h.notes||''];
+    })
+  };
+}
+
+function buildGanttData() {
+  const TYPE_LABELS = {cip:'CIP',sip:'SIP',cop:'COP',custom:'Custom',maintenance:'Maintenance'};
+  const FREQ_LABELS = {none:'Sekali',weekly:'Mingguan',biweekly:'2 Minggu Sekali',monthly:'Bulanan'};
+  return {
+    headers: ['No','Nama Jadwal','Tipe','Start','Selesai','PIC / Tim','Frekuensi','Catatan'],
+    rows: ganttSchedules.map((g,i) => [
+      i+1, g.name||'', TYPE_LABELS[g.type]||g.type, g.start||'', g.end||'',
+      g.pic||'', FREQ_LABELS[g.freq]||g.freq||'Sekali', g.notes||''
+    ])
+  };
+}
+
+function sheetToCSV(sheetData) {
+  return [sheetData.headers, ...sheetData.rows]
+    .map(row => row.map(cell => {
+      const s = String(cell===null||cell===undefined?'':cell);
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+    }).join(','))
+    .join('\r\n');
+}
+
+function downloadXLSX(sheetDatas, filename) {
+  // Build multi-sheet XLSX using SheetJS (CDN via import)
+  // Fallback to multi-CSV if SheetJS unavailable
+  try {
+    if(typeof XLSX === 'undefined') throw new Error('SheetJS not loaded');
+    const wb = XLSX.utils.book_new();
+    sheetDatas.forEach(({name, data}) => {
+      const ws = XLSX.utils.aoa_to_sheet([data.headers, ...data.rows]);
+      // Style header row
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for(let C = range.s.c; C <= range.e.c; C++) {
+        const addr = XLSX.utils.encode_cell({r:0, c:C});
+        if(!ws[addr]) continue;
+        ws[addr].s = { font:{bold:true}, fill:{fgColor:{rgb:'1C2130'}} };
+      }
+      // Auto column width
+      const colWidths = data.headers.map((h,ci) => {
+        const maxLen = Math.max(String(h).length, ...data.rows.map(r => String(r[ci]||'').length));
+        return {wch: Math.min(maxLen+2, 40)};
+      });
+      ws['!cols'] = colWidths;
+      XLSX.utils.book_append_sheet(wb, ws, name);
+    });
+    XLSX.writeFile(wb, filename);
+  } catch(e) {
+    // Fallback: download as CSV zip alternative — single CSV of first sheet
+    const csvContent = sheetDatas.map(({name, data}) => `=== ${name} ===\r\n${sheetToCSV(data)}`).join('\r\n\r\n');
+    const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8;'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename.replace('.xlsx','.csv'); a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
+function exportSheet(type) {
+  const filter = null; // individual export = all data
+  const now    = new Date().toISOString().slice(0,10);
+  const maps   = {
+    projects:    () => ({name:'Projects',    data: buildProjectsData(filter)}),
+    materials:   () => ({name:'Material',    data: buildMaterialsData(filter)}),
+    issues:      () => ({name:'Issue Log',   data: buildIssuesData(filter)}),
+    todos:       () => ({name:'To Do',       data: buildTodosData(filter)}),
+    calibration: () => ({name:'Kalibrasi',   data: buildCalibData()}),
+    hse:         () => ({name:'HSE',         data: buildHseData()}),
+    gantt:       () => ({name:'Gantt',       data: buildGanttData()}),
+  };
+  const sheet = maps[type]?.();
+  if(!sheet) return;
+  downloadXLSX([sheet], `CI_${sheet.name}_${now}.xlsx`);
+}
+
+function exportAllToXLSX() {
+  const filter = getDateFilter();
+  const now    = new Date().toISOString().slice(0,10);
+  const period = document.getElementById('export-period')?.value || 'all';
+  const periodLabel = {all:'Semua',thisweek:'MingguIni',thismonth:'BulanIni',lastmonth:'BulanLalu'}[period]||'';
+  const sheets = [
+    {name:'Projects',   data: buildProjectsData(filter)},
+    {name:'Material',   data: buildMaterialsData(filter)},
+    {name:'Issue Log',  data: buildIssuesData(filter)},
+    {name:'To Do',      data: buildTodosData(filter)},
+    {name:'Kalibrasi',  data: buildCalibData()},
+    {name:'HSE',        data: buildHseData()},
+    {name:'Gantt',      data: buildGanttData()},
+  ];
+  downloadXLSX(sheets, `CI_LaporanKomprehensif_${periodLabel}_${now}.xlsx`);
+}
 
 // =============================================
 // ===== INIT =====
