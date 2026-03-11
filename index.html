@@ -701,7 +701,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept · v9</div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v11</div>
     </div>
   </div>
   <div class="header-right">
@@ -1230,11 +1230,19 @@ Ada update? cc: [Atasan jika perlu]</div>
   <div class="section-header" style="margin-bottom:14px;">
     <span class="section-title" style="color:var(--accent);">🗂️ Material Master — Database Referensi</span>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-secondary btn-sm" onclick="pullMasterFromSheets()" title="Ambil data terbaru dari sheet MaterialMaster (cocok jika kamu edit langsung di Sheets)">🔄 Sync dari Sheets</button>
       <button class="btn-secondary btn-sm" onclick="document.getElementById('master-file-input').click()">⬆ Import Excel / CSV</button>
       <button class="btn-secondary btn-sm" onclick="exportMasterCSV()">⬇ Export CSV</button>
       <button class="btn-danger btn-sm" onclick="clearMasterConfirm()">🗑 Hapus Semua</button>
       <button class="btn-primary btn-sm" onclick="openMasterAddModal()">+ Tambah Manual</button>
     </div>
+  </div>
+
+  <!-- Sync status bar -->
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);margin-bottom:14px;font-size:11px;">
+    <span style="font-family:var(--mono);color:var(--text-muted);font-size:10px;white-space:nowrap;">SHEETS SYNC</span>
+    <span id="master-sync-status" style="color:var(--text-muted);flex:1;">Belum disync</span>
+    <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">Sheet: <strong style="color:var(--accent);">MaterialMaster</strong> · Auto-sync saat save</span>
   </div>
   <input type="file" id="master-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="importMasterFile(this)">
 
@@ -1807,7 +1815,7 @@ Ada update? cc: [Atasan jika perlu]</div>
 // GOOGLE SHEETS SYNC — Ganti URL di bawah ini
 // Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
 // ===================================================
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbxQMwQhmNOL3sEG9cMars_ISpEpxox3cjiLyyPKMX4zdIu8RHd-rSBi7UKdAHb8JcND/exec';
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzOgbRvX3dCtg4pNs6I2eaJCgL4QH0ScF034axlHochoWNOVuDXyur7fZoOCBa00zP_/exec';
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
@@ -1924,6 +1932,12 @@ async function loadFromSheets() {
     // Validate it's JSON before using
     const data = JSON.parse(text);
     localStorage.setItem('ci3_cache', text);
+    // Sync materialMaster dari payload Sheets → localStorage khusus
+    if (data.materialMaster && data.materialMaster.length) {
+      materialMaster = data.materialMaster;
+      localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
+      updateMasterSyncStatus('ok', `${materialMaster.length} item tersync · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
+    }
     applyData(data);
     lastSyncTime = new Date();
     setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
@@ -2005,7 +2019,7 @@ function refreshAllUI() {
   const ap = document.querySelector('.page.active');
   if (ap) {
     const pid = ap.id.replace('page-','');
-    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt, calibration:renderCalibration, hse:renderHSE, export:renderExportPage, matmaster:renderMasterPage })[pid]?.();
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt, calibration:renderCalibration, hse:renderHSE, export:renderExportPage, matmaster:()=>{ if(!materialMaster.length) loadMasterLocal(); renderMasterPage(); } })[pid]?.();
   }
   if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
 }
@@ -2017,7 +2031,9 @@ function showPage(name, el) {
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
   currentCatFilter = '';
-  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: renderGantt, framework: ()=>{}, calibration: renderCalibration, hse: renderHSE, export: renderExportPage, matmaster: renderMasterPage };
+  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: renderGantt, framework: ()=>{}, calibration: renderCalibration, hse: renderHSE, export: renderExportPage,
+    matmaster: ()=>{ if(!materialMaster.length) loadMasterLocal(); renderMasterPage(); }
+  };
   if (renders[name]) renders[name]();
 }
 function filterCat(cat, el) {
@@ -2860,20 +2876,19 @@ function initBulkTable(rows=[]) {
 function addBulkRow(data={}) {
   const tbody = document.getElementById('bulk-mat-body');
   const tr = document.createElement('tr');
-  const rowId = 'br_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
   tr.innerHTML = `
-    <td><div class="mat-ac-wrap"><input type="text" value="${data.partno||''}" placeholder="PN-001" autocomplete="off"
+    <td><div class="mat-ac-wrap"><input type="text" data-field="partno" value="${(data.partno||'').replace(/"/g,'&quot;')}" placeholder="PN-001" autocomplete="off"
       style="font-family:var(--mono);font-size:10px;"
       oninput="acInputBulk(this,true)"
       onkeydown="acKey(event,this)"
       onblur="acBlur(this)"
       onpaste="handleBulkPaste(event,this)"></div></td>
-    <td><div class="mat-ac-wrap"><input type="text" value="${data.name||''}" placeholder="Nama material..." autocomplete="off"
+    <td><div class="mat-ac-wrap"><input type="text" data-field="name" value="${(data.name||'').replace(/"/g,'&quot;')}" placeholder="Nama material..." autocomplete="off"
       oninput="acInputBulk(this,false)"
       onkeydown="acKey(event,this)"
       onblur="acBlur(this)"></div></td>
-    <td><input type="number" value="${data.qty||''}" placeholder="0" min="1" style="text-align:center;"></td>
-    <td><select>${unitOpts(data.unit||'pcs')}</select></td>
+    <td><input type="number" data-field="qty" value="${data.qty||''}" placeholder="0" min="1" style="text-align:center;width:100%;background:var(--bg);border:none;color:var(--text);padding:4px 6px;font-size:11px;"></td>
+    <td><select data-field="unit">${unitOpts(data.unit||'pcs')}</select></td>
     <td><button onclick="this.closest('tr').remove();updateBulkCount()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:2px 4px;">×</button></td>`;
   tbody.appendChild(tr);
   updateBulkCount();
@@ -2883,7 +2898,7 @@ function clearBulkTable(){initBulkTable();}
 
 function updateBulkCount() {
   const rows=[...document.querySelectorAll('#bulk-mat-body tr')];
-  const filled=rows.filter(r=>r.querySelectorAll('input')[1]?.value.trim());
+  const filled=rows.filter(r=>r.querySelector('[data-field="name"]')?.value.trim());
   const el=document.getElementById('bulk-row-count');
   if(el) el.textContent=`${filled.length} baris terisi`;
 }
@@ -2908,9 +2923,11 @@ function handleBulkPaste(e, el) {
 
 function getBulkRows() {
   return [...document.querySelectorAll('#bulk-mat-body tr')].map(tr=>{
-    const inputs=tr.querySelectorAll('input[type=text],input[type=number]');
-    const sel=tr.querySelector('select');
-    return{partno:inputs[0]?.value.trim()||'',name:inputs[1]?.value.trim()||'',qty:inputs[2]?.value.trim()||'',unit:sel?.value||'pcs'};
+    const partno = tr.querySelector('[data-field="partno"]')?.value.trim()||'';
+    const name   = tr.querySelector('[data-field="name"]')?.value.trim()||'';
+    const qty    = tr.querySelector('[data-field="qty"]')?.value.trim()||'';
+    const unit   = tr.querySelector('[data-field="unit"]')?.value||'pcs';
+    return {partno, name, qty, unit};
   }).filter(r=>r.name);
 }
 
@@ -3891,19 +3908,65 @@ setupPWA();
 
 function saveMasterLocal() {
   localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
-  save(); // also include in main save
+  save(); // include in main save payload → triggers pushToSheets
+  updateMasterSyncStatus('syncing', 'Menyimpan ke Sheets...');
 }
 
 function loadMasterLocal() {
   try {
+    // Priority: ambil dari localStorage dulu (paling cepat)
     const raw = localStorage.getItem('ci3_matmaster');
-    if (raw) materialMaster = JSON.parse(raw);
-  } catch(e) {}
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.length) { materialMaster = parsed; return; }
+    }
+    // Fallback: dari ci3_cache (payload utama)
+    const cache = localStorage.getItem('ci3_cache');
+    if (cache) {
+      const data = JSON.parse(cache);
+      if (data.materialMaster && data.materialMaster.length) {
+        materialMaster = data.materialMaster;
+        localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
+      }
+    }
+  } catch(e) { console.warn('loadMasterLocal error:', e); }
+}
+
+// Pull Material Master khusus dari Sheets (bisa edit manual di Sheets → sync ke app)
+async function pullMasterFromSheets() {
+  if (!SYNC_ENABLED) return;
+  updateMasterSyncStatus('syncing', 'Mengambil dari Sheets...');
+  try {
+    const res  = await fetch(SYNC_URL + '?action=getMaster&t=' + Date.now(), { method:'GET' });
+    const text = await res.text();
+    const data = JSON.parse(text);
+    // data bisa berupa array langsung atau object dengan key materialMaster
+    const master = Array.isArray(data) ? data : (data.materialMaster || []);
+    if (master.length) {
+      materialMaster = master;
+      localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
+      renderMasterPage();
+      updateMasterSyncStatus('ok', `✅ ${master.length} item dari Sheets · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
+    } else {
+      updateMasterSyncStatus('ok', 'Sheet MaterialMaster kosong');
+    }
+  } catch(e) {
+    updateMasterSyncStatus('error', '⚠ Gagal ambil dari Sheets');
+    console.warn('pullMaster failed:', e);
+  }
+}
+
+function updateMasterSyncStatus(state, msg) {
+  const el = document.getElementById('master-sync-status');
+  if (!el) return;
+  const colors = { ok:'var(--accent3)', syncing:'var(--accent)', error:'var(--danger)' };
+  el.style.color = colors[state] || 'var(--text-muted)';
+  el.textContent = msg;
 }
 
 // Render the Material Master page
 function renderMasterPage() {
-  loadMasterLocal();
+  // Load sekali saat page dibuka — jangan loadMasterLocal di sini karena akan override search state
   const search = (document.getElementById('master-search')?.value||'').toLowerCase();
   const unitF  = document.getElementById('master-filter-unit')?.value||'';
 
@@ -3911,51 +3974,82 @@ function renderMasterPage() {
   const total  = materialMaster.length;
   const units  = [...new Set(materialMaster.map(m=>m.unit))].length;
   const withpn = materialMaster.filter(m=>m.partno).length;
-  document.getElementById('ms-total').textContent  = total;
-  document.getElementById('ms-units').textContent  = units;
-  document.getElementById('ms-withpn').textContent = withpn;
+  const msTotal = document.getElementById('ms-total');
+  const msUnits = document.getElementById('ms-units');
+  const msWithpn= document.getElementById('ms-withpn');
+  if(msTotal)  msTotal.textContent  = total;
+  if(msUnits)  msUnits.textContent  = units;
+  if(msWithpn) msWithpn.textContent = withpn;
 
-  // Populate unit filter
+  // Populate unit filter — preserve selection
   const usel = document.getElementById('master-filter-unit');
-  const curUnit = usel?.value||'';
   if(usel) {
     const allUnits = [...new Set(materialMaster.map(m=>m.unit).filter(Boolean))].sort();
-    usel.innerHTML = '<option value="">Semua Satuan</option>' + allUnits.map(u=>`<option value="${u}" ${u===curUnit?'selected':''}>${u}</option>`).join('');
+    const prev = usel.value;
+    usel.innerHTML = '<option value="">Semua Satuan</option>' + allUnits.map(u=>`<option value="${u}" ${u===prev?'selected':''}>${u}</option>`).join('');
   }
 
   // Update nav badge
   const badge = document.getElementById('nav-master-count');
   if(badge){ badge.textContent=total; badge.style.display=total?'inline-block':'none'; }
 
-  // Filter
-  let list = materialMaster;
-  if(search) list = list.filter(m=>(m.name||'').toLowerCase().includes(search)||(m.partno||'').toLowerCase().includes(search));
-  if(unitF)  list = list.filter(m=>m.unit===unitF);
+  renderMasterTable();
+}
 
-  const tbody  = document.getElementById('master-tbody');
-  const empty  = document.getElementById('master-empty');
+// Render only the table — called by search/filter without reloading data
+function renderMasterTable() {
+  const search = (document.getElementById('master-search')?.value||'').toLowerCase().trim();
+  const unitF  = document.getElementById('master-filter-unit')?.value||'';
+  const total  = materialMaster.length;
+
+  const tbody    = document.getElementById('master-tbody');
+  const empty    = document.getElementById('master-empty');
   const dropzone = document.getElementById('master-dropzone');
+
   if(!total) {
-    if(tbody) tbody.innerHTML='';
-    if(empty) empty.style.display='block';
+    if(tbody)    tbody.innerHTML='';
+    if(empty)    empty.style.display='block';
     if(dropzone) dropzone.style.display='';
-    document.getElementById('master-count-label').textContent='';
+    const lbl=document.getElementById('master-count-label'); if(lbl) lbl.textContent='';
     return;
   }
-  if(empty) empty.style.display='none';
-  if(dropzone) dropzone.style.display = total > 0 ? 'none' : '';
+  if(empty)    empty.style.display='none';
+  if(dropzone) dropzone.style.display='none';
 
-  document.getElementById('master-count-label').textContent = `Menampilkan ${list.length} dari ${total} item`;
+  // Filter
+  let list = materialMaster;
+  if(search) list = list.filter(m=>
+    (m.name||'').toLowerCase().includes(search) ||
+    (m.partno||'').toLowerCase().includes(search)
+  );
+  if(unitF) list = list.filter(m=>m.unit===unitF);
 
-  if(tbody) tbody.innerHTML = list.map((m,i)=>`
+  const lbl=document.getElementById('master-count-label');
+  if(lbl) lbl.textContent = search||unitF ? `Menampilkan ${list.length} dari ${total} item` : `${total} item`;
+
+  if(!tbody) return;
+
+  if(!list.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">
+      Tidak ada hasil untuk "<strong>${search}</strong>"</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map((m)=>`
     <tr>
       <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${materialMaster.indexOf(m)+1}</td>
-      <td><span class="master-pn">${m.partno||'<span style="color:var(--text-muted);font-style:italic;">—</span>'}</span></td>
-      <td style="font-size:12px;">${highlightText(m.name||'', search)}</td>
+      <td><span class="master-pn">${m.partno ? highlightText(escHtml(m.partno), search) : '<span style="color:var(--text-muted);font-style:italic;">—</span>'}</span></td>
+      <td style="font-size:12px;">${highlightText(escHtml(m.name||''), search)}</td>
       <td><span class="master-unit-badge">${m.unit||'pcs'}</span></td>
-      <td><button class="btn-secondary btn-sm" style="padding:2px 8px;font-size:10px;" onclick="openMasterEditModal('${m.id}')">✏</button>
-          <button class="btn-danger btn-sm" style="padding:2px 8px;font-size:10px;" onclick="deleteMasterItem('${m.id}')">×</button></td>
+      <td style="white-space:nowrap;">
+        <button class="btn-secondary btn-sm" style="padding:2px 8px;font-size:10px;" onclick="openMasterEditModal('${m.id}')">✏</button>
+        <button class="btn-danger btn-sm" style="padding:2px 8px;font-size:10px;" onclick="deleteMasterItem('${m.id}')">×</button>
+      </td>
     </tr>`).join('');
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function highlightText(text, q) {
@@ -4177,33 +4271,38 @@ function acSearch(q, byPartno=false) {
   ).slice(0, 10);
 }
 
-// Called on input in single/edit/inline modal name or partno fields
-// nameId: id of name input, unitId: id of unit select, byPartno: searching by PN
-function acInput(el, nameId, unitId, byPartno=false) {
+// Called on input in single/edit/inline modal — nameId & pnId are explicit element IDs
+function acInput(el, pnId, unitId, byPartno=false) {
   if(!materialMaster.length) return;
   const q = el.value.trim();
   if(!q) { acClose(el); return; }
   const results = acSearch(q, byPartno);
   acShowDropdown(el, results, q, byPartno, (item)=>{
-    // Fill all fields when user picks an item
-    const nameInput = document.getElementById(nameId);
-    const unitSel   = document.getElementById(unitId);
-    if(nameInput) nameInput.value = item.name;
-    // fill the partno field (sibling to name)
-    const pnInput = document.getElementById(nameId.replace('-name','-partno').replace('mf-name','mf-partno').replace('me-name','me-partno').replace('im-name','im-partno'));
-    // If current el IS the name field, also fill partno; if it's partno, also fill name
-    if(byPartno && nameInput) {
-      nameInput.value = item.name;
-      el.value = item.partno || el.value;
+    // Determine sibling IDs from the known pairs
+    const pairs = {
+      'mf-name':   {pn:'mf-partno',  unit:'mf-unit'},
+      'mf-partno': {name:'mf-name',  unit:'mf-unit'},
+      'me-name':   {pn:'me-partno',  unit:'me-unit'},
+      'me-partno': {name:'me-name',  unit:'me-unit'},
+      'im-name':   {pn:'im-partno',  unit:'im-unit'},
+      'im-partno': {name:'im-name',  unit:'im-unit'},
+    };
+    const map = pairs[el.id] || {};
+    // Fill name field
+    const nameEl = document.getElementById(map.name || (byPartno ? pnId.replace('partno','name') : el.id));
+    const pnEl   = document.getElementById(map.pn   || pnId);
+    const unitEl = document.getElementById(map.unit || unitId);
+    // Set values
+    if(byPartno) {
+      el.value = item.partno||'';
+      if(nameEl && nameEl!==el) nameEl.value = item.name||'';
     } else {
-      el.value = item.name;
-      const pnEl = el.closest('.form-group')?.nextElementSibling?.querySelector('input');
-      if(pnEl && pnEl !== el) pnEl.value = item.partno||'';
+      el.value = item.name||'';
+      if(pnEl && pnEl!==el) pnEl.value = item.partno||'';
     }
-    // Set unit
-    if(unitSel) {
-      const opt = [...unitSel.options].find(o=>o.value===item.unit);
-      if(opt) unitSel.value=item.unit;
+    if(unitEl) {
+      const opt = [...unitEl.options].find(o=>o.value===item.unit);
+      if(opt) unitEl.value = item.unit;
     }
     acClose(el);
   });
@@ -4217,12 +4316,12 @@ function acInputBulk(el, byPartno=false) {
   const results = acSearch(q, byPartno);
   acShowDropdown(el, results, q, byPartno, (item)=>{
     const tr = el.closest('tr');
-    const inputs = tr.querySelectorAll('input[type=text]');
-    const unitSel = tr.querySelector('select');
-    // inputs[0]=partno, inputs[1]=name
-    if(inputs[0]) inputs[0].value = item.partno||'';
-    if(inputs[1]) inputs[1].value = item.name||'';
-    if(unitSel) {
+    const pnEl   = tr.querySelector('[data-field="partno"]');
+    const nameEl = tr.querySelector('[data-field="name"]');
+    const unitSel= tr.querySelector('[data-field="unit"]');
+    if(pnEl)   pnEl.value   = item.partno||'';
+    if(nameEl) nameEl.value = item.name||'';
+    if(unitSel){
       const opt=[...unitSel.options].find(o=>o.value===item.unit);
       if(opt) unitSel.value=item.unit;
     }
