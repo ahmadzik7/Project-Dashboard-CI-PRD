@@ -1818,7 +1818,7 @@ Ada update? cc: [Atasan jika perlu]</div>
 // GOOGLE SHEETS SYNC — Ganti URL di bawah ini
 // Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
 // ===================================================
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzOgbRvX3dCtg4pNs6I2eaJCgL4QH0ScF034axlHochoWNOVuDXyur7fZoOCBa00zP_/exec';
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycby5RKWJP0yhGDUubEjOxP-t6gcXR2MwfbRZvru5zRXolh94wtzt76lAo3DxfV6nhFjn/exec';
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
@@ -2001,7 +2001,7 @@ async function loadFromSheets() {
   }
   setSyncStatus('syncing', 'Memuat data...');
   try {
-    const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
+    const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET', redirect:'follow' });
     const text = await res.text();
     // Validate it's JSON before using
     const data = JSON.parse(text);
@@ -2056,17 +2056,53 @@ function loadFromLocal() {
 }
 
 // ===== PUSH TO SHEETS =====
+// FIX v16:
+//  1. redirect:'follow' — wajib untuk Apps Script yang redirect ke execution URL
+//  2. Trim activityLog sebelum kirim — cegah payload meledak
+//  3. Timeout 25 detik — Apps Script bisa lambat, tapi jangan tunggu selamanya
+//  4. pendingSave direset SEBELUM finally agar tidak race condition
+
 async function pushToSheets(payload) {
   // Jika sedang sync, tandai pending — akan dijalankan setelah sync selesai
   if (isSyncing) { pendingSave = true; return; }
   isSyncing = true;
   setSyncStatus('syncing', 'Menyimpan ke Sheets...');
+
+  // Trim activityLog agar payload tidak membengkak — kirim max 50 entri
+  let sendPayload = payload;
   try {
+    const parsed = JSON.parse(payload);
+    if (Array.isArray(parsed.activityLog) && parsed.activityLog.length > 50) {
+      parsed.activityLog = parsed.activityLog.slice(0, 50);
+      sendPayload = JSON.stringify(parsed);
+    }
+    // Pastikan tidak melebihi 200KB sebelum kirim (Apps Script body limit)
+    if (sendPayload.length > 200000) {
+      // Strip materialMaster dari payload — akan dimuat terpisah via getMaster
+      delete parsed.materialMaster;
+      sendPayload = JSON.stringify(parsed);
+    }
+  } catch(ex) { /* pakai payload asli kalau parse gagal */ }
+
+  // Tandai pendingSave false sebelum try — FIX race condition
+  const wasPending = pendingSave;
+  pendingSave = false;
+
+  try {
+    // AbortController untuk timeout 25 detik
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), 25000);
+
     const res = await fetch(SYNC_URL, {
-      method: 'POST',
-      body: payload,
-      headers: { 'Content-Type': 'text/plain' }
+      method:   'POST',
+      body:     sendPayload,
+      redirect: 'follow',          // ← FIX UTAMA: Apps Script selalu redirect
+      headers:  { 'Content-Type': 'text/plain;charset=UTF-8' },
+      signal:   controller.signal
     });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const txt = await res.text();
     if (txt.startsWith('ERROR')) throw new Error(txt);
 
@@ -2075,19 +2111,20 @@ async function pushToSheets(payload) {
     _retryCount  = 0;
     clearTimeout(_retryTimer);
     _retryTimer = null;
-    _lastSuccessfulPayload = payload; // catat payload yang berhasil tersimpan
+    _lastSuccessfulPayload = payload; // catat payload ASLI (bukan yang di-trim) sebagai referensi
     setSyncStatus('ok', 'Tersimpan ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
 
   } catch(e) {
-    console.warn('Push failed:', e);
+    console.warn('Push failed:', e.name === 'AbortError' ? 'Timeout 25s' : e);
     // Data AMAN di localStorage — hanya push ke Sheets yang gagal
     const delay = RETRY_DELAYS[Math.min(_retryCount, RETRY_DELAYS.length-1)];
     _retryCount++;
 
     if (_retryCount <= MAX_RETRIES) {
       const delaySec = Math.round(delay/1000);
+      const reason   = e.name === 'AbortError' ? 'Timeout' : 'Gagal';
       setSyncStatus('error',
-        `Gagal simpan ke Sheets (coba ${_retryCount}/${MAX_RETRIES} dalam ${delaySec}s) — Data lokal AMAN ✓`);
+        `${reason} simpan ke Sheets (retry ${_retryCount}/${MAX_RETRIES} dalam ${delaySec}s) — Data lokal AMAN ✓`);
       _retryTimer = setTimeout(() => {
         _retryTimer = null;
         // Ambil payload terbaru dari localStorage (bukan closure lama)
@@ -2099,15 +2136,14 @@ async function pushToSheets(payload) {
         `Gagal sync ke Sheets setelah ${MAX_RETRIES}x — Data tersimpan lokal ✓ · Klik 🔄 untuk coba manual`);
       _retryCount = 0; // reset agar manual retry bisa berjalan lagi
     }
-    pendingSave = false;
 
   } finally {
-    // ← FIX Bug 3: isSyncing SELALU direset, bahkan jika exception
     isSyncing = false;
-    if (pendingSave) {
+    // Jika ada save baru masuk saat kita sedang push, langsung kirim ulang
+    if (wasPending || pendingSave) {
       pendingSave = false;
       const latest = localStorage.getItem('ci3_cache');
-      if (latest) setTimeout(() => pushToSheets(latest), 200);
+      if (latest) setTimeout(() => pushToSheets(latest), 300);
     }
   }
 }
@@ -2119,7 +2155,7 @@ function startAutoSync() {
     // ← FIX Bug 4: jangan pull kalau user sedang edit (ada pending save atau sedang push)
     if (isSyncing || saveDebounceTimer || _retryTimer) return;
     try {
-      const res    = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
+      const res    = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET', redirect:'follow' });
       const text   = await res.text();
       const cached = localStorage.getItem('ci3_cache');
       if (text !== cached) {
@@ -4102,7 +4138,7 @@ async function pullMasterFromSheets() {
   updateMasterSyncStatus('syncing', '⏳ Mengambil dari Sheets...');
   try {
     // Coba dulu dengan ?action=getMaster (Apps Script v3)
-    const res  = await fetch(SYNC_URL + '?action=getMaster&t=' + Date.now(), { method:'GET' });
+    const res  = await fetch(SYNC_URL + '?action=getMaster&t=' + Date.now(), { method:'GET', redirect:'follow' });
     const text = await res.text();
     let master = [];
 
