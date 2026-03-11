@@ -701,7 +701,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept · v11</div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v13</div>
     </div>
   </div>
   <div class="header-right">
@@ -1006,7 +1006,7 @@ Ada update? cc: [Atasan jika perlu]</div>
   <div class="gantt-toolbar">
     <div class="gantt-view-toggle">
       <button class="gantt-view-btn active" id="gantt-view-week1" onclick="setGanttView('week1',this)">1 Minggu</button>
-      <button class="gantt-view-btn" id="gantt-view-week3" onclick="setGanttView('week3',this)">3 Minggu</button>
+      <button class="gantt-view-btn" id="gantt-view-week4" onclick="setGanttView('week4',this)">4 Minggu</button>
       <button class="gantt-view-btn" id="gantt-view-month" onclick="setGanttView('month',this)">Per Bulan</button>
     </div>
     <button class="btn-primary btn-sm" onclick="openGanttAddForm()" style="background:var(--c5r);color:#000;">+ TAMBAH JADWAL</button>
@@ -1707,7 +1707,10 @@ Ada update? cc: [Atasan jika perlu]</div>
       <div class="detail-section">
         <div class="detail-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Material Kebutuhan Project</span>
-          <button class="btn-teal" style="font-size:10px;padding:3px 9px;" onclick="toggleMatForm()">+ Tambah</button>
+          <div style="display:flex;gap:5px;">
+            <button class="btn-secondary" style="font-size:10px;padding:3px 9px;color:var(--accent3);" onclick="exportBOQ(currentDetailId)" title="Export BOQ ke Excel">📥 Export BOQ</button>
+            <button class="btn-teal" style="font-size:10px;padding:3px 9px;" onclick="toggleMatForm()">+ Tambah</button>
+          </div>
         </div>
 
         <!-- INLINE MATERIAL FORM -->
@@ -1815,7 +1818,7 @@ Ada update? cc: [Atasan jika perlu]</div>
 // GOOGLE SHEETS SYNC — Ganti URL di bawah ini
 // Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
 // ===================================================
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbzOgbRvX3dCtg4pNs6I2eaJCgL4QH0ScF034axlHochoWNOVuDXyur7fZoOCBa00zP_/exec';
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyPvCWkZWHkT3TnrhklvS8MJ0VdFsaQAYV23JAToMS-GKnku_mU9WujUc9_rtMs0x4G/exec';
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
@@ -1893,7 +1896,18 @@ function applyData(data) {
   ganttSchedules = data.ganttSchedules || [];
   calibrations   = data.calibrations   || [];
   hseGroups      = data.hseGroups      || [];
-  materialMaster = data.materialMaster || [];
+  // materialMaster: hanya update kalau Sheets benar-benar kirim data (array tidak kosong)
+  // Kalau tidak ada atau kosong, pertahankan yang sudah ada di memori / localStorage
+  if (Array.isArray(data.materialMaster) && data.materialMaster.length > 0) {
+    materialMaster = data.materialMaster;
+    localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
+  } else if (!materialMaster.length) {
+    // Belum ada di memori — coba ambil dari localStorage khusus
+    try {
+      const raw = localStorage.getItem('ci3_matmaster');
+      if (raw) { const p = JSON.parse(raw); if (p.length) materialMaster = p; }
+    } catch(e) {}
+  }
   if (!libFolders.length) {
     libFolders = [
       { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
@@ -1932,13 +1946,11 @@ async function loadFromSheets() {
     // Validate it's JSON before using
     const data = JSON.parse(text);
     localStorage.setItem('ci3_cache', text);
-    // Sync materialMaster dari payload Sheets → localStorage khusus
-    if (data.materialMaster && data.materialMaster.length) {
-      materialMaster = data.materialMaster;
-      localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
-      updateMasterSyncStatus('ok', `${materialMaster.length} item tersync · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
-    }
     applyData(data);
+    // Update sync status untuk master
+    if (materialMaster.length) {
+      updateMasterSyncStatus('ok', `${materialMaster.length} item · sync ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
+    }
     lastSyncTime = new Date();
     setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
   } catch(e) {
@@ -2121,7 +2133,7 @@ function renderDashboard() {
   document.getElementById('db-tbody').innerHTML = recent.length ? recent.map(p=>`<tr onclick="openDetail('${p.id}')">
     <td><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${p.id}</span></td>
     <td>${p.ejo?`<span class="ejo-badge">${p.ejo}</span>`:'—'}</td>
-    <td style="font-weight:500;max-width:140px;">${p.name}</td>
+    <td style="font-weight:500;max-width:140px;">${p.name}${p._source==='ci-form'?`<br><span style="font-size:9px;font-family:var(--mono);background:rgba(59,130,246,0.15);color:#60A5FA;padding:1px 5px;border-radius:3px;">📨 FORM · ${p.submittedBy||''}</span>`:''}</td>
     <td>${catBadge(p.category||'perbaikan')}</td>
     <td>${prioBadge(p.priority||'M')}</td>
     <td>${statusBadge(p.status)}</td>
@@ -2310,7 +2322,7 @@ function updMatStatus(id,val){const m=materials.find(x=>x.id===id);if(m){m.statu
 
 // ===== ISSUES =====
 function renderIssues() {
-  document.getElementById('issue-grid').innerHTML = issues.length ? issues.map(i=>{ const proj=projects.find(p=>p.id===i.projectId); return `<div class="issue-card ${i.severity}"><div class="issue-title">${i.title}</div><div class="issue-meta">${proj?proj.name:'General'} · ${fmt(i.date)}${i.deadline?` → Deadline: ${fmt(i.deadline)}`:''}</div><div class="issue-desc">${i.desc||'—'}</div><div style="margin-top:8px;display:flex;justify-content:flex-end;"><button class="btn-danger" onclick="delIssue('${i.id}')">Hapus</button></div></div>`; }).join('') : `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠</div>Belum ada issue.</div>`;
+  document.getElementById('issue-grid').innerHTML = issues.length ? issues.map(i=>{ const proj=projects.find(p=>p.id===i.projectId); return `<div class="issue-card ${i.severity}"><div class="issue-title">${i.name||i.title||'—'}${i._source==='ci-form'?` <span style="font-size:9px;font-family:var(--mono);background:rgba(59,130,246,0.15);color:#60A5FA;padding:1px 5px;border-radius:3px;">📨 FORM · ${i.submittedBy||''}</span>`:''}</div><div class="issue-meta">${i.location?i.location+' · ':''} ${proj?proj.name:'General'} · ${fmt(i.date)}${i.deadline?` → Deadline: ${fmt(i.deadline)}`:''}</div><div class="issue-desc">${i.description||i.desc||'—'}</div>${i.actionTaken?`<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">🔧 Tindakan: ${i.actionTaken}</div>`:''}<div style="margin-top:8px;display:flex;justify-content:flex-end;"><button class="btn-danger" onclick="delIssue('${i.id}')">Hapus</button></div></div>`; }).join('') : `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠</div>Belum ada issue.</div>`;
 }
 
 // ===== SOP / WI LIBRARY =====
@@ -3386,7 +3398,7 @@ function saveMatEdit() {
 // =============================================
 // ===== GANTT CHART =====
 // =============================================
-let ganttView = 'week1'; // 'week1', 'week3', or 'month'
+let ganttView = 'week1'; // 'week1', 'week4', or 'month'
 let ganttOffset = 0;    // period offset from today
 let editingGanttId = null;
 
@@ -3525,11 +3537,11 @@ function getGanttPeriod() {
     const sunday = _addDays(monday, 6);
     return { startDate:monday, endDate:sunday, cols:7, mode:'days' };
 
-  } else if(ganttView === 'week3') {
-    // 3 weeks: first Monday of the 3-week block + offset*21
-    const monday = _addDays(baseMonday, ganttOffset * 21);
-    const endD   = _addDays(monday, 20);
-    return { startDate:monday, endDate:endD, cols:21, mode:'days' };
+  } else if(ganttView === 'week4') {
+    // 4 weeks compact: 28 days starting from current Monday + offset*28
+    const monday = _addDays(baseMonday, ganttOffset * 28);
+    const endD   = _addDays(monday, 27);
+    return { startDate:monday, endDate:endD, cols:28, mode:'days', compact:true };
 
   } else {
     // Monthly: full calendar month + offset months
@@ -3595,8 +3607,8 @@ function renderGantt() {
       label = `${getWeekLabel(period.startDate)} · ${_fmtD(period.startDate)} — ${_fmtD(period.endDate)}`;
     } else {
       const w1 = getWeekLabel(period.startDate);
-      const w3 = getWeekLabel(_addDays(period.startDate, 14));
-      label = `${w1} → ${w3} · ${_fmtD(period.startDate)} — ${_fmtD(period.endDate)}`;
+      const w4 = getWeekLabel(_addDays(period.startDate, 21));
+      label = `${w1} → ${w4} · ${_fmtD(period.startDate)} — ${_fmtD(period.endDate)}`;
     }
   } else {
     label = `${_MONTHS[period.startDate.getMonth()]} ${period.startDate.getFullYear()}`;
@@ -3644,30 +3656,31 @@ function renderGantt() {
     const dates = [];
     for(let i=0;i<period.cols;i++) dates.push(_addDays(period.startDate,i));
 
-    // Group consecutive dates by week for week3 header
-    const colW = ganttView==='week1' ? 110 : 80;
+    // compact = week4 mode → tiny columns
+    const isCompact = !!period.compact;
+    const colW = ganttView==='week1' ? 110 : 26; // 26px per day × 28 = 728px fits on screen
 
     html += '<thead>';
-    if(ganttView==='week3') {
-      // Row 1: Week labels spanning 7 cols each
+    if(isCompact) {
+      // Row 1: Week labels spanning 7 cols each (4 weeks)
       html += '<tr>';
       html += `<th rowspan="2" style="min-width:${stickyLabelW}px;position:sticky;left:0;z-index:10;background:var(--surface2);">Jadwal</th>`;
       html += `<th rowspan="2" style="min-width:${stickyTypeW}px;position:sticky;left:${stickyLabelW}px;z-index:10;background:var(--surface2);">Tipe</th>`;
-      html += `<th rowspan="2" style="min-width:85px;background:var(--surface2);">PIC</th>`;
-      for(let w=0;w<3;w++) {
+      html += `<th rowspan="2" style="min-width:60px;background:var(--surface2);">PIC</th>`;
+      for(let w=0;w<4;w++) {
         const wMon = _addDays(period.startDate, w*7);
         const wSun = _addDays(wMon, 6);
         const isTodayW = today >= wMon && today <= wSun;
         const wLabel = getWeekLabel(wMon);
-        html += `<th colspan="7" class="week-head${isTodayW?' today-head':''}" style="min-width:${colW*7}px;">${wLabel} · ${_fmtD(wMon).slice(5)} – ${_fmtD(wSun).slice(5)}</th>`;
+        html += `<th colspan="7" class="week-head${isTodayW?' today-head':''}" style="font-size:9px;padding:3px;min-width:${colW*7}px;">${wLabel} <span style="opacity:0.6;">${_fmtD(wMon).slice(5)}</span></th>`;
       }
-      html += `<th rowspan="2" style="min-width:90px;background:var(--surface2);">Catatan</th></tr>`;
-      // Row 2: Day names
+      html += `<th rowspan="2" style="min-width:0;width:0;padding:0;overflow:hidden;border:none;"></th></tr>`;
+      // Row 2: Day numbers only (compact)
       html += '<tr>';
       dates.forEach(d => {
         const isToday = _fmtD(d)===_fmtD(today);
         const isWknd  = d.getDay()===0||d.getDay()===6;
-        html += `<th style="min-width:${colW}px;padding:3px;text-align:center;font-size:9px;${isToday?'color:var(--accent);background:rgba(245,158,11,0.12);':''}${isWknd&&!isToday?'opacity:0.45;':''}">${_DAYS_S[d.getDay()]}<br>${d.getDate()}</th>`;
+        html += `<th style="width:${colW}px;min-width:${colW}px;max-width:${colW}px;padding:1px 0;text-align:center;font-size:8px;font-family:var(--mono);${isToday?'color:var(--accent);background:rgba(245,158,11,0.15);font-weight:700;':''}${isWknd&&!isToday?'opacity:0.35;background:rgba(0,0,0,0.15);':''}">${d.getDate()}</th>`;
       });
       html += '</tr>';
     } else {
@@ -3702,20 +3715,31 @@ function renderGantt() {
           const rowStyle = isPhase ? `background:rgba(245,158,11,0.04);` : '';
           html += `<tr onclick="${clickFn}" style="cursor:pointer;${rowStyle}" class="mat-row-clickable">`;
           html += `<td class="gantt-row-label" style="position:sticky;left:0;z-index:4;background:${isPhase?'rgba(30,25,15,1)':'var(--surface)'};">${occ.name}${occ._parentId?` <span style="font-size:9px;color:var(--text-muted);font-family:var(--mono);">[${occ.freq||''}]</span>`:''}${isPhase?` <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${occ.notes}</span>`:''}</td>`;
-          html += `<td class="gantt-row-type" style="position:sticky;left:${stickyLabelW}px;z-index:4;background:${isPhase?'rgba(30,25,15,1)':'var(--surface)'};"><span class="gantt-bar ${isPhase?'custom':occ.type}" style="height:18px;padding:0 5px;display:inline-flex;align-items:center;border-radius:2px;font-size:9px;">FASE</span></td>`;
-          html += `<td class="gantt-row-pic">${occ.pic||'—'}</td>`;
+          html += `<td class="gantt-row-type" style="position:sticky;left:${stickyLabelW}px;z-index:4;background:${isPhase?'rgba(30,25,15,1)':'var(--surface)'};"><span class="gantt-bar ${isPhase?'custom':occ.type}" style="height:18px;padding:0 5px;display:inline-flex;align-items:center;border-radius:2px;font-size:9px;">${isPhase?'FASE':TYPE_LABELS[occ.type]}</span></td>`;
+          html += `<td class="gantt-row-pic" style="${isCompact?'font-size:9px;padding:2px 4px;':''};">${isCompact?(occ.pic||'—').slice(0,6):(occ.pic||'—')}</td>`;
           dates.forEach(d => {
             const isToday = _fmtD(d)===_fmtD(today);
             const isWknd  = d.getDay()===0||d.getDay()===6;
             const active  = d >= occStart && d <= occEnd;
             const showLabel = active && _fmtD(d)===_fmtD(occStart);
             const rgb = isPhase ? '245,158,11' : (TYPE_RGB[occ.type]||'100,116,139');
-            html += `<td class="gantt-cell${isToday?' today-col':''}${isWknd&&!isToday?' weekend-col':''}" style="${active?`background:rgba(${rgb},0.18);`:'background:var(--bg);'}">`;
-            if(showLabel) html += `<div class="gantt-bar-wrap"><div class="gantt-bar ${isPhase?'custom':occ.type}">${occ.name}</div></div>`;
-            else if(active) html += `<div style="height:22px;background:rgba(${rgb},0.4);margin:4px 1px;border-radius:1px;"></div>`;
-            html += `</td>`;
+            if(isCompact) {
+              // Compact cell — just a colored block, no text
+              const isFirst = _fmtD(d)===_fmtD(occStart);
+              const isLast  = _fmtD(d)===_fmtD(occEnd);
+              html += `<td style="padding:0;width:26px;min-width:26px;max-width:26px;height:28px;${isToday?'outline:1px solid rgba(245,158,11,0.5);outline-offset:-1px;':''}${isWknd&&!isToday?'background:rgba(0,0,0,0.12);':'background:var(--bg);'}">`;
+              if(active) {
+                html += `<div title="${occ.name}" style="height:14px;margin:7px ${isLast?'2':'0'}px 7px ${isFirst?'2':'0'}px;background:rgba(${rgb},0.75);${isFirst?'border-radius:3px 0 0 3px;':''}${isLast?'border-radius:0 3px 3px 0;':''}"></div>`;
+              }
+              html += `</td>`;
+            } else {
+              html += `<td class="gantt-cell${isToday?' today-col':''}${isWknd&&!isToday?' weekend-col':''}" style="${active?`background:rgba(${rgb},0.18);`:'background:var(--bg);'}">`;
+              if(showLabel) html += `<div class="gantt-bar-wrap"><div class="gantt-bar ${isPhase?'custom':occ.type}">${occ.name}</div></div>`;
+              else if(active) html += `<div style="height:22px;background:rgba(${rgb},0.4);margin:4px 1px;border-radius:1px;"></div>`;
+              html += `</td>`;
+            }
           });
-          html += `<td class="gantt-row-notes" title="${occ.notes||''}">${occ.notes||'—'}</td></tr>`;
+          html += `<td class="gantt-row-notes" ${isCompact?'style="display:none;"':''} title="${occ.notes||''}">${isCompact?'':(occ.notes||'—')}</td></tr>`;
         });
       });
     }
@@ -3907,25 +3931,40 @@ setupPWA();
 // ===== MATERIAL MASTER =====
 
 function saveMasterLocal() {
+  // Simpan ke localStorage khusus master
   localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
-  save(); // include in main save payload → triggers pushToSheets
-  updateMasterSyncStatus('syncing', 'Menyimpan ke Sheets...');
+  // Update payload utama (ci3_cache) — materialMaster sudah ada di global → save() akan include
+  save();
+  updateMasterSyncStatus('syncing', `⏳ Menyimpan ${materialMaster.length} item ke Sheets...`);
+  // Status ok akan di-set otomatis oleh setSyncStatus di pushToSheets
+  // Tapi kita set manual after debounce selesai
+  setTimeout(() => {
+    if (materialMaster.length) {
+      updateMasterSyncStatus('ok', `✅ ${materialMaster.length} item tersimpan · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
+    }
+  }, 2500);
 }
 
 function loadMasterLocal() {
+  // Jangan override kalau sudah ada di memori
+  if (materialMaster.length > 0) return;
   try {
-    // Priority: ambil dari localStorage dulu (paling cepat)
+    // Prioritas 1: localStorage khusus master (paling cepat & dedicated)
     const raw = localStorage.getItem('ci3_matmaster');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed.length) { materialMaster = parsed; return; }
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        materialMaster = parsed;
+        return;
+      }
     }
-    // Fallback: dari ci3_cache (payload utama)
+    // Prioritas 2: ambil dari ci3_cache (payload utama)
     const cache = localStorage.getItem('ci3_cache');
     if (cache) {
       const data = JSON.parse(cache);
-      if (data.materialMaster && data.materialMaster.length) {
+      if (Array.isArray(data.materialMaster) && data.materialMaster.length > 0) {
         materialMaster = data.materialMaster;
+        // Sinkronisasi ke localStorage khusus supaya load berikutnya lebih cepat
         localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
       }
     }
@@ -3934,24 +3973,62 @@ function loadMasterLocal() {
 
 // Pull Material Master khusus dari Sheets (bisa edit manual di Sheets → sync ke app)
 async function pullMasterFromSheets() {
-  if (!SYNC_ENABLED) return;
-  updateMasterSyncStatus('syncing', 'Mengambil dari Sheets...');
+  if (!SYNC_ENABLED) {
+    updateMasterSyncStatus('error', '⚠ Google Sheets sync belum aktif');
+    return;
+  }
+  updateMasterSyncStatus('syncing', '⏳ Mengambil dari Sheets...');
   try {
+    // Coba dulu dengan ?action=getMaster (Apps Script v3)
     const res  = await fetch(SYNC_URL + '?action=getMaster&t=' + Date.now(), { method:'GET' });
     const text = await res.text();
-    const data = JSON.parse(text);
-    // data bisa berupa array langsung atau object dengan key materialMaster
-    const master = Array.isArray(data) ? data : (data.materialMaster || []);
+    let master = [];
+
+    try {
+      const data = JSON.parse(text);
+      if (Array.isArray(data)) {
+        // Apps Script v3 mengembalikan array langsung
+        master = data;
+      } else if (data.materialMaster && Array.isArray(data.materialMaster)) {
+        // Ada field materialMaster di JSON blob
+        master = data.materialMaster;
+      } else {
+        // Apps Script lama — response adalah JSON blob utama tanpa materialMaster
+        // Coba ambil dari ci3_matmaster localStorage yang sudah ada
+        const raw = localStorage.getItem('ci3_matmaster');
+        if (raw) {
+          const p = JSON.parse(raw);
+          if (p.length) {
+            master = p;
+            updateMasterSyncStatus('ok', `${master.length} item (dari cache lokal — update Apps Script ke v3 untuk sync penuh)`);
+            materialMaster = master;
+            renderMasterPage();
+            return;
+          }
+        }
+        updateMasterSyncStatus('error', '⚠ Apps Script belum update ke v3 — data master belum tersync ke Sheets');
+        return;
+      }
+    } catch(parseErr) {
+      updateMasterSyncStatus('error', '⚠ Response tidak valid dari Sheets');
+      return;
+    }
+
     if (master.length) {
       materialMaster = master;
       localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
       renderMasterPage();
       updateMasterSyncStatus('ok', `✅ ${master.length} item dari Sheets · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
     } else {
-      updateMasterSyncStatus('ok', 'Sheet MaterialMaster kosong');
+      // Sheet MaterialMaster kosong — tapi data lokal ada → jangan hapus
+      if (materialMaster.length) {
+        updateMasterSyncStatus('ok', `Sheet MaterialMaster kosong — pakai data lokal (${materialMaster.length} item). Simpan sekali untuk sync ke Sheets.`);
+      } else {
+        updateMasterSyncStatus('ok', 'Sheet MaterialMaster kosong. Import data terlebih dahulu.');
+      }
     }
   } catch(e) {
-    updateMasterSyncStatus('error', '⚠ Gagal ambil dari Sheets');
+    updateMasterSyncStatus('error', `⚠ Gagal konek ke Sheets: ${e.message}`);
     console.warn('pullMaster failed:', e);
   }
 }
@@ -4899,6 +4976,169 @@ function exportAllToXLSX() {
     {name:'Gantt',      data: buildGanttData()},
   ];
   downloadXLSX(sheets, `CI_LaporanKomprehensif_${periodLabel}_${now}.xlsx`);
+}
+
+// ===== EXPORT BOQ PER PROJECT =====
+function exportBOQ(projId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) { alert('Project tidak ditemukan.'); return; }
+  const mats = materials.filter(m => m.projectId === projId);
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Sheet 1: BOQ ──
+  const STATUS_LABELS = { pending: 'Pending / Belum Diorder', order: 'Sudah Diorder', ready: 'Ready di Gudang' };
+  const CAT_LABELS    = { perbaikan:'Perbaikan', improvement:'Improvement', pm:'Preventive Maintenance', proyek:'Proyek Baru', sop:'SOP/WI', hse:'HSE', lainnya:'Lainnya' };
+  const PRIO_LABELS   = { H:'High', M:'Medium', L:'Low' };
+
+  // Header block (rows 1-10 = info project)
+  const today = new Date();
+  const fmtDate = d => d ? new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const headerRows = [
+    ['BILL OF QUANTITY (BOQ)', '', '', '', '', '', '', ''],
+    ['Departemen: Production / Continuous Improvement', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['Nama Project:', p.name, '', '', 'Nomor EJO:', p.ejo || '—', '', ''],
+    ['Kategori:', CAT_LABELS[p.category] || p.category || '—', '', '', 'Prioritas:', PRIO_LABELS[p.priority] || p.priority || '—', '', ''],
+    ['Lokasi:', p.location || '—', '', '', 'PIC:', p.pic || '—', '', ''],
+    ['Start Plan:', fmtDate(p.startDate), '', '', 'Deadline:', fmtDate(p.endDate), '', ''],
+    ['Status Project:', p.status ? p.status.charAt(0).toUpperCase()+p.status.slice(1) : '—', '', '', 'Tanggal Export:', today.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}), '', ''],
+    ['', '', '', '', '', '', '', ''],
+    // Table header
+    ['No', 'Nama Material', 'Part Number', 'Qty', 'Satuan', 'Status', 'ETA', 'No PR', 'Catatan'],
+  ];
+
+  // Material rows
+  const matRows = mats.map((m, i) => [
+    i + 1,
+    m.name || '—',
+    m.partno || '—',
+    m.qty ? Number(m.qty) : 0,
+    m.unit || 'pcs',
+    STATUS_LABELS[m.status] || m.status || '—',
+    m.eta ? fmtDate(m.eta) : '—',
+    m.nopr || '—',
+    m.notes || '',
+  ]);
+
+  // Summary rows
+  const readyCount   = mats.filter(m => m.status === 'ready').length;
+  const orderCount   = mats.filter(m => m.status === 'order').length;
+  const pendingCount = mats.filter(m => m.status === 'pending').length;
+  const summaryRows = [
+    [],
+    ['RINGKASAN', '', '', '', '', '', '', '', ''],
+    ['Total Item:', mats.length, '', '', 'Ready di Gudang:', readyCount, '', '', ''],
+    ['', '', '', '', 'Sudah Diorder:', orderCount, '', '', ''],
+    ['', '', '', '', 'Pending / Belum Diorder:', pendingCount, '', '', ''],
+    [],
+    ['Catatan Project:'],
+    [p.notes || '—'],
+    [],
+    ['Dokumen ini digenerate otomatis dari CI Project Command Center.'],
+  ];
+
+  const allRows = [...headerRows, ...matRows, ...summaryRows];
+  const ws = XLSX.utils.aoa_to_sheet(allRows);
+
+  // Column widths
+  ws['!cols'] = [
+    {wch:4},   // No
+    {wch:36},  // Nama
+    {wch:16},  // PN
+    {wch:7},   // Qty
+    {wch:8},   // Satuan
+    {wch:22},  // Status
+    {wch:14},  // ETA
+    {wch:16},  // No PR
+    {wch:28},  // Catatan
+  ];
+
+  // Merge cells for title rows
+  ws['!merges'] = [
+    { s:{r:0,c:0}, e:{r:0,c:8} }, // Title row
+    { s:{r:1,c:0}, e:{r:1,c:8} }, // Dept row
+    { s:{r:3,c:1}, e:{r:3,c:3} }, // Nama Project value
+    { s:{r:4,c:1}, e:{r:4,c:3} }, // Kategori value
+    { s:{r:5,c:1}, e:{r:5,c:3} }, // Lokasi value
+    { s:{r:6,c:1}, e:{r:6,c:3} }, // Start Plan value
+    { s:{r:7,c:1}, e:{r:7,c:3} }, // Status value
+  ];
+
+  // Style helper — openpyxl-style not available in SheetJS CE, but we can tag cells
+  // Title styling via cell meta
+  const R = (r, c) => XLSX.utils.encode_cell({r, c});
+
+  // Title
+  if(ws[R(0,0)]) { ws[R(0,0)].s = { font:{bold:true, sz:16, color:{rgb:'F59E0B'}}, alignment:{horizontal:'center'} }; }
+  // Dept
+  if(ws[R(1,0)]) { ws[R(1,0)].s = { font:{italic:true, sz:10, color:{rgb:'94A3B8'}}, alignment:{horizontal:'center'} }; }
+  // Info label cells (col 0 and col 4)
+  [3,4,5,6,7].forEach(r => {
+    [0,4].forEach(c => {
+      if(ws[R(r,c)]) ws[R(r,c)].s = { font:{bold:true, sz:10, color:{rgb:'94A3B8'}} };
+    });
+    // Value cells: bold
+    [1,5].forEach(c => {
+      if(ws[R(r,c)]) ws[R(r,c)].s = { font:{bold:true, sz:10, color:{rgb:'E2E8F0'}} };
+    });
+  });
+  // Table header row (row 9)
+  const hdrRow = headerRows.length - 1; // = 9
+  for(let c = 0; c < 9; c++) {
+    const cell = R(hdrRow, c);
+    if(ws[cell]) ws[cell].s = {
+      font: {bold:true, sz:10, color:{rgb:'0F172A'}},
+      fill: {patternType:'solid', fgColor:{rgb:'F59E0B'}},
+      alignment: {horizontal:'center', wrapText:true},
+      border: { bottom:{style:'thin', color:{rgb:'0F172A'}} }
+    };
+  }
+  // Data rows alternate fill
+  matRows.forEach((_, i) => {
+    const r = hdrRow + 1 + i;
+    const bg = i % 2 === 0 ? '1E293B' : '0F172A';
+    for(let c = 0; c < 9; c++) {
+      const cell = R(r, c);
+      if(!ws[cell]) ws[cell] = {t:'z'};
+      ws[cell].s = { fill:{patternType:'solid', fgColor:{rgb:bg}}, font:{sz:10, color:{rgb:'CBD5E1'}}, alignment:{wrapText: c===1} };
+    }
+    // Status coloring
+    const statusCell = R(r, 5);
+    if(ws[statusCell] && mats[i]) {
+      const color = {ready:'22C55E', order:'F59E0B', pending:'64748B'}[mats[i].status] || 'CBD5E1';
+      ws[statusCell].s = { ...ws[statusCell].s, font:{sz:10, bold:true, color:{rgb:color}} };
+    }
+  });
+
+  // ── Summary row styling ──
+  const sumStart = hdrRow + 1 + matRows.length + 1;
+  const sumTitleCell = R(sumStart, 0);
+  if(ws[sumTitleCell]) ws[sumTitleCell].s = { font:{bold:true, sz:11, color:{rgb:'F59E0B'}}, fill:{patternType:'solid', fgColor:{rgb:'1E293B'}} };
+
+  XLSX.utils.book_append_sheet(wb, ws, 'BOQ');
+
+  // ── Sheet 2: Fase Project ──
+  const phases = p.phases || [];
+  if(phases.length) {
+    const phaseHeaders = [['Fase', 'PIC', 'Tanggal Mulai', 'Tanggal Selesai', 'EJO', 'Deskripsi']];
+    const phaseRows = phases.map(ph => [
+      ph.name || '—',
+      ph.pic || '—',
+      ph.start ? fmtDate(ph.start) : '—',
+      ph.end ? fmtDate(ph.end) : '—',
+      ph.ejo || '—',
+      ph.desc || '',
+    ]);
+    const wsPhase = XLSX.utils.aoa_to_sheet([...phaseHeaders, ...phaseRows]);
+    wsPhase['!cols'] = [{wch:24},{wch:14},{wch:16},{wch:16},{wch:14},{wch:36}];
+    XLSX.utils.book_append_sheet(wb, wsPhase, 'Fase Project');
+  }
+
+  // Download
+  const safeName = (p.name||'Project').replace(/[\\/:*?"<>|]/g,'').slice(0,40);
+  const ejoSuffix = p.ejo ? `_${p.ejo}` : '';
+  XLSX.writeFile(wb, `BOQ_${safeName}${ejoSuffix}_${todayStr()}.xlsx`);
 }
 
 // =============================================
