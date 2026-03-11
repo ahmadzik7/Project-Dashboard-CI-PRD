@@ -143,13 +143,40 @@ select option{background:var(--surface);}
 
 /* PHASE ROWS */
 .phase-section{margin-top:16px;}
-.phase-header-labels{display:grid;grid-template-columns:130px 1fr 100px 115px 115px 30px;gap:5px;padding:0 7px 4px;}
+.phase-header-labels{display:grid;grid-template-columns:120px 90px 1fr 90px 110px 110px 30px;gap:5px;padding:0 7px 4px;}
 .phase-header-labels span{font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
 .phase-rows{display:flex;flex-direction:column;gap:5px;}
-.phase-row{display:grid;grid-template-columns:130px 1fr 100px 115px 115px 30px;gap:5px;align-items:center;background:var(--bg);border:1px solid var(--border);padding:6px 7px;}
+.phase-row{display:grid;grid-template-columns:120px 90px 1fr 90px 110px 110px 30px;gap:5px;align-items:center;background:var(--bg);border:1px solid var(--border);padding:6px 7px;transition:border-color 0.15s;}
+.phase-row.highlighted{border-left:3px solid var(--accent);background:rgba(245,158,11,0.04);}
+.phase-row.active-phase{border-left:3px solid var(--accent3);background:rgba(16,185,129,0.04);}
 .phase-row input,.phase-row select{padding:4px 6px;font-size:11px;}
 .phase-del{background:none;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;width:24px;height:24px;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;flex-shrink:0;}
 .phase-del:hover{border-color:var(--danger);color:var(--danger);}
+
+/* Phase timeline in detail panel */
+.phase-timeline{display:flex;flex-direction:column;gap:6px;}
+.phase-tl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--border);transition:all 0.15s;}
+.phase-tl-item.ph-scheduled{border-left-color:var(--accent);}
+.phase-tl-item.ph-active{border-left-color:var(--accent3);background:rgba(16,185,129,0.04);}
+.phase-tl-item.ph-done{border-left-color:var(--text-muted);opacity:0.7;}
+.phase-tl-item.ph-overdue{border-left-color:var(--danger);}
+.phase-tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.ph-dot-pending{background:var(--surface2);color:var(--text-muted);border:2px solid var(--border);}
+.ph-dot-scheduled{background:rgba(245,158,11,0.2);color:var(--accent);border:2px solid var(--accent);}
+.ph-dot-active{background:rgba(16,185,129,0.2);color:var(--accent3);border:2px solid var(--accent3);}
+.ph-dot-done{background:rgba(16,185,129,0.1);color:var(--accent3);border:2px dashed var(--accent3);}
+.ph-dot-overdue{background:rgba(239,68,68,0.15);color:var(--danger);border:2px solid var(--danger);}
+.phase-tl-body{flex:1;}
+.phase-tl-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.phase-tl-meta{font-family:var(--mono);font-size:10px;color:var(--text-muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.phase-tl-badges{display:flex;gap:5px;flex-wrap:wrap;}
+.phase-ejo-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;background:rgba(245,158,11,0.15);color:var(--accent);border:1px solid rgba(245,158,11,0.3);letter-spacing:0.5px;}
+.phase-status-label{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:2px;font-weight:600;}
+.ph-lbl-pending{background:var(--surface2);color:var(--text-muted);}
+.ph-lbl-scheduled{background:rgba(245,158,11,0.12);color:var(--accent);}
+.ph-lbl-active{background:rgba(16,185,129,0.12);color:var(--accent3);}
+.ph-lbl-done{background:rgba(16,185,129,0.08);color:var(--accent3);}
+.ph-lbl-overdue{background:rgba(239,68,68,0.12);color:var(--danger);}
 .btn-add-phase{background:none;border:1px dashed var(--border);color:var(--text-muted);cursor:pointer;font-family:var(--mono);font-size:10px;padding:5px 11px;transition:all 0.15s;margin-top:5px;}
 .btn-add-phase:hover{border-color:var(--accent);color:var(--accent);}
 
@@ -325,6 +352,7 @@ select option{background:var(--surface);}
 .cal-event.ev-improve{background:rgba(139,92,246,0.2);color:var(--cimprove);border-left-color:var(--cimprove);}
 .cal-event.ev-perbaikan{background:rgba(245,158,11,0.2);color:var(--cperbaikan);border-left-color:var(--cperbaikan);}
 .cal-event.ev-phase{background:rgba(16,185,129,0.15);color:var(--accent3);border-left-color:var(--accent3);}
+.cal-event.ev-phase-ejo{background:rgba(245,158,11,0.2);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
 .cal-event.ev-todo{background:rgba(20,184,166,0.2);color:var(--teal);border-left-color:var(--teal);border-style:dashed;}
 .cal-event.ev-todo-done{background:rgba(100,116,139,0.1);color:var(--text-muted);border-left-color:var(--text-muted);border-style:dashed;text-decoration:line-through;}
 .cal-more{font-family:var(--mono);font-size:8px;color:var(--accent);padding:2px 4px;cursor:pointer;background:rgba(245,158,11,0.1);border-radius:2px;margin-top:1px;display:inline-block;}
@@ -452,6 +480,42 @@ select option{background:var(--surface);}
 .bulk-tab-btn{padding:6px 14px;font-family:var(--mono);font-size:10px;border:1px solid var(--border);cursor:pointer;color:var(--text-muted);background:transparent;transition:all 0.15s;}
 .bulk-tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
 
+/* ===== AUTOCOMPLETE DROPDOWN ===== */
+.mat-ac-wrap{position:relative;}
+.mat-ac-dropdown{position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--surface);border:1px solid var(--accent);border-top:none;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.mat-ac-item{display:grid;grid-template-columns:110px 1fr 60px;gap:6px;align-items:center;padding:7px 10px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s;}
+.mat-ac-item:last-child{border-bottom:none;}
+.mat-ac-item:hover,.mat-ac-item.ac-active{background:rgba(245,158,11,0.12);}
+.mat-ac-pn{font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mat-ac-name{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mat-ac-unit{font-family:var(--mono);font-size:10px;color:var(--text-muted);text-align:right;}
+.mat-ac-highlight{background:rgba(245,158,11,0.25);color:var(--accent);border-radius:1px;}
+.mat-ac-empty{padding:10px;font-size:11px;color:var(--text-muted);text-align:center;font-family:var(--mono);}
+.mat-ac-count{padding:4px 10px;font-family:var(--mono);font-size:9px;color:var(--text-muted);background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+
+/* ===== MATERIAL MASTER PAGE ===== */
+.master-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.master-toolbar input{flex:1;min-width:180px;}
+.master-stat-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.master-stat{background:var(--surface);border:1px solid var(--border);padding:10px 16px;flex:1;min-width:120px;border-top:2px solid var(--accent);}
+.master-stat-val{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent);}
+.master-stat-lbl{font-size:10px;color:var(--text-muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;}
+.master-import-box{border:2px dashed var(--border);padding:24px;text-align:center;margin-bottom:14px;cursor:pointer;transition:all 0.2s;background:var(--bg);}
+.master-import-box:hover,.master-import-box.drag-over{border-color:var(--accent);background:rgba(245,158,11,0.04);}
+.master-import-box input[type=file]{display:none;}
+.master-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.master-tbl th{background:var(--surface2);padding:8px 10px;text-align:left;font-family:var(--mono);font-size:10px;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:2;}
+.master-tbl td{padding:7px 10px;border-bottom:1px solid var(--border);}
+.master-tbl tr:hover td{background:rgba(255,255,255,0.025);}
+.master-tbl-wrap{max-height:480px;overflow-y:auto;border:1px solid var(--border);}
+.master-pn{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;}
+.master-unit-badge{font-family:var(--mono);font-size:9px;padding:2px 6px;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.master-import-progress{display:none;margin-top:10px;}
+.master-import-progress.show{display:block;}
+.master-preview-tbl{width:100%;font-size:11px;border-collapse:collapse;margin-top:8px;max-height:200px;overflow-y:auto;display:block;}
+.master-preview-tbl th{background:var(--surface2);padding:4px 8px;font-family:var(--mono);font-size:9px;color:var(--text-muted);border:1px solid var(--border);position:sticky;top:0;}
+.master-preview-tbl td{padding:3px 8px;border:1px solid var(--border);}
+
 /* ===== MATERIAL TRACKER FILTER ===== */
 .mat-filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
 .mat-filter-bar input{flex:1;min-width:160px;}
@@ -492,7 +556,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   .note-grid{grid-template-columns:1fr;}
   .bulk-mat-table{font-size:10px;}
   .phase-header-labels{display:none;}
-  .phase-row{flex-direction:column;gap:4px;}
+  .phase-row{grid-template-columns:1fr 1fr;gap:4px;}
   .phase-del{align-self:flex-end;}
   .sync-status-text{display:none;}
   .actlog-panel{width:100vw!important;}
@@ -637,7 +701,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept · v5</div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v9</div>
     </div>
   </div>
   <div class="header-right">
@@ -670,6 +734,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="nav-item" onclick="showPage('calendar',this)"><span class="nav-icon">📅</span> Kalender</div>
   <div class="nav-item" onclick="showPage('all-projects',this)"><span class="nav-icon">▤</span> Semua Project</div>
   <div class="nav-item" onclick="showPage('materials',this)"><span class="nav-icon">⬡</span> Material Tracker</div>
+  <div class="nav-item" onclick="showPage('matmaster',this)"><span class="nav-icon">🗂️</span> Material Master <span class="nav-badge" id="nav-master-count" style="background:var(--surface2);color:var(--text-muted);display:none;">0</span></div>
   <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
   <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP & WI Library</div>
   <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
@@ -1160,8 +1225,93 @@ Ada update? cc: [Atasan jika perlu]</div>
   </div>
 </div>
 
+<!-- ===== MATERIAL MASTER PAGE ===== -->
+<div class="page" id="page-matmaster">
+  <div class="section-header" style="margin-bottom:14px;">
+    <span class="section-title" style="color:var(--accent);">🗂️ Material Master — Database Referensi</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-secondary btn-sm" onclick="document.getElementById('master-file-input').click()">⬆ Import Excel / CSV</button>
+      <button class="btn-secondary btn-sm" onclick="exportMasterCSV()">⬇ Export CSV</button>
+      <button class="btn-danger btn-sm" onclick="clearMasterConfirm()">🗑 Hapus Semua</button>
+      <button class="btn-primary btn-sm" onclick="openMasterAddModal()">+ Tambah Manual</button>
+    </div>
+  </div>
+  <input type="file" id="master-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="importMasterFile(this)">
+
+  <!-- Stats -->
+  <div class="master-stat-row" id="master-stats">
+    <div class="master-stat"><div class="master-stat-val" id="ms-total">0</div><div class="master-stat-lbl">Total Item</div></div>
+    <div class="master-stat" style="border-top-color:var(--accent3);"><div class="master-stat-val" style="color:var(--accent3);" id="ms-units">0</div><div class="master-stat-lbl">Satuan Berbeda</div></div>
+    <div class="master-stat" style="border-top-color:var(--teal);"><div class="master-stat-val" style="color:var(--teal);" id="ms-withpn">0</div><div class="master-stat-lbl">Punya Part No</div></div>
+  </div>
+
+  <!-- Import drop zone -->
+  <div class="master-import-box" id="master-dropzone"
+    ondragover="event.preventDefault();this.classList.add('drag-over')"
+    ondragleave="this.classList.remove('drag-over')"
+    ondrop="handleMasterDrop(event)">
+    <div style="font-size:32px;margin-bottom:8px;">📂</div>
+    <div style="font-weight:600;color:var(--text);margin-bottom:4px;">Drag & Drop file Excel / CSV di sini</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Format kolom: <span style="font-family:var(--mono);color:var(--accent);">Part Number | Nama Material | Satuan</span> (header baris pertama)</div>
+    <button class="btn-primary" onclick="document.getElementById('master-file-input').click()">Pilih File</button>
+    <div id="master-import-status" style="margin-top:10px;font-size:11px;color:var(--text-muted);"></div>
+  </div>
+
+  <!-- Search + filter -->
+  <div class="master-toolbar">
+    <input type="text" id="master-search" placeholder="🔍  Cari nama material atau part number..." oninput="renderMasterTable()">
+    <select id="master-filter-unit" onchange="renderMasterTable()" style="min-width:120px;">
+      <option value="">Semua Satuan</option>
+    </select>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);" id="master-count-label"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="master-tbl-wrap" id="master-tbl-wrap">
+    <table class="master-tbl">
+      <thead><tr>
+        <th width="40">#</th>
+        <th width="140">Part Number</th>
+        <th>Nama Material</th>
+        <th width="80">Satuan</th>
+        <th width="70">Aksi</th>
+      </tr></thead>
+      <tbody id="master-tbody"></tbody>
+    </table>
+  </div>
+  <div id="master-empty" style="display:none;text-align:center;padding:40px;color:var(--text-muted);">
+    <div style="font-size:36px;margin-bottom:10px;">🗂️</div>
+    <div style="font-weight:600;margin-bottom:6px;">Belum ada data Material Master</div>
+    <div style="font-size:12px;">Import file Excel/CSV atau tambah manual untuk mulai membangun database referensi.</div>
+  </div>
+</div>
+
 </div><!-- /main -->
 </div><!-- /app -->
+
+<!-- ===== MODAL MATERIAL MASTER EDIT ===== -->
+<div class="modal-overlay" id="modal-master-item">
+  <div class="modal" style="width:480px;max-width:95vw;border-top-color:var(--accent);">
+    <div class="modal-header">
+      <span class="modal-title" id="master-modal-title">TAMBAH MATERIAL MASTER</span>
+      <button class="modal-close" onclick="closeModal('modal-master-item')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mi-id">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group full"><label>Nama Material *</label><input type="text" id="mi-name" placeholder="Contoh: Seal O-Ring NBR 50mm"></div>
+        <div class="form-group"><label>Part Number</label><input type="text" id="mi-partno" placeholder="Contoh: PN-0042" style="font-family:var(--mono);"></div>
+        <div class="form-group"><label>Satuan *</label>
+          <select id="mi-unit"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-master-item')">Batal</button>
+      <button class="btn-primary" onclick="saveMasterItem()">SIMPAN</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== MODAL EDIT MATERIAL ===== -->
 <div class="modal-overlay" id="modal-mat-edit">
@@ -1173,8 +1323,8 @@ Ada update? cc: [Atasan jika perlu]</div>
     <div class="modal-body">
       <input type="hidden" id="me-id">
       <div class="form-grid">
-        <div class="form-group"><label>Nama Material *</label><input type="text" id="me-name"></div>
-        <div class="form-group"><label>Part Number</label><input type="text" id="me-partno"></div>
+        <div class="form-group"><label>Nama Material *</label><div class="mat-ac-wrap"><input type="text" id="me-name" autocomplete="off" oninput="acInput(this,'me-partno','me-unit')" onkeydown="acKey(event,this)" onblur="acBlur(this)"></div></div>
+        <div class="form-group"><label>Part Number</label><div class="mat-ac-wrap"><input type="text" id="me-partno" autocomplete="off" style="font-family:var(--mono);" oninput="acInput(this,'me-partno','me-unit',true)" onkeydown="acKey(event,this)" onblur="acBlur(this)"></div></div>
         <div class="form-group"><label>Qty</label><input type="number" id="me-qty" min="1"></div>
         <div class="form-group"><label>Satuan</label>
           <select id="me-unit">
@@ -1293,7 +1443,7 @@ Ada update? cc: [Atasan jika perlu]</div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
           <span class="section-title">▸ Fase Pengerjaan</span>
         </div>
-        <div class="phase-header-labels"><span>Fase</span><span>Deskripsi</span><span>PIC</span><span>Tgl Mulai</span><span>Tgl Selesai</span><span></span></div>
+        <div class="phase-header-labels"><span>Nama Fase</span><span>EJO Fase</span><span>Deskripsi</span><span>PIC</span><span>Tgl Mulai</span><span>Tgl Selesai</span><span></span></div>
         <div class="phase-rows" id="phase-rows"></div>
         <button class="btn-add-phase" onclick="addPhaseRow()">+ Tambah Fase</button>
       </div>
@@ -1348,8 +1498,8 @@ Ada update? cc: [Atasan jika perlu]</div>
       <!-- SINGLE MODE -->
       <div id="mat-mode-single">
         <div class="form-grid">
-          <div class="form-group"><label>Nama Material *</label><input type="text" id="mf-name"></div>
-          <div class="form-group"><label>Part Number</label><input type="text" id="mf-partno"></div>
+          <div class="form-group"><label>Nama Material *</label><div class="mat-ac-wrap"><input type="text" id="mf-name" autocomplete="off" oninput="acInput(this,'mf-partno','mf-unit')" onkeydown="acKey(event,this)" onblur="acBlur(this)"></div></div>
+          <div class="form-group"><label>Part Number</label><div class="mat-ac-wrap"><input type="text" id="mf-partno" autocomplete="off" style="font-family:var(--mono);" oninput="acInput(this,'mf-partno','mf-unit',true)" onkeydown="acKey(event,this)" onblur="acBlur(this)"></div></div>
           <div class="form-group"><label>Qty</label><input type="number" id="mf-qty" min="1"></div>
           <div class="form-group"><label>Satuan</label>
             <select id="mf-unit">
@@ -1556,8 +1706,8 @@ Ada update? cc: [Atasan jika perlu]</div>
         <div id="inline-mat-form" style="display:none;background:var(--bg);border:1px solid var(--border);border-top:2px solid var(--teal);padding:12px;margin-bottom:10px;">
           <div style="font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:1px;margin-bottom:10px;">INPUT MATERIAL BARU</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-            <div class="form-group full"><label>Nama Material *</label><input type="text" id="im-name" placeholder="Contoh: Pipa PVC 2 inch"></div>
-            <div class="form-group"><label>Part Number</label><input type="text" id="im-partno" placeholder="Opsional"></div>
+            <div class="form-group full"><label>Nama Material *</label><div class="mat-ac-wrap"><input type="text" id="im-name" placeholder="Contoh: Pipa PVC 2 inch" autocomplete="off" oninput="acInput(this,'im-partno','im-unit')" onkeydown="acKey(event,this)" onblur="acBlur(this)"></div></div>
+            <div class="form-group"><label>Part Number</label><div class="mat-ac-wrap"><input type="text" id="im-partno" placeholder="Opsional" autocomplete="off" style="font-family:var(--mono);" oninput="acInput(this,'im-partno','im-unit',true)" onkeydown="acKey(event,this)" onblur="acBlur(this)"></div></div>
             <div class="form-group"><label>Qty</label><input type="number" id="im-qty" min="1" placeholder="0"></div>
             <div class="form-group"><label>Satuan</label>
               <select id="im-unit"><option>pcs</option><option>meter</option><option>liter</option><option>kg</option><option>set</option><option>roll</option><option>box</option><option>lbr</option><option>klg</option><option>btg</option><option>un</option><option>gln</option><option>tbg</option></select>
@@ -1676,6 +1826,7 @@ let cinotes    = [];
 let ganttSchedules = [];
 let calibrations   = [];
 let hseGroups      = [];
+let materialMaster = [];   // ← database referensi material
 let activityLog = [];
 let unreadCount = 0;
 let _lastDataHash = '';
@@ -1734,6 +1885,7 @@ function applyData(data) {
   ganttSchedules = data.ganttSchedules || [];
   calibrations   = data.calibrations   || [];
   hseGroups      = data.hseGroups      || [];
+  materialMaster = data.materialMaster || [];
   if (!libFolders.length) {
     libFolders = [
       { id:'F1', cat:'SOP',  name:'SOP Produksi',          desc:'SOP umum produksi',           createdAt:Date.now() },
@@ -1750,7 +1902,7 @@ function applyData(data) {
 
 // ===== save — defined FIRST so all functions can call it =====
 function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, activityLog });
+  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, materialMaster, activityLog });
   localStorage.setItem('ci3_cache', payload);
   if (!SYNC_ENABLED) { setSyncStatus('offline', 'Lokal saja'); return; }
   clearTimeout(saveDebounceTimer);
@@ -1853,7 +2005,7 @@ function refreshAllUI() {
   const ap = document.querySelector('.page.active');
   if (ap) {
     const pid = ap.id.replace('page-','');
-    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt, calibration:renderCalibration, hse:renderHSE, export:renderExportPage })[pid]?.();
+    ({ 'all-projects':renderAllProjects, materials:renderMaterials, issues:renderIssues, sop:renderLibrary, calendar:renderCalendar, cinote:renderNotes, gantt:renderGantt, calibration:renderCalibration, hse:renderHSE, export:renderExportPage, matmaster:renderMasterPage })[pid]?.();
   }
   if (currentDetailId && document.getElementById('detail-overlay').classList.contains('open')) openDetail(currentDetailId);
 }
@@ -1865,7 +2017,7 @@ function showPage(name, el) {
   document.getElementById('page-' + name).classList.add('active');
   if (el) el.classList.add('active');
   currentCatFilter = '';
-  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: renderGantt, framework: ()=>{}, calibration: renderCalibration, hse: renderHSE, export: renderExportPage };
+  const renders = { dashboard: renderDashboard, todo: renderTodo, calendar: renderCalendar, 'all-projects': renderAllProjects, materials: renderMaterials, issues: renderIssues, sop: renderLibrary, cinote: renderNotes, gantt: renderGantt, framework: ()=>{}, calibration: renderCalibration, hse: renderHSE, export: renderExportPage, matmaster: renderMasterPage };
   if (renders[name]) renders[name]();
 }
 function filterCat(cat, el) {
@@ -1903,7 +2055,8 @@ function matBadge(s) { return {ready:'<span class="mat-status ready">✓ Ready</
 function prioBadge(p) { return `<span class="prio ${p}">${p}</span>`; }
 function progBar(pct,s) { const cls=s==='done'?'done':s==='blocked'?'blocked':''; return `<div style="display:flex;align-items:center;gap:4px;"><div class="prog-wrap"><div class="prog-fill ${cls}" style="width:${pct||0}%"></div></div><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${pct||0}%</span></div>`; }
 function fmt(d) { return d?new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'—'; }
-function todayStr() { return new Date().toISOString().slice(0,10); }
+function todayStr() { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; }
+function localDateStr(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
 // ===== DASHBOARD =====
 function renderDashboard() {
@@ -2304,8 +2457,8 @@ function renderCalendar() {
     if(p.startDate) addEv(p.startDate,{label:`▶ ${p.name}`,type:'ev-start',projId:p.id});
     if(p.endDate&&p.endDate!==p.startDate) addEv(p.endDate,{label:`■ ${p.name}`,type:`ev-${cat}`,projId:p.id});
     (p.phases||[]).forEach(ph=>{
-      if(ph.start) addEv(ph.start,{label:`◆ ${ph.name}`,type:'ev-phase',projId:p.id});
-      if(ph.end&&ph.end!==ph.start) addEv(ph.end,{label:`◇ ${ph.name} end`,type:'ev-phase',projId:p.id});
+      if(ph.start) addEv(ph.start,{label:`◆ ${ph.ejo?ph.ejo+': ':''}${ph.name}`,type:ph.ejo?'ev-phase-ejo':'ev-phase',projId:p.id,phEjo:ph.ejo});
+      if(ph.end&&ph.end!==ph.start) addEv(ph.end,{label:`◇ ${ph.ejo?ph.ejo+': ':''}${ph.name} ✓`,type:ph.ejo?'ev-phase-ejo':'ev-phase',projId:p.id,phEjo:ph.ejo});
     });
   });
   todos.forEach(t=>{
@@ -2315,9 +2468,9 @@ function renderCalendar() {
   const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
   for(let i=0;i<totalCells;i++){
     let dayNum,dateStr,isCurrent=true;
-    if(i<firstDay){dayNum=prevDays-firstDay+i+1;const d=new Date(calYear,calMonth-1,dayNum);dateStr=d.toISOString().slice(0,10);isCurrent=false;}
-    else if(i>=firstDay+daysInMonth){dayNum=i-firstDay-daysInMonth+1;const d=new Date(calYear,calMonth+1,dayNum);dateStr=d.toISOString().slice(0,10);isCurrent=false;}
-    else{dayNum=i-firstDay+1;const d=new Date(calYear,calMonth,dayNum);dateStr=d.toISOString().slice(0,10);}
+    if(i<firstDay){dayNum=prevDays-firstDay+i+1;const d=new Date(calYear,calMonth-1,dayNum);dateStr=localDateStr(d);isCurrent=false;}
+    else if(i>=firstDay+daysInMonth){dayNum=i-firstDay-daysInMonth+1;const d=new Date(calYear,calMonth+1,dayNum);dateStr=localDateStr(d);isCurrent=false;}
+    else{dayNum=i-firstDay+1;const d=new Date(calYear,calMonth,dayNum);dateStr=localDateStr(d);}
     const isToday=dateStr===today;
     const evs=evMap[dateStr]||[];
     const MAX=3;
@@ -2349,12 +2502,16 @@ function calCellClick(dateStr, event) {
     });
     (p.phases||[]).forEach(ph=>{
       if(ph.start===dateStr) phaseItems.push({
-        icon:'◆', label:`Fase Mulai: ${ph.name}`, sub:`${p.name}${ph.pic?' · '+ph.pic:''}`,
-        cat:p.category, projId:p.id, type:'phase'
+        icon: ph.ejo?'📋':'◆',
+        label:`Fase Mulai: ${ph.name}`,
+        sub:`${p.name}${ph.pic?' · '+ph.pic:''}${ph.ejo?' · EJO: '+ph.ejo:''}`,
+        cat:p.category, projId:p.id, type:'phase', ejo:ph.ejo
       });
       if(ph.end===dateStr && ph.end!==ph.start) phaseItems.push({
-        icon:'◇', label:`Fase Selesai: ${ph.name}`, sub:`${p.name}`,
-        cat:p.category, projId:p.id, type:'phase'
+        icon: ph.ejo?'✅':'◇',
+        label:`Fase Selesai: ${ph.name}`,
+        sub:`${p.name}${ph.ejo?' · EJO: '+ph.ejo:''}`,
+        cat:p.category, projId:p.id, type:'phase', ejo:ph.ejo
       });
     });
   });
@@ -2413,7 +2570,7 @@ function calCellClick(dateStr, event) {
       s += `<div class="day-popup-item ${clickable?'clickable':''}" onclick="${onclick}">
         <div class="day-popup-item-icon">${it.icon}</div>
         <div class="day-popup-item-body">
-          <div class="day-popup-item-label" style="${it.done?'text-decoration:line-through;color:var(--text-muted);':''}${it.type==='todo'?'color:var(--teal);':''}${it.type==='mat'?'color:var(--accent);':''}">${it.label}</div>
+          <div class="day-popup-item-label" style="${it.done?'text-decoration:line-through;color:var(--text-muted);':''}${it.type==='todo'?'color:var(--teal);':''}${it.type==='mat'?'color:var(--accent);':''}${it.type==='phase'&&it.ejo?'color:var(--accent);font-weight:700;':''}">${it.label}</div>
           ${it.sub?`<div class="day-popup-item-sub">${it.sub}</div>`:''}
           ${metaHtml?`<div class="day-popup-item-meta" style="margin-top:4px;">${metaHtml}</div>`:''}
         </div>
@@ -2464,11 +2621,24 @@ function addPhaseRow(data) {
   phaseCount++;
   const d=data||{};
   const row=document.createElement('div');
-  row.className='phase-row';
-  row.innerHTML=`<input type="text" class="ph-name" placeholder="Nama fase" value="${d.name||''}"><input type="text" class="ph-desc" placeholder="Deskripsi" value="${d.desc||''}"><input type="text" class="ph-pic" placeholder="PIC" value="${d.pic||''}"><input type="date" class="ph-start" value="${d.start||''}"><input type="date" class="ph-end" value="${d.end||''}"><button class="phase-del" onclick="this.closest('.phase-row').remove()">×</button>`;
+  const isHighlighted = !!(d.ejo || d.start);
+  row.className='phase-row'+(isHighlighted?' highlighted':'');
+  row.innerHTML=`<input type="text" class="ph-name" placeholder="Nama fase" value="${d.name||''}">
+<input type="text" class="ph-ejo" placeholder="EJO-XXX" value="${d.ejo||''}" style="font-family:var(--mono);font-size:10px;" oninput="updatePhaseHighlight(this)">
+<input type="text" class="ph-desc" placeholder="Deskripsi" value="${d.desc||''}">
+<input type="text" class="ph-pic" placeholder="PIC" value="${d.pic||''}">
+<input type="date" class="ph-start" value="${d.start||''}" oninput="updatePhaseHighlight(this)">
+<input type="date" class="ph-end" value="${d.end||''}">
+<button class="phase-del" onclick="this.closest('.phase-row').remove()">×</button>`;
   document.getElementById('phase-rows').appendChild(row);
 }
-function getPhases(){return[...document.querySelectorAll('.phase-row')].map(r=>({name:r.querySelector('.ph-name').value,desc:r.querySelector('.ph-desc').value,pic:r.querySelector('.ph-pic').value,start:r.querySelector('.ph-start').value,end:r.querySelector('.ph-end').value})).filter(p=>p.name);}
+function updatePhaseHighlight(el) {
+  const row=el.closest('.phase-row');
+  const hasEjo=row.querySelector('.ph-ejo')?.value?.trim();
+  const hasStart=row.querySelector('.ph-start')?.value;
+  row.classList.toggle('highlighted',!!(hasEjo||hasStart));
+}
+function getPhases(){return[...document.querySelectorAll('.phase-row')].map(r=>({name:r.querySelector('.ph-name').value,ejo:r.querySelector('.ph-ejo')?.value||'',desc:r.querySelector('.ph-desc').value,pic:r.querySelector('.ph-pic').value,start:r.querySelector('.ph-start').value,end:r.querySelector('.ph-end').value})).filter(p=>p.name);}
 function saveProject() {
   const name=document.getElementById('f-name').value.trim();
   if(!name){alert('Nama project harus diisi!');return;}
@@ -2504,7 +2674,50 @@ function openDetail(id) {
   renderDetailPhotos(p);
   document.getElementById('d-status-sel').value=p.status;
   document.getElementById('d-prog-input').value=p.progress||0;
-  document.getElementById('d-phases').innerHTML=(p.phases||[]).length?p.phases.map(ph=>`<div style="display:grid;grid-template-columns:110px 1fr 75px;gap:4px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="font-weight:500;">${ph.name}</span><span style="color:var(--text-dim);">${ph.desc||''}</span><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${ph.start?fmt(ph.start):''}</span></div>`).join(''):'<span style="color:var(--text-muted);font-size:11px;">Tidak ada fase.</span>';
+  // Render phase timeline
+  const phases = p.phases||[];
+  if(phases.length) {
+    const today = todayStr();
+    document.getElementById('d-phases').innerHTML = `<div class="phase-timeline">${phases.map((ph,i) => {
+      const hasEjo   = !!ph.ejo;
+      const hasStart = !!ph.start;
+      const hasEnd   = !!ph.end;
+      // Determine status
+      let phStatus = 'pending';
+      if(hasEjo || hasStart) phStatus = 'scheduled';
+      if(hasStart && today >= ph.start) phStatus = 'active';
+      if(hasEnd && today > ph.end) phStatus = 'done';
+      if(hasEnd && today > ph.end && ph.end < today) phStatus = 'done';
+      // Overdue: has start, no end, start was > 30 days ago
+      const daysSinceStart = hasStart ? Math.ceil((new Date(today+'T00:00:00') - new Date(ph.start+'T00:00:00'))/86400000) : -1;
+      if(hasStart && !hasEnd && daysSinceStart > 30) phStatus = 'overdue';
+
+      const dotClass = {pending:'ph-dot-pending',scheduled:'ph-dot-scheduled',active:'ph-dot-active',done:'ph-dot-done',overdue:'ph-dot-overdue'}[phStatus];
+      const dotIcon  = {pending:i+1,scheduled:'◆',active:'▶',done:'✓',overdue:'!'}[phStatus];
+      const itemClass= {pending:'',scheduled:'ph-scheduled',active:'ph-active',done:'ph-done',overdue:'ph-overdue'}[phStatus];
+      const lblClass = {pending:'ph-lbl-pending',scheduled:'ph-lbl-scheduled',active:'ph-lbl-active',done:'ph-lbl-done',overdue:'ph-lbl-overdue'}[phStatus];
+      const lblText  = {pending:'Belum Dijadwal',scheduled:'Dijadwalkan',active:'Sedang Berjalan',done:'Selesai',overdue:'Overdue'}[phStatus];
+      return `<div class="phase-tl-item ${itemClass}">
+        <div class="phase-tl-dot ${dotClass}">${dotIcon}</div>
+        <div class="phase-tl-body">
+          <div class="phase-tl-name">${ph.name}</div>
+          <div class="phase-tl-meta">
+            ${ph.pic?`<span>PIC: ${ph.pic}</span>`:''}
+            ${hasStart?`<span>Mulai: ${fmt(ph.start)}</span>`:''}
+            ${hasEnd  ?`<span>Selesai: ${fmt(ph.end)}</span>`:''}
+            ${hasStart&&hasEnd?`<span>${Math.ceil((new Date(ph.end+'T00:00:00')-new Date(ph.start+'T00:00:00'))/86400000)} hari</span>`:''}
+          </div>
+          <div class="phase-tl-badges">
+            ${hasEjo?`<span class="phase-ejo-badge">📋 ${ph.ejo}</span>`:''}
+            <span class="phase-status-label ${lblClass}">${lblText}</span>
+            ${ph.desc?`<span style="font-size:10px;color:var(--text-muted);align-self:center;">${ph.desc}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  } else {
+    document.getElementById('d-phases').innerHTML = '<span style="color:var(--text-muted);font-size:11px;">Tidak ada fase.</span>';
+  }
   renderDetailMaterials(id);
   document.getElementById('inline-mat-form').style.display='none';
   document.getElementById('detail-overlay').classList.add('open');
@@ -2647,9 +2860,18 @@ function initBulkTable(rows=[]) {
 function addBulkRow(data={}) {
   const tbody = document.getElementById('bulk-mat-body');
   const tr = document.createElement('tr');
+  const rowId = 'br_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
   tr.innerHTML = `
-    <td><input type="text" value="${data.partno||''}" placeholder="PN-001" onpaste="handleBulkPaste(event,this)"></td>
-    <td><input type="text" value="${data.name||''}" placeholder="Nama material..."></td>
+    <td><div class="mat-ac-wrap"><input type="text" value="${data.partno||''}" placeholder="PN-001" autocomplete="off"
+      style="font-family:var(--mono);font-size:10px;"
+      oninput="acInputBulk(this,true)"
+      onkeydown="acKey(event,this)"
+      onblur="acBlur(this)"
+      onpaste="handleBulkPaste(event,this)"></div></td>
+    <td><div class="mat-ac-wrap"><input type="text" value="${data.name||''}" placeholder="Nama material..." autocomplete="off"
+      oninput="acInputBulk(this,false)"
+      onkeydown="acKey(event,this)"
+      onblur="acBlur(this)"></div></td>
     <td><input type="number" value="${data.qty||''}" placeholder="0" min="1" style="text-align:center;"></td>
     <td><select>${unitOpts(data.unit||'pcs')}</select></td>
     <td><button onclick="this.closest('tr').remove();updateBulkCount()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:2px 4px;">×</button></td>`;
@@ -2686,7 +2908,7 @@ function handleBulkPaste(e, el) {
 
 function getBulkRows() {
   return [...document.querySelectorAll('#bulk-mat-body tr')].map(tr=>{
-    const inputs=tr.querySelectorAll('input');
+    const inputs=tr.querySelectorAll('input[type=text],input[type=number]');
     const sel=tr.querySelector('select');
     return{partno:inputs[0]?.value.trim()||'',name:inputs[1]?.value.trim()||'',qty:inputs[2]?.value.trim()||'',unit:sel?.value||'pcs'};
   }).filter(r=>r.name);
@@ -3170,9 +3392,9 @@ function openGanttAddForm() {
   document.getElementById('gf-type').value='cip';
   document.getElementById('gf-freq').value='none';
   const {startDate} = getGanttPeriod();
-  document.getElementById('gf-start').value = startDate.toISOString().slice(0,10);
+  document.getElementById('gf-start').value = localDateStr(startDate);
   const endD = new Date(startDate); endD.setDate(endD.getDate()+6);
-  document.getElementById('gf-end').value = endD.toISOString().slice(0,10);
+  document.getElementById('gf-end').value = localDateStr(endD);
   document.getElementById('gantt-add-form').style.display='block';
   document.getElementById('gf-name').focus();
 }
@@ -3249,7 +3471,7 @@ function clearAllGantt() {
 
 // Helpers
 const _addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
-const _fmtD   = d => d.toISOString().slice(0,10);
+const _fmtD   = d => localDateStr(d);
 const _MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const _MONTHS_S = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 const _DAYS_S   = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -3345,9 +3567,9 @@ function expandGanttOccurrences(schedules, startDate, endDate) {
 function renderGantt() {
   const period = getGanttPeriod();
   const today  = new Date(); today.setHours(0,0,0,0);
-  const TYPE_LABELS = {cip:'CIP',sip:'SIP',cop:'COP',custom:'Custom',maintenance:'MNT'};
-  const TYPE_RGB    = {cip:'6,182,212',sip:'168,85,247',cop:'244,63,94',custom:'245,158,11',maintenance:'100,116,139'};
-  const typeColors  = {cip:'var(--c5r)',sip:'var(--cimprove)',cop:'var(--cshe)',custom:'var(--accent)',maintenance:'var(--text-muted)'};
+  const TYPE_LABELS = {cip:'CIP',sip:'SIP',cop:'COP',custom:'Custom',maintenance:'MNT',phase_project:'Fase Project'};
+  const TYPE_RGB    = {cip:'6,182,212',sip:'168,85,247',cop:'244,63,94',custom:'245,158,11',maintenance:'100,116,139',phase_project:'245,158,11'};
+  const typeColors  = {cip:'var(--c5r)',sip:'var(--cimprove)',cop:'var(--cshe)',custom:'var(--accent)',maintenance:'var(--text-muted)',phase_project:'var(--accent)'};
 
   // Period label
   let label = '';
@@ -3364,8 +3586,36 @@ function renderGantt() {
   }
   document.getElementById('gantt-period-label').textContent = label;
 
-  // Occurrences
-  const occs = expandGanttOccurrences(ganttSchedules, period.startDate, period.endDate);
+  // Build phase entries from projects (phases with EJO or start date)
+  const phaseEntries = [];
+  projects.forEach(p => {
+    (p.phases||[]).filter(ph => ph.start).forEach(ph => {
+      const end = ph.end || ph.start;
+      phaseEntries.push({
+        id: `PHASE_${p.id}_${ph.name}`,
+        name: `${ph.ejo?ph.ejo+' · ':''}${ph.name}`,
+        type: 'phase_project',
+        start: ph.start, end,
+        pic: ph.pic||p.pic||'',
+        freq: 'none',
+        notes: p.name,
+        _isPhase: true,
+        _projId: p.id,
+        _hasEjo: !!ph.ejo,
+        _cat: p.category
+      });
+    });
+  });
+
+  // Occurrences from gantt schedules + phase entries
+  const occs = [
+    ...expandGanttOccurrences(ganttSchedules, period.startDate, period.endDate),
+    ...phaseEntries.filter(pe => {
+      const s = new Date(pe.start+'T00:00:00');
+      const e = new Date(pe.end+'T00:00:00');
+      return e >= period.startDate && s <= period.endDate;
+    })
+  ];
 
   let html = '';
   const stickyLabelW = 200;
@@ -3421,7 +3671,7 @@ function renderGantt() {
     if(!occs.length) {
       html += `<tr><td colspan="${3+period.cols+1}" class="empty-state" style="padding:40px;text-align:center;color:var(--text-muted);"><div style="font-size:24px;margin-bottom:8px;">📊</div>Belum ada jadwal.<br>Klik <strong style="color:var(--c5r);">+ TAMBAH JADWAL</strong> untuk mulai.</td></tr>`;
     } else {
-      const typeOrder = ['cip','sip','cop','custom','maintenance'];
+      const typeOrder = ['phase_project','cip','sip','cop','custom','maintenance'];
       typeOrder.forEach(type => {
         const typeOccs = occs.filter(o=>o.type===type);
         if(!typeOccs.length) return;
@@ -3430,19 +3680,22 @@ function renderGantt() {
           const parentId = occ._parentId || occ.id;
           const occStart = new Date(occ.start+'T00:00:00');
           const occEnd   = new Date(occ.end+'T00:00:00');
-          html += `<tr onclick="openGanttEditModal('${parentId}')" style="cursor:pointer;" class="mat-row-clickable">`;
-          html += `<td class="gantt-row-label" style="position:sticky;left:0;z-index:4;background:var(--surface);">${occ.name}${occ._parentId?` <span style="font-size:9px;color:var(--text-muted);font-family:var(--mono);">[${occ.freq||''}]</span>`:''}</td>`;
-          html += `<td class="gantt-row-type" style="position:sticky;left:${stickyLabelW}px;z-index:4;background:var(--surface);"><span class="gantt-bar ${occ.type}" style="height:18px;padding:0 5px;display:inline-flex;align-items:center;border-radius:2px;font-size:9px;">${TYPE_LABELS[occ.type]}</span></td>`;
+          const isPhase  = !!occ._isPhase;
+          const clickFn  = isPhase ? `openDetail('${occ._projId}')` : `openGanttEditModal('${parentId}')`;
+          const rowStyle = isPhase ? `background:rgba(245,158,11,0.04);` : '';
+          html += `<tr onclick="${clickFn}" style="cursor:pointer;${rowStyle}" class="mat-row-clickable">`;
+          html += `<td class="gantt-row-label" style="position:sticky;left:0;z-index:4;background:${isPhase?'rgba(30,25,15,1)':'var(--surface)'};">${occ.name}${occ._parentId?` <span style="font-size:9px;color:var(--text-muted);font-family:var(--mono);">[${occ.freq||''}]</span>`:''}${isPhase?` <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${occ.notes}</span>`:''}</td>`;
+          html += `<td class="gantt-row-type" style="position:sticky;left:${stickyLabelW}px;z-index:4;background:${isPhase?'rgba(30,25,15,1)':'var(--surface)'};"><span class="gantt-bar ${isPhase?'custom':occ.type}" style="height:18px;padding:0 5px;display:inline-flex;align-items:center;border-radius:2px;font-size:9px;">FASE</span></td>`;
           html += `<td class="gantt-row-pic">${occ.pic||'—'}</td>`;
           dates.forEach(d => {
             const isToday = _fmtD(d)===_fmtD(today);
             const isWknd  = d.getDay()===0||d.getDay()===6;
             const active  = d >= occStart && d <= occEnd;
-            const isFirst = _fmtD(d)===occ.start || (d <= occStart && _addDays(d,0)>=occStart);
             const showLabel = active && _fmtD(d)===_fmtD(occStart);
-            html += `<td class="gantt-cell${isToday?' today-col':''}${isWknd&&!isToday?' weekend-col':''}" style="${active?`background:rgba(${TYPE_RGB[occ.type]||'100,116,139'},0.18);`:'background:var(--bg);'}">`;
-            if(showLabel) html += `<div class="gantt-bar-wrap"><div class="gantt-bar ${occ.type}">${occ.name}</div></div>`;
-            else if(active) html += `<div style="height:22px;background:rgba(${TYPE_RGB[occ.type]||'100,116,139'},0.4);margin:4px 1px;border-radius:1px;"></div>`;
+            const rgb = isPhase ? '245,158,11' : (TYPE_RGB[occ.type]||'100,116,139');
+            html += `<td class="gantt-cell${isToday?' today-col':''}${isWknd&&!isToday?' weekend-col':''}" style="${active?`background:rgba(${rgb},0.18);`:'background:var(--bg);'}">`;
+            if(showLabel) html += `<div class="gantt-bar-wrap"><div class="gantt-bar ${isPhase?'custom':occ.type}">${occ.name}</div></div>`;
+            else if(active) html += `<div style="height:22px;background:rgba(${rgb},0.4);margin:4px 1px;border-radius:1px;"></div>`;
             html += `</td>`;
           });
           html += `<td class="gantt-row-notes" title="${occ.notes||''}">${occ.notes||'—'}</td></tr>`;
@@ -3475,7 +3728,7 @@ function renderGantt() {
     if(!occs.length) {
       html += `<tr><td colspan="${3+wCount+1}" class="empty-state" style="padding:40px;text-align:center;color:var(--text-muted);"><div style="font-size:24px;margin-bottom:8px;">📊</div>Belum ada jadwal.<br>Klik <strong style="color:var(--c5r);">+ TAMBAH JADWAL</strong> untuk mulai.</td></tr>`;
     } else {
-      const typeOrder = ['cip','sip','cop','custom','maintenance'];
+      const typeOrder = ['phase_project','cip','sip','cop','custom','maintenance'];
       typeOrder.forEach(type => {
         const typeOccs = occs.filter(o=>o.type===type);
         if(!typeOccs.length) return;
@@ -3484,25 +3737,26 @@ function renderGantt() {
           const parentId = occ._parentId || occ.id;
           const occStart = new Date(occ.start+'T00:00:00');
           const occEnd   = new Date(occ.end+'T00:00:00');
-          html += `<tr onclick="openGanttEditModal('${parentId}')" style="cursor:pointer;" class="mat-row-clickable">`;
-          html += `<td class="gantt-row-label" style="position:sticky;left:0;z-index:4;background:var(--surface);">${occ.name}</td>`;
-          html += `<td class="gantt-row-type" style="position:sticky;left:${stickyLabelW}px;z-index:4;background:var(--surface);"><span class="gantt-bar ${occ.type}" style="height:18px;padding:0 5px;display:inline-flex;align-items:center;border-radius:2px;font-size:9px;">${TYPE_LABELS[occ.type]}</span></td>`;
+          const isPhase  = !!occ._isPhase;
+          const clickFn  = isPhase ? `openDetail('${occ._projId}')` : `openGanttEditModal('${parentId}')`;
+          const rgb = isPhase ? '245,158,11' : (TYPE_RGB[occ.type]||'100,116,139');
+          html += `<tr onclick="${clickFn}" style="cursor:pointer;" class="mat-row-clickable">`;
+          html += `<td class="gantt-row-label" style="position:sticky;left:0;z-index:4;background:var(--surface);">${occ.name}${isPhase?` <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${occ.notes}</span>`:''}</td>`;
+          html += `<td class="gantt-row-type" style="position:sticky;left:${stickyLabelW}px;z-index:4;background:var(--surface);"><span class="gantt-bar custom" style="height:18px;padding:0 5px;display:inline-flex;align-items:center;border-radius:2px;font-size:9px;">${isPhase?'FASE':TYPE_LABELS[occ.type]}</span></td>`;
           html += `<td class="gantt-row-pic">${occ.pic||'—'}</td>`;
           weeks.forEach(wMon => {
             const wSun = _addDays(wMon, 6);
             const isTodayW = today >= wMon && today <= wSun;
-            // Check overlap with this week
             const overlapStart = occStart <= wSun;
             const overlapEnd   = occEnd   >= wMon;
             const active = overlapStart && overlapEnd;
-            // Determine position within week (0-6)
             const barStartDay = Math.max(0, Math.round((occStart - wMon)/86400000));
             const barEndDay   = Math.min(6, Math.round((occEnd   - wMon)/86400000));
             const barW = active ? Math.round(((barEndDay - barStartDay + 1)/7)*100) : 0;
             const barL = active ? Math.round((barStartDay/7)*100) : 0;
-            html += `<td class="gantt-cell${isTodayW?' today-col':''}" style="${active?`background:rgba(${TYPE_RGB[occ.type]},0.12);`:'background:var(--bg);'}position:relative;min-width:120px;">`;
+            html += `<td class="gantt-cell${isTodayW?' today-col':''}" style="${active?`background:rgba(${rgb},0.12);`:'background:var(--bg);'}position:relative;min-width:120px;">`;
             if(active) {
-              html += `<div style="position:absolute;top:6px;bottom:6px;left:${barL}%;width:${barW}%;background:rgba(${TYPE_RGB[occ.type]},0.75);border-radius:2px;display:flex;align-items:center;padding:0 4px;overflow:hidden;">
+              html += `<div style="position:absolute;top:6px;bottom:6px;left:${barL}%;width:${barW}%;background:rgba(${rgb},0.75);border-radius:2px;display:flex;align-items:center;padding:0 4px;overflow:hidden;">
                 <span style="font-family:var(--mono);font-size:8px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${occ.name}</span>
               </div>`;
             }
@@ -3633,6 +3887,426 @@ self.addEventListener('fetch',e=>{
 setupPWA();
 
 // =============================================
+// ===== MATERIAL MASTER =====
+
+function saveMasterLocal() {
+  localStorage.setItem('ci3_matmaster', JSON.stringify(materialMaster));
+  save(); // also include in main save
+}
+
+function loadMasterLocal() {
+  try {
+    const raw = localStorage.getItem('ci3_matmaster');
+    if (raw) materialMaster = JSON.parse(raw);
+  } catch(e) {}
+}
+
+// Render the Material Master page
+function renderMasterPage() {
+  loadMasterLocal();
+  const search = (document.getElementById('master-search')?.value||'').toLowerCase();
+  const unitF  = document.getElementById('master-filter-unit')?.value||'';
+
+  // Stats
+  const total  = materialMaster.length;
+  const units  = [...new Set(materialMaster.map(m=>m.unit))].length;
+  const withpn = materialMaster.filter(m=>m.partno).length;
+  document.getElementById('ms-total').textContent  = total;
+  document.getElementById('ms-units').textContent  = units;
+  document.getElementById('ms-withpn').textContent = withpn;
+
+  // Populate unit filter
+  const usel = document.getElementById('master-filter-unit');
+  const curUnit = usel?.value||'';
+  if(usel) {
+    const allUnits = [...new Set(materialMaster.map(m=>m.unit).filter(Boolean))].sort();
+    usel.innerHTML = '<option value="">Semua Satuan</option>' + allUnits.map(u=>`<option value="${u}" ${u===curUnit?'selected':''}>${u}</option>`).join('');
+  }
+
+  // Update nav badge
+  const badge = document.getElementById('nav-master-count');
+  if(badge){ badge.textContent=total; badge.style.display=total?'inline-block':'none'; }
+
+  // Filter
+  let list = materialMaster;
+  if(search) list = list.filter(m=>(m.name||'').toLowerCase().includes(search)||(m.partno||'').toLowerCase().includes(search));
+  if(unitF)  list = list.filter(m=>m.unit===unitF);
+
+  const tbody  = document.getElementById('master-tbody');
+  const empty  = document.getElementById('master-empty');
+  const dropzone = document.getElementById('master-dropzone');
+  if(!total) {
+    if(tbody) tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    if(dropzone) dropzone.style.display='';
+    document.getElementById('master-count-label').textContent='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  if(dropzone) dropzone.style.display = total > 0 ? 'none' : '';
+
+  document.getElementById('master-count-label').textContent = `Menampilkan ${list.length} dari ${total} item`;
+
+  if(tbody) tbody.innerHTML = list.map((m,i)=>`
+    <tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${materialMaster.indexOf(m)+1}</td>
+      <td><span class="master-pn">${m.partno||'<span style="color:var(--text-muted);font-style:italic;">—</span>'}</span></td>
+      <td style="font-size:12px;">${highlightText(m.name||'', search)}</td>
+      <td><span class="master-unit-badge">${m.unit||'pcs'}</span></td>
+      <td><button class="btn-secondary btn-sm" style="padding:2px 8px;font-size:10px;" onclick="openMasterEditModal('${m.id}')">✏</button>
+          <button class="btn-danger btn-sm" style="padding:2px 8px;font-size:10px;" onclick="deleteMasterItem('${m.id}')">×</button></td>
+    </tr>`).join('');
+}
+
+function highlightText(text, q) {
+  if(!q) return text;
+  const idx = text.toLowerCase().indexOf(q);
+  if(idx<0) return text;
+  return text.slice(0,idx)+'<mark class="mat-ac-highlight">'+text.slice(idx,idx+q.length)+'</mark>'+text.slice(idx+q.length);
+}
+
+// Open add modal
+function openMasterAddModal() {
+  document.getElementById('mi-id').value = '';
+  document.getElementById('mi-name').value = '';
+  document.getElementById('mi-partno').value = '';
+  document.getElementById('master-modal-title').textContent = 'TAMBAH MATERIAL MASTER';
+  // Populate unit select
+  const sel = document.getElementById('mi-unit');
+  sel.innerHTML = ALL_UNITS.map(u=>`<option value="${u}">${u}</option>`).join('');
+  document.getElementById('modal-master-item').classList.add('open');
+}
+
+// Open edit modal
+function openMasterEditModal(id) {
+  const m = materialMaster.find(x=>x.id===id);
+  if(!m) return;
+  document.getElementById('mi-id').value = id;
+  document.getElementById('mi-name').value = m.name||'';
+  document.getElementById('mi-partno').value = m.partno||'';
+  document.getElementById('master-modal-title').textContent = 'EDIT MATERIAL MASTER';
+  const sel = document.getElementById('mi-unit');
+  sel.innerHTML = ALL_UNITS.map(u=>`<option value="${u}" ${u===m.unit?'selected':''}>${u}</option>`).join('');
+  document.getElementById('modal-master-item').classList.add('open');
+}
+
+// Save add/edit
+function saveMasterItem() {
+  const name = document.getElementById('mi-name').value.trim();
+  if(!name){alert('Nama material harus diisi!');return;}
+  const id   = document.getElementById('mi-id').value;
+  const partno = document.getElementById('mi-partno').value.trim();
+  const unit   = document.getElementById('mi-unit').value;
+  if(id) {
+    const m = materialMaster.find(x=>x.id===id);
+    if(m){m.name=name;m.partno=partno;m.unit=unit;}
+  } else {
+    materialMaster.push({id:'MM_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),name,partno,unit});
+  }
+  saveMasterLocal();
+  closeModal('modal-master-item');
+  renderMasterPage();
+}
+
+// Delete item
+function deleteMasterItem(id) {
+  if(!confirm('Hapus item ini dari Material Master?')) return;
+  materialMaster = materialMaster.filter(m=>m.id!==id);
+  saveMasterLocal();
+  renderMasterPage();
+}
+
+// Clear all
+function clearMasterConfirm() {
+  if(!materialMaster.length) return;
+  if(!confirm(`Hapus semua ${materialMaster.length} item dari Material Master? Aksi ini tidak bisa dibatalkan.`)) return;
+  materialMaster = [];
+  saveMasterLocal();
+  renderMasterPage();
+}
+
+// Handle file drop
+function handleMasterDrop(e) {
+  e.preventDefault();
+  document.getElementById('master-dropzone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file) processMasterFile(file);
+}
+
+// Handle file input change
+function importMasterFile(input) {
+  const file = input.files[0];
+  if(file) processMasterFile(file);
+  input.value=''; // reset so same file can be re-imported
+}
+
+// Parse and import Excel or CSV
+function processMasterFile(file) {
+  const status = document.getElementById('master-import-status');
+  status.textContent = '⏳ Memproses file...';
+  status.style.color = 'var(--accent)';
+
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if(ext==='csv') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const rows = parseCSVToRows(e.target.result);
+      finalizeMasterImport(rows, file.name);
+    };
+    reader.readAsText(file, 'UTF-8');
+  } else if(ext==='xlsx'||ext==='xls') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        finalizeMasterImport(rows, file.name);
+      } catch(err) {
+        const status = document.getElementById('master-import-status');
+        status.textContent = '❌ Gagal baca file Excel. Pastikan format .xlsx / .xls.';
+        status.style.color = 'var(--danger)';
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    status.textContent = '❌ Format tidak didukung. Gunakan .xlsx, .xls, atau .csv';
+    status.style.color = 'var(--danger)';
+  }
+}
+
+// Parse CSV text to 2D array
+function parseCSVToRows(text) {
+  return text.trim().split('\n').map(line => {
+    // Handle quoted fields
+    const cells = []; let cur=''; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){ inQ=!inQ; }
+      else if((c===','||c===';'||c==='\t')&&!inQ){ cells.push(cur.trim()); cur=''; }
+      else { cur+=c; }
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+
+// Auto-detect columns and import
+function finalizeMasterImport(rows, filename) {
+  const status = document.getElementById('master-import-status');
+  if(!rows||rows.length<2){ status.textContent='❌ File kosong atau hanya berisi header.'; status.style.color='var(--danger)'; return; }
+
+  // Detect header row — try to find columns
+  const header = rows[0].map(h=>(h+'').toLowerCase().trim());
+  let colPN=-1, colName=-1, colUnit=-1;
+
+  header.forEach((h,i)=>{
+    const clean = h.replace(/[^a-z0-9\s]/g,'').trim();
+    if(colPN<0   && (clean.includes('part') || clean.includes('pn') || clean.includes('kode') || clean.includes('code') || clean.includes('no mat') || clean.includes('item no'))) colPN=i;
+    if(colName<0 && (clean.includes('nama') || clean.includes('name') || clean.includes('deskripsi') || clean.includes('description') || clean.includes('material') || clean.includes('uraian'))) colName=i;
+    if(colUnit<0 && (clean.includes('satuan') || clean.includes('unit') || clean.includes('uom') || clean.includes('uom') || clean.includes('sat '))) colUnit=i;
+  });
+
+  // Fallback: if only 3 cols, assume PN | Nama | Satuan
+  if(colPN<0&&colName<0&&header.length>=2){ colPN=0; colName=1; if(header.length>=3) colUnit=2; }
+  if(colName<0){ colName=0; } // last resort
+
+  let imported=0, skipped=0;
+  const newItems = [];
+  for(let r=1;r<rows.length;r++){
+    const row=rows[r];
+    if(!row||row.every(c=>!c)) continue;
+    const name   = (colName>=0 ? row[colName] : '') + '';
+    const partno = (colPN>=0   ? row[colPN]   : '') + '';
+    const unitRaw= (colUnit>=0 ? row[colUnit] : 'pcs') + '';
+    const unit   = ALL_UNITS.includes(unitRaw.trim()) ? unitRaw.trim() : (unitRaw.trim()||'pcs');
+    if(!name.trim()){ skipped++; continue; }
+    newItems.push({id:'MM_'+Date.now()+'_'+r+'_'+Math.random().toString(36).slice(2,4),name:name.trim(),partno:partno.trim(),unit:unit.trim()||'pcs'});
+    imported++;
+  }
+
+  if(!imported){ status.textContent='❌ Tidak ada data valid ditemukan. Periksa format kolom.'; status.style.color='var(--danger)'; return; }
+
+  // Ask: replace or append?
+  const choice = materialMaster.length > 0
+    ? confirm(`Ditemukan ${imported} item dari "${filename}".\n\nKlik OK untuk TAMBAHKAN ke data yang ada (${materialMaster.length} item)\nKlik Batal untuk GANTI semua data lama.`)
+    : true;
+
+  if(choice) {
+    // Append — deduplicate by partno+name
+    const existing = new Set(materialMaster.map(m=>(m.partno+'|'+m.name).toLowerCase()));
+    const fresh = newItems.filter(m=>!existing.has((m.partno+'|'+m.name).toLowerCase()));
+    materialMaster = [...materialMaster, ...fresh];
+    status.textContent = `✅ Berhasil import ${fresh.length} item baru (${newItems.length-fresh.length} duplikat dilewati). Total: ${materialMaster.length} item.`;
+  } else {
+    materialMaster = newItems;
+    status.textContent = `✅ Berhasil import ${imported} item (data lama diganti). Total: ${materialMaster.length} item.`;
+  }
+  status.style.color='var(--accent3)';
+  saveMasterLocal();
+  renderMasterPage();
+  // Hide dropzone after successful import
+  const dz = document.getElementById('master-dropzone');
+  if(dz) dz.style.display='none';
+}
+
+// Export master as CSV
+function exportMasterCSV() {
+  if(!materialMaster.length){alert('Material Master kosong.');return;}
+  const header = 'Part Number,Nama Material,Satuan\n';
+  const rows = materialMaster.map(m=>`"${(m.partno||'').replace(/"/g,'""')}","${(m.name||'').replace(/"/g,'""')}","${m.unit||'pcs'}"`).join('\n');
+  const blob = new Blob(['\uFEFF'+header+rows], {type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`MaterialMaster_${todayStr()}.csv`; a.click();
+}
+
+// ===== AUTOCOMPLETE ENGINE =====
+
+let _acActiveEl = null;   // currently focused input with dropdown open
+let _acSelIdx   = -1;     // keyboard nav index
+
+// Search materialMaster — returns max 10 matches
+function acSearch(q, byPartno=false) {
+  if(!q||q.length<1) return [];
+  const lower = q.toLowerCase();
+  return materialMaster.filter(m =>
+    byPartno
+      ? (m.partno||'').toLowerCase().includes(lower)
+      : ((m.name||'').toLowerCase().includes(lower) || (m.partno||'').toLowerCase().includes(lower))
+  ).slice(0, 10);
+}
+
+// Called on input in single/edit/inline modal name or partno fields
+// nameId: id of name input, unitId: id of unit select, byPartno: searching by PN
+function acInput(el, nameId, unitId, byPartno=false) {
+  if(!materialMaster.length) return;
+  const q = el.value.trim();
+  if(!q) { acClose(el); return; }
+  const results = acSearch(q, byPartno);
+  acShowDropdown(el, results, q, byPartno, (item)=>{
+    // Fill all fields when user picks an item
+    const nameInput = document.getElementById(nameId);
+    const unitSel   = document.getElementById(unitId);
+    if(nameInput) nameInput.value = item.name;
+    // fill the partno field (sibling to name)
+    const pnInput = document.getElementById(nameId.replace('-name','-partno').replace('mf-name','mf-partno').replace('me-name','me-partno').replace('im-name','im-partno'));
+    // If current el IS the name field, also fill partno; if it's partno, also fill name
+    if(byPartno && nameInput) {
+      nameInput.value = item.name;
+      el.value = item.partno || el.value;
+    } else {
+      el.value = item.name;
+      const pnEl = el.closest('.form-group')?.nextElementSibling?.querySelector('input');
+      if(pnEl && pnEl !== el) pnEl.value = item.partno||'';
+    }
+    // Set unit
+    if(unitSel) {
+      const opt = [...unitSel.options].find(o=>o.value===item.unit);
+      if(opt) unitSel.value=item.unit;
+    }
+    acClose(el);
+  });
+}
+
+// Called on input in bulk table rows
+function acInputBulk(el, byPartno=false) {
+  if(!materialMaster.length) return;
+  const q = el.value.trim();
+  if(!q) { acClose(el); return; }
+  const results = acSearch(q, byPartno);
+  acShowDropdown(el, results, q, byPartno, (item)=>{
+    const tr = el.closest('tr');
+    const inputs = tr.querySelectorAll('input[type=text]');
+    const unitSel = tr.querySelector('select');
+    // inputs[0]=partno, inputs[1]=name
+    if(inputs[0]) inputs[0].value = item.partno||'';
+    if(inputs[1]) inputs[1].value = item.name||'';
+    if(unitSel) {
+      const opt=[...unitSel.options].find(o=>o.value===item.unit);
+      if(opt) unitSel.value=item.unit;
+    }
+    acClose(el);
+  });
+}
+
+// Render dropdown under the input
+function acShowDropdown(el, results, q, byPartno, onSelect) {
+  acClose(el); // close any previous
+  _acActiveEl = el;
+  _acSelIdx = -1;
+
+  const wrap = el.closest('.mat-ac-wrap');
+  if(!wrap) return;
+  wrap.style.position='relative';
+
+  const drop = document.createElement('div');
+  drop.className = 'mat-ac-dropdown';
+  drop.id = 'mat-ac-drop';
+
+  if(!results.length) {
+    drop.innerHTML = `<div class="mat-ac-empty">Tidak ada hasil untuk "<strong>${q}</strong>"</div>`;
+  } else {
+    drop.innerHTML =
+      `<div class="mat-ac-count"><span>${results.length} hasil</span><span style="color:var(--accent);">↑↓ pilih · Enter konfirmasi · Esc tutup</span></div>` +
+      results.map((m,i)=>`
+        <div class="mat-ac-item" data-idx="${i}">
+          <span class="mat-ac-pn">${m.partno ? highlightText(m.partno, byPartno?q:'') : '<span style="color:var(--border)">—</span>'}</span>
+          <span class="mat-ac-name">${highlightText(m.name, byPartno?'':q)}</span>
+          <span class="mat-ac-unit">${m.unit||'pcs'}</span>
+        </div>`).join('');
+
+    drop.querySelectorAll('.mat-ac-item').forEach((row,i)=>{
+      row.addEventListener('mousedown', e=>{ e.preventDefault(); onSelect(results[i]); });
+    });
+    drop._results  = results;
+    drop._onSelect = onSelect;
+  }
+
+  wrap.appendChild(drop);
+}
+
+// Keyboard navigation inside dropdown
+function acKey(e, el) {
+  const drop = document.getElementById('mat-ac-drop');
+  if(!drop) return;
+  const items = drop.querySelectorAll('.mat-ac-item');
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    _acSelIdx = Math.min(_acSelIdx+1, items.length-1);
+    items.forEach((it,i)=>it.classList.toggle('ac-active',i===_acSelIdx));
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    _acSelIdx = Math.max(_acSelIdx-1, 0);
+    items.forEach((it,i)=>it.classList.toggle('ac-active',i===_acSelIdx));
+  } else if(e.key==='Enter'||e.key==='Tab'){
+    if(_acSelIdx>=0 && drop._results && drop._onSelect){
+      e.preventDefault();
+      drop._onSelect(drop._results[_acSelIdx]);
+    } else { acClose(el); }
+  } else if(e.key==='Escape'){
+    acClose(el);
+  }
+}
+
+// Close dropdown
+function acClose(el) {
+  const drop = document.getElementById('mat-ac-drop');
+  if(drop) drop.remove();
+  _acActiveEl = null;
+  _acSelIdx = -1;
+}
+
+// Close when focus leaves input (small delay to allow click on item first)
+function acBlur(el) {
+  setTimeout(()=>{ acClose(el); }, 180);
+}
+
+// Close autocomplete if clicking outside
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.mat-ac-wrap')&&!e.target.closest('.mat-ac-dropdown')) acClose(null);
+});
+
 // ===== KALIBRASI ALAT UKUR =====
 // =============================================
 
@@ -3765,7 +4439,7 @@ function calcHseNext(terakhir, intervalBulan) {
   if(!terakhir) return '';
   const d = new Date(terakhir+'T00:00:00');
   d.setMonth(d.getMonth() + parseInt(intervalBulan||3));
-  return d.toISOString().slice(0,10);
+  return localDateStr(d);
 }
 
 function renderHSE() {
@@ -3959,7 +4633,7 @@ function getDateFilter() {
     start = new Date(today.getFullYear(), today.getMonth()-1, 1);
     end   = new Date(today.getFullYear(), today.getMonth(), 0);
   }
-  return { start: start.toISOString().slice(0,10), end: end.toISOString().slice(0,10) };
+  return { start: localDateStr(start), end: localDateStr(end) };
 }
 
 function buildProjectsData(filter) {
@@ -3990,7 +4664,7 @@ function buildMaterialsData(filter) {
 
 function buildIssuesData(filter) {
   let data = issues;
-  if(filter) data = data.filter(iss => !iss.createdAt || (() => { const d=new Date(iss.createdAt).toISOString().slice(0,10); return d>=filter.start&&d<=filter.end; })());
+  if(filter) data = data.filter(iss => !iss.createdAt || (() => { const d=new Date(iss.createdAt); const ds=localDateStr(d); return ds>=filter.start&&ds<=filter.end; })());
   return {
     headers: ['No','Judul Issue','Project','Severity','Status','Deskripsi','Tanggal','Deadline','Tindakan'],
     rows: data.map((iss,i) => {
@@ -4096,7 +4770,7 @@ function downloadXLSX(sheetDatas, filename) {
 
 function exportSheet(type) {
   const filter = null; // individual export = all data
-  const now    = new Date().toISOString().slice(0,10);
+  const now    = todayStr();
   const maps   = {
     projects:    () => ({name:'Projects',    data: buildProjectsData(filter)}),
     materials:   () => ({name:'Material',    data: buildMaterialsData(filter)}),
@@ -4113,7 +4787,7 @@ function exportSheet(type) {
 
 function exportAllToXLSX() {
   const filter = getDateFilter();
-  const now    = new Date().toISOString().slice(0,10);
+  const now    = todayStr();
   const period = document.getElementById('export-period')?.value || 'all';
   const periodLabel = {all:'Semua',thisweek:'MingguIni',thismonth:'BulanIni',lastmonth:'BulanLalu'}[period]||'';
   const sheets = [
@@ -4132,6 +4806,7 @@ function exportAllToXLSX() {
 // ===== INIT =====
 // =============================================
 loadActivityLog();
+loadMasterLocal();
 const savedUser = localStorage.getItem('ci3_user');
 if (savedUser) {
   try { const u = JSON.parse(savedUser); setCurrentUser(u.name); }
