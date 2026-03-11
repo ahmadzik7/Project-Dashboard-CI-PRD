@@ -701,7 +701,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept · v13</div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v14</div>
     </div>
   </div>
   <div class="header-right">
@@ -1822,8 +1822,13 @@ const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyPvCWkZWHkT3TnrhklvS8
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
-let isSyncing = false;
-let pendingSave = false;
+let isSyncing         = false;
+let pendingSave       = false;
+let _retryTimer       = null;       // retry timer after failed push
+let _retryCount       = 0;          // consecutive failure count
+let _lastSuccessfulPayload = null;  // last payload confirmed saved to Sheets
+const MAX_RETRIES     = 5;          // max auto-retry attempts
+const RETRY_DELAYS    = [3000, 8000, 20000, 60000, 120000]; // back-off in ms
 let lastSyncTime = null;
 
 // ===== DATA =====
@@ -1925,11 +1930,37 @@ function applyData(data) {
 // ===== save — defined FIRST so all functions can call it =====
 function save() {
   const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, materialMaster, activityLog });
-  localStorage.setItem('ci3_cache', payload);
+
+  // 1. Simpan ke localStorage DULU — ini tidak boleh gagal
+  try {
+    localStorage.setItem('ci3_cache', payload);
+    // Emergency backup — simpan salinan kedua sebagai jaring pengaman
+    // Diupdate hanya jika save sebelumnya sudah berhasil sync ke Sheets
+    // sehingga backup ini selalu berisi data yang "confirmed saved"
+    if (_lastSuccessfulPayload) {
+      localStorage.setItem('ci3_backup', _lastSuccessfulPayload);
+    }
+  } catch(e) {
+    // localStorage penuh — hapus data non-kritis lalu coba lagi
+    console.error('localStorage write failed:', e);
+    try {
+      localStorage.removeItem('ci3_backup');
+      localStorage.setItem('ci3_cache', payload);
+    } catch(e2) { console.error('localStorage still full after cleanup:', e2); }
+  }
+
   if (!SYNC_ENABLED) { setSyncStatus('offline', 'Lokal saja'); return; }
+
+  // 2. Cancel debounce sebelumnya + cancel retry timer
   clearTimeout(saveDebounceTimer);
-  setSyncStatus('waiting', 'Menyimpan...');
-  saveDebounceTimer = setTimeout(() => pushToSheets(payload), 1000);
+  clearTimeout(_retryTimer);
+  _retryTimer = null;
+
+  setSyncStatus('waiting', 'Akan disimpan...');
+  saveDebounceTimer = setTimeout(() => {
+    saveDebounceTimer = null; // ← FIX Bug 1: reset setelah fire
+    pushToSheets(payload);
+  }, 1000);
 }
 
 // ===== LOAD FROM SHEETS =====
@@ -1946,6 +1977,7 @@ async function loadFromSheets() {
     // Validate it's JSON before using
     const data = JSON.parse(text);
     localStorage.setItem('ci3_cache', text);
+    _lastSuccessfulPayload = text; // ini sudah confirmed ada di Sheets
     applyData(data);
     // Update sync status untuk master
     if (materialMaster.length) {
@@ -1961,11 +1993,27 @@ async function loadFromSheets() {
 }
 
 function loadFromLocal() {
+  // Prioritas 1: ci3_cache (data terbaru)
   const cached = localStorage.getItem('ci3_cache');
   if (cached) {
-    try { applyData(JSON.parse(cached)); return; } catch(e) { console.warn('Cache parse error', e); }
+    try { applyData(JSON.parse(cached)); return; }
+    catch(e) { console.warn('ci3_cache corrupt, coba backup:', e); }
   }
-  // Migrate from older versions
+
+  // Prioritas 2: ci3_backup (snapshot terakhir yang berhasil sync)
+  const backup = localStorage.getItem('ci3_backup');
+  if (backup) {
+    try {
+      applyData(JSON.parse(backup));
+      // Restore backup ke cache supaya sistem berjalan normal lagi
+      localStorage.setItem('ci3_cache', backup);
+      console.info('Data dipulihkan dari backup ci3_backup');
+      setSyncStatus('error', 'Cache utama corrupt — dipulihkan dari backup. Periksa data kamu.');
+      return;
+    } catch(e) { console.warn('ci3_backup corrupt juga:', e); }
+  }
+
+  // Prioritas 3: migrate dari versi lama
   applyData({
     projects:  JSON.parse(localStorage.getItem('ci3_projects')  || localStorage.getItem('ci2_projects')  || '[]'),
     materials: JSON.parse(localStorage.getItem('ci3_materials') || localStorage.getItem('ci2_materials') || '[]'),
@@ -1980,9 +2028,10 @@ function loadFromLocal() {
 
 // ===== PUSH TO SHEETS =====
 async function pushToSheets(payload) {
+  // Jika sedang sync, tandai pending — akan dijalankan setelah sync selesai
   if (isSyncing) { pendingSave = true; return; }
   isSyncing = true;
-  setSyncStatus('syncing', 'Menyimpan...');
+  setSyncStatus('syncing', 'Menyimpan ke Sheets...');
   try {
     const res = await fetch(SYNC_URL, {
       method: 'POST',
@@ -1990,26 +2039,59 @@ async function pushToSheets(payload) {
       headers: { 'Content-Type': 'text/plain' }
     });
     const txt = await res.text();
-    if (txt.includes('ERROR')) throw new Error(txt);
+    if (txt.startsWith('ERROR')) throw new Error(txt);
+
+    // ✅ Berhasil
     lastSyncTime = new Date();
+    _retryCount  = 0;
+    clearTimeout(_retryTimer);
+    _retryTimer = null;
+    _lastSuccessfulPayload = payload; // catat payload yang berhasil tersimpan
     setSyncStatus('ok', 'Tersimpan ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
-    if (pendingSave) { pendingSave=false; isSyncing=false; pushToSheets(localStorage.getItem('ci3_cache')); return; }
+
   } catch(e) {
     console.warn('Push failed:', e);
-    setSyncStatus('error', 'Gagal simpan — coba lagi');
+    // Data AMAN di localStorage — hanya push ke Sheets yang gagal
+    const delay = RETRY_DELAYS[Math.min(_retryCount, RETRY_DELAYS.length-1)];
+    _retryCount++;
+
+    if (_retryCount <= MAX_RETRIES) {
+      const delaySec = Math.round(delay/1000);
+      setSyncStatus('error',
+        `Gagal simpan ke Sheets (coba ${_retryCount}/${MAX_RETRIES} dalam ${delaySec}s) — Data lokal AMAN ✓`);
+      _retryTimer = setTimeout(() => {
+        _retryTimer = null;
+        // Ambil payload terbaru dari localStorage (bukan closure lama)
+        const latest = localStorage.getItem('ci3_cache');
+        if (latest) pushToSheets(latest);
+      }, delay);
+    } else {
+      setSyncStatus('error',
+        `Gagal sync ke Sheets setelah ${MAX_RETRIES}x — Data tersimpan lokal ✓ · Klik 🔄 untuk coba manual`);
+      _retryCount = 0; // reset agar manual retry bisa berjalan lagi
+    }
     pendingSave = false;
+
+  } finally {
+    // ← FIX Bug 3: isSyncing SELALU direset, bahkan jika exception
+    isSyncing = false;
+    if (pendingSave) {
+      pendingSave = false;
+      const latest = localStorage.getItem('ci3_cache');
+      if (latest) setTimeout(() => pushToSheets(latest), 200);
+    }
   }
-  isSyncing = false;
 }
 
 // ===== AUTO-PULL every 30s =====
 function startAutoSync() {
   if (!SYNC_ENABLED) return;
   setInterval(async () => {
-    if (isSyncing || saveDebounceTimer) return;
+    // ← FIX Bug 4: jangan pull kalau user sedang edit (ada pending save atau sedang push)
+    if (isSyncing || saveDebounceTimer || _retryTimer) return;
     try {
-      const res  = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
-      const text = await res.text();
+      const res    = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET' });
+      const text   = await res.text();
       const cached = localStorage.getItem('ci3_cache');
       if (text !== cached) {
         const data = JSON.parse(text);
@@ -2017,12 +2099,23 @@ function startAutoSync() {
         applyData(data);
         lastSyncTime = new Date();
         setSyncStatus('ok', 'Updated ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+        refreshAllUI();
       }
     } catch(e) { /* silent fail on auto-pull */ }
   }, SYNC_INTERVAL_MS);
 }
 
-function manualSync() { loadFromSheets(); }
+function manualSync() {
+  // Kalau ada data lokal yang belum tersimpan ke Sheets, push dulu
+  const local = localStorage.getItem('ci3_cache');
+  const lastOk = _lastSuccessfulPayload;
+  if (local && local !== lastOk && !isSyncing) {
+    clearTimeout(_retryTimer); _retryTimer = null; _retryCount = 0;
+    pushToSheets(local);
+  } else {
+    loadFromSheets();
+  }
+}
 
 function refreshAllUI() {
   renderDashboard();
