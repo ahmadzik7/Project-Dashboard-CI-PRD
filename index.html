@@ -701,7 +701,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="logo-badge">CI</div>
     <div>
       <div class="header-title">Project Command Center</div>
-      <div class="header-sub">Continuous Improvement · Production Dept · v14</div>
+      <div class="header-sub">Continuous Improvement · Production Dept · v15</div>
     </div>
   </div>
   <div class="header-right">
@@ -1818,7 +1818,7 @@ Ada update? cc: [Atasan jika perlu]</div>
 // GOOGLE SHEETS SYNC — Ganti URL di bawah ini
 // Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
 // ===================================================
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyPvCWkZWHkT3TnrhklvS8MJ0VdFsaQAYV23JAToMS-GKnku_mU9WujUc9_rtMs0x4G/exec';
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw-hBxWE7fZ_ZXKUY6Q7PPtsenfMEn5yui1Pu2MXIgDHy3hmVAlzXZC0hhyER6FyWxy/exec';
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
@@ -1928,24 +1928,53 @@ function applyData(data) {
 }
 
 // ===== save — defined FIRST so all functions can call it =====
+
+// Strip foto base64 dari payload sebelum dikirim ke Sheets.
+// localStorage tetap menyimpan base64 penuh (foto tampil di dashboard lokal).
+// Sheets hanya butuh viewUrl/thumbUrl (link Drive), bukan raw base64.
+// Ini mencegah payload melebihi limit 50,000 karakter per cell di Sheets.
+function stripPhotosForSheets(data) {
+  const stripItem = obj => {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (!Array.isArray(obj.photos) || !obj.photos.length) return obj;
+    return {
+      ...obj,
+      photos: obj.photos.map(ph => {
+        // Hapus field src (dataURL base64) yang bisa ratusan KB per foto
+        // Sisakan hanya metadata & link Drive yang sudah diupload
+        const { src, ...rest } = ph;
+        return rest;
+      })
+    };
+  };
+  return {
+    ...data,
+    projects:  (data.projects  || []).map(stripItem),
+    issues:    (data.issues    || []).map(stripItem),
+    materials: (data.materials || []).map(stripItem),
+  };
+}
+
 function save() {
-  const payload = JSON.stringify({ projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, materialMaster, activityLog });
+  const stateObj = { projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, materialMaster, activityLog };
+
+  // Payload LENGKAP (termasuk base64 foto) — untuk localStorage/tampil di browser
+  const fullPayload = JSON.stringify(stateObj);
+
+  // Payload RINGAN (tanpa base64 foto) — untuk dikirim ke Google Sheets
+  const sheetsPayload = JSON.stringify(stripPhotosForSheets(stateObj));
 
   // 1. Simpan ke localStorage DULU — ini tidak boleh gagal
   try {
-    localStorage.setItem('ci3_cache', payload);
-    // Emergency backup — simpan salinan kedua sebagai jaring pengaman
-    // Diupdate hanya jika save sebelumnya sudah berhasil sync ke Sheets
-    // sehingga backup ini selalu berisi data yang "confirmed saved"
+    localStorage.setItem('ci3_cache', fullPayload);
     if (_lastSuccessfulPayload) {
       localStorage.setItem('ci3_backup', _lastSuccessfulPayload);
     }
   } catch(e) {
-    // localStorage penuh — hapus data non-kritis lalu coba lagi
     console.error('localStorage write failed:', e);
     try {
       localStorage.removeItem('ci3_backup');
-      localStorage.setItem('ci3_cache', payload);
+      localStorage.setItem('ci3_cache', fullPayload);
     } catch(e2) { console.error('localStorage still full after cleanup:', e2); }
   }
 
@@ -1958,8 +1987,8 @@ function save() {
 
   setSyncStatus('waiting', 'Akan disimpan...');
   saveDebounceTimer = setTimeout(() => {
-    saveDebounceTimer = null; // ← FIX Bug 1: reset setelah fire
-    pushToSheets(payload);
+    saveDebounceTimer = null;
+    pushToSheets(sheetsPayload); // kirim versi ringan — tanpa base64 foto
   }, 1000);
 }
 
