@@ -235,6 +235,36 @@ select option{background:var(--surface);}
 .empty-state{text-align:center;padding:45px;color:var(--text-muted);font-size:12px;}
 .empty-icon{font-size:28px;margin-bottom:9px;}
 
+
+/* ===== DOKUMEN PROJECT ===== */
+.doc-drop-zone{border:1.5px dashed var(--border);padding:14px 16px;cursor:pointer;transition:border-color 0.15s,background 0.15s;background:transparent;display:flex;align-items:center;gap:12px;margin-top:6px;}
+.doc-drop-zone:hover,.doc-drop-zone.dragover{border-color:var(--accent2);background:rgba(59,130,246,0.05);}
+.doc-drop-icon{font-size:20px;flex-shrink:0;}
+.doc-drop-text{font-family:var(--mono);font-size:10px;color:var(--text-muted);line-height:1.6;}
+.doc-drop-text strong{color:var(--text-dim);display:block;font-size:11px;}
+.doc-queue{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+.doc-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);padding:8px 10px;}
+.doc-item-icon{font-size:14px;flex-shrink:0;}
+.doc-item-info{flex:1;min-width:0;}
+.doc-item-name{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.doc-item-name a{color:var(--accent2);text-decoration:none;}
+.doc-item-name a:hover{text-decoration:underline;}
+.doc-item-meta{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:1px;}
+.doc-item-badge{font-family:var(--mono);font-size:9px;padding:2px 6px;flex-shrink:0;white-space:nowrap;}
+.doc-badge-wait{background:rgba(100,116,139,.15);color:var(--text-muted);}
+.doc-badge-up{background:rgba(59,130,246,.15);color:var(--accent2);animation:pulse 1.2s infinite;}
+.doc-badge-ok{background:rgba(16,185,129,.15);color:var(--accent3);}
+.doc-badge-err{background:rgba(239,68,68,.15);color:var(--danger);}
+.doc-item-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 3px;flex-shrink:0;line-height:1;}
+.doc-item-del:hover{color:var(--danger);}
+.doc-progress-bar{height:2px;background:var(--border);overflow:hidden;margin-top:6px;display:none;}
+.doc-progress-bar.show{display:block;}
+.doc-progress-fill{height:100%;background:var(--accent2);transition:width 0.3s;}
+.doc-folder-link{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--accent2);font-family:var(--mono);font-size:10px;padding:5px 12px;text-decoration:none;margin-bottom:8px;transition:background 0.15s;}
+.doc-folder-link:hover{background:rgba(59,130,246,.18);}
+.doc-hint{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:5px;padding-top:6px;border-top:1px solid var(--border);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
@@ -1410,7 +1440,7 @@ Ada update? cc: [Atasan jika perlu]</div>
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group full"><label>Nama Project / Deskripsi Masalah *</label><input type="text" id="f-name" placeholder="Contoh: Perbaikan Pipa Bocor Line 3"></div>
+        <div class="form-group full"><label>Nama Project / Deskripsi Masalah *</label><input type="text" id="f-name" placeholder="Contoh: Perbaikan Pipa Bocor Line 3" oninput="updateDocDest()"></div>
         <div class="form-group"><label>Kategori Project *</label>
           <select id="f-category">
             <option value="5r">5R — Kebersihan & Kerapian</option>
@@ -1447,6 +1477,33 @@ Ada update? cc: [Atasan jika perlu]</div>
           <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:3px;">Upload maks 2MB per foto • Format: JPG, PNG, GIF</div>
         </div>
       </div>
+      </div>
+
+      <!-- ===== SECTION DOKUMEN PROJECT ===== -->
+      <div style="margin-top:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span class="section-title">▸ Dokumen Project</span>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">Disimpan ke Google Drive · Folder per Project</span>
+        </div>
+        <div class="doc-drop-zone" id="f-doc-dropzone"
+             onclick="document.getElementById('f-doc-input').click()"
+             ondragover="event.preventDefault();this.classList.add('dragover')"
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="handleDocDrop(event)">
+          <input type="file" id="f-doc-input" multiple
+                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.dwg,.png,.jpg,.jpeg,.zip,.rar"
+                 style="display:none" onchange="handleDocSelect(event)">
+          <div class="doc-drop-icon">📁</div>
+          <div class="doc-drop-text">
+            <strong>Klik atau drop file ke sini</strong>
+            PDF, Word, Excel, PPT, DWG, Gambar, ZIP &mdash; maks 20MB per file
+          </div>
+        </div>
+        <div class="doc-progress-bar" id="f-doc-prog"><div class="doc-progress-fill" id="f-doc-prog-fill" style="width:0%"></div></div>
+        <div class="doc-queue" id="f-doc-queue"></div>
+        <div class="doc-hint" id="f-doc-hint">📂 Akan dibuat subfolder: <span id="f-doc-dest" style="color:var(--accent2);">CI_Projects / [Nama Project]</span></div>
+      </div>
+
       <div class="phase-section">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
           <span class="section-title">▸ Fase Pengerjaan</span>
@@ -1692,6 +1749,19 @@ Ada update? cc: [Atasan jika perlu]</div>
         <div class="detail-sec-label">📸 Foto / Google Drive</div>
         <div id="d-gdrive-link" style="font-size:12px;"></div>
       </div>
+      <div class="detail-section" id="d-docs-section">
+        <div class="detail-sec-label" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>📁 Dokumen Project</span>
+          <button class="btn-secondary" style="font-size:9px;padding:3px 8px;"
+                  onclick="document.getElementById('d-doc-input').click()">+ Upload</button>
+          <input type="file" id="d-doc-input" multiple
+                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.dwg,.png,.jpg,.jpeg,.zip,.rar"
+                 style="display:none" onchange="detailDocUpload(event)">
+        </div>
+        <div class="doc-progress-bar" id="d-doc-prog"><div class="doc-progress-fill" id="d-doc-prog-fill" style="width:0%"></div></div>
+        <div id="d-doc-status" style="font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:3px;min-height:14px;"></div>
+        <div id="d-doc-list" style="margin-top:6px;"></div>
+      </div>
       <div class="detail-section">
         <div class="detail-sec-label">Fase Pengerjaan</div>
         <div id="d-phases"></div>
@@ -1819,6 +1889,8 @@ Ada update? cc: [Atasan jika perlu]</div>
 // Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
 // ===================================================
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycby5RKWJP0yhGDUubEjOxP-t6gcXR2MwfbRZvru5zRXolh94wtzt76lAo3DxfV6nhFjn/exec';
+// Root folder Google Drive untuk dokumen project (ID dari link yang diberikan)
+const DOCS_ROOT_FOLDER_ID = '1JWOi4e1bFHMGTy92j13Xp5CujSXzMIuj';
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
@@ -1861,6 +1933,7 @@ let editingNoteId   = null;
 let currentUser     = null;
 let currentMatTab   = 'single';
 let pendingPhotos   = []; // base64 photos for new/edit project
+let pendingDocs     = []; // { id,file,name,size,type,status,viewUrl,driveId } antrian upload dokumen
 
 function genId(p) { return p + '-' + Date.now() + Math.floor(Math.random()*999); }
 
@@ -2794,6 +2867,7 @@ function openNewProject() {
   document.getElementById('modal-proj-title').textContent='NEW PROJECT';
   ['f-name','f-ejo','f-location','f-pic','f-rootcause','f-notes','f-start','f-end','f-gdrive'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})
   pendingPhotos=[]; renderPhotoPreview();;
+  pendingDocs=[]; renderDocQueue();
   document.getElementById('f-category').value='perbaikan';
   document.getElementById('f-priority').value='M';
   document.getElementById('f-status').value='open';
@@ -2825,16 +2899,49 @@ function updatePhaseHighlight(el) {
   row.classList.toggle('highlighted',!!(hasEjo||hasStart));
 }
 function getPhases(){return[...document.querySelectorAll('.phase-row')].map(r=>({name:r.querySelector('.ph-name').value,ejo:r.querySelector('.ph-ejo')?.value||'',desc:r.querySelector('.ph-desc').value,pic:r.querySelector('.ph-pic').value,start:r.querySelector('.ph-start').value,end:r.querySelector('.ph-end').value})).filter(p=>p.name);}
-function saveProject() {
-  const name=document.getElementById('f-name').value.trim();
-  if(!name){alert('Nama project harus diisi!');return;}
+async function saveProject() {
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ alert('Nama project harus diisi!'); return; }
   const isEdit = !!editingId;
   const prevId = editingId;
-  const data={name,category:document.getElementById('f-category').value,ejo:document.getElementById('f-ejo').value.trim(),location:document.getElementById('f-location').value,pic:document.getElementById('f-pic').value,priority:document.getElementById('f-priority').value,status:document.getElementById('f-status').value,startDate:document.getElementById('f-start').value,endDate:document.getElementById('f-end').value,matStatus:document.getElementById('f-mat-status').value,rootcause:document.getElementById('f-rootcause').value,notes:document.getElementById('f-notes').value,gdrive:document.getElementById('f-gdrive').value.trim(),photos:[...pendingPhotos],phases:getPhases()};
-  if(isEdit){Object.assign(projects.find(p=>p.id===prevId),data);}
-  else{projects.unshift({id:genId('PRJ'),...data,progress:0,createdAt:Date.now()});}
-  logActivity(isEdit?'Update Project':'Tambah Project', name, isEdit ? prevId : projects[0]?.id);
-  save();closeModal('modal-project');renderDashboard();renderAllProjects();
+
+  // Kumpulkan data dasar project
+  const existingDocs = isEdit ? (projects.find(p=>p.id===prevId)?.docs||[]) : [];
+  const data = {
+    name, category:document.getElementById('f-category').value,
+    ejo:document.getElementById('f-ejo').value.trim(),
+    location:document.getElementById('f-location').value,
+    pic:document.getElementById('f-pic').value,
+    priority:document.getElementById('f-priority').value,
+    status:document.getElementById('f-status').value,
+    startDate:document.getElementById('f-start').value,
+    endDate:document.getElementById('f-end').value,
+    matStatus:document.getElementById('f-mat-status').value,
+    rootcause:document.getElementById('f-rootcause').value,
+    notes:document.getElementById('f-notes').value,
+    gdrive:document.getElementById('f-gdrive').value.trim(),
+    photos:[...pendingPhotos],
+    phases:getPhases(),
+    docs: existingDocs   // akan di-merge dengan upload baru
+  };
+
+  // Upload dokumen jika ada file pending
+  const toUpload = pendingDocs.filter(d=>d.status==='pending'&&d.file);
+  if(toUpload.length) {
+    const btn = document.querySelector('#modal-project .modal-footer .btn-primary');
+    if(btn){ btn.disabled=true; btn.textContent='Mengupload '+toUpload.length+' file...'; }
+    const uploaded = await uploadDocFiles(name, toUpload, 'f-doc-prog', 'f-doc-prog-fill');
+    data.docs = [...existingDocs, ...uploaded];
+    if(uploaded[0]?.folderUrl && !data.driveFolderUrl) data.driveFolderUrl = uploaded[0].folderUrl;
+    if(btn){ btn.disabled=false; btn.textContent='SIMPAN PROJECT'; }
+  }
+
+  if(isEdit){ Object.assign(projects.find(p=>p.id===prevId), data); }
+  else { projects.unshift({id:genId('PRJ'),...data,progress:0,createdAt:Date.now()}); }
+
+  logActivity(isEdit?'Update Project':'Tambah Project', name, isEdit?prevId:projects[0]?.id);
+  pendingDocs=[];
+  save(); closeModal('modal-project'); renderDashboard(); renderAllProjects();
 }
 function delProject(id){if(!confirm('Hapus project?'))return;projects=projects.filter(p=>p.id!==id);save();renderAllProjects();renderDashboard();}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -2858,6 +2965,7 @@ function openDetail(id) {
   document.getElementById('d-rootcause').textContent=p.rootcause||'—';
   document.getElementById('d-notes').textContent=p.notes||'—';
   renderDetailPhotos(p);
+  renderDetailDocs(p);
   document.getElementById('d-status-sel').value=p.status;
   document.getElementById('d-prog-input').value=p.progress||0;
   // Render phase timeline
@@ -3009,7 +3117,10 @@ function delInlineMat(id) {
 }
 function closeDetail(e){if(!e||e.target===document.getElementById('detail-overlay'))document.getElementById('detail-overlay').classList.remove('open');}
 function updateStatus(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;p.status=document.getElementById('d-status-sel').value;p.progress=parseInt(document.getElementById('d-prog-input').value)||0;if(p.status==='done')p.progress=100;save();openDetail(currentDetailId);renderDashboard();renderAllProjects();}
-function editProject(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;closeDetail();editingId=p.id;document.getElementById('modal-proj-title').textContent='EDIT PROJECT';document.getElementById('f-name').value=p.name;document.getElementById('f-category').value=p.category||'perbaikan';document.getElementById('f-ejo').value=p.ejo||'';document.getElementById('f-location').value=p.location||'';document.getElementById('f-pic').value=p.pic||'';document.getElementById('f-priority').value=p.priority||'M';document.getElementById('f-status').value=p.status;document.getElementById('f-start').value=p.startDate||'';document.getElementById('f-end').value=p.endDate||'';document.getElementById('f-mat-status').value=p.matStatus||'pending';document.getElementById('f-rootcause').value=p.rootcause||'';document.getElementById('f-notes').value=p.notes||'';document.getElementById('f-gdrive').value=p.gdrive||'';pendingPhotos=[...(p.photos||[])];renderPhotoPreview();document.getElementById('phase-rows').innerHTML='';phaseCount=0;(p.phases||[]).forEach(ph=>addPhaseRow(ph));document.getElementById('modal-project').classList.add('open');}
+function editProject(){const p=projects.find(x=>x.id===currentDetailId);if(!p)return;closeDetail();editingId=p.id;document.getElementById('modal-proj-title').textContent='EDIT PROJECT';document.getElementById('f-name').value=p.name;document.getElementById('f-category').value=p.category||'perbaikan';document.getElementById('f-ejo').value=p.ejo||'';document.getElementById('f-location').value=p.location||'';document.getElementById('f-pic').value=p.pic||'';document.getElementById('f-priority').value=p.priority||'M';document.getElementById('f-status').value=p.status;document.getElementById('f-start').value=p.startDate||'';document.getElementById('f-end').value=p.endDate||'';document.getElementById('f-mat-status').value=p.matStatus||'pending';document.getElementById('f-rootcause').value=p.rootcause||'';document.getElementById('f-notes').value=p.notes||'';document.getElementById('f-gdrive').value=p.gdrive||'';pendingPhotos=[...(p.photos||[])];renderPhotoPreview();
+  pendingDocs=[]; renderDocQueue(p.docs||[]);
+  const dd=document.getElementById('f-doc-dest');if(dd)dd.textContent='CI_Projects / '+p.name;
+  document.getElementById('phase-rows').innerHTML='';phaseCount=0;(p.phases||[]).forEach(ph=>addPhaseRow(ph));document.getElementById('modal-project').classList.add('open');}
 
 // ===== MATERIAL MODAL =====
 function openMatModal() {
@@ -3154,6 +3265,187 @@ function removePhoto(i) {
   pendingPhotos.splice(i,1);
   renderPhotoPreview();
 }
+// =====================================================================
+// ===== FITUR DOKUMEN PROJECT — Upload ke Google Drive per Project =====
+// =====================================================================
+
+const DOC_EXT_ICON = {
+  pdf:'📄', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊',
+  ppt:'📑', pptx:'📑', txt:'📃', csv:'📊', dwg:'📐',
+  jpg:'🖼️', jpeg:'🖼️', png:'🖼️', gif:'🖼️',
+  zip:'🗜️', rar:'🗜️'
+};
+function docIcon(name){ const e=(name||'').split('.').pop().toLowerCase(); return DOC_EXT_ICON[e]||'📎'; }
+function docSize(b){ if(!b)return''; if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(0)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
+
+// Update hint "CI_Projects / [Nama]" saat user ketik nama project
+function updateDocDest(){
+  const v=document.getElementById('f-name')?.value?.trim()||'[Nama Project]';
+  const el=document.getElementById('f-doc-dest'); if(el) el.textContent='CI_Projects / '+v;
+}
+
+// Handle klik / drop file di zone modal new project
+function handleDocSelect(e){ _addDocFiles([...e.target.files]); e.target.value=''; }
+function handleDocDrop(e){
+  e.preventDefault();
+  document.getElementById('f-doc-dropzone')?.classList.remove('dragover');
+  _addDocFiles([...e.dataTransfer.files]);
+}
+function _addDocFiles(files){
+  const MAX=20*1024*1024;
+  files.forEach(f=>{
+    if(f.size>MAX){ alert(f.name+' melebihi batas 20MB, dilewati.'); return; }
+    if(pendingDocs.find(d=>d.name===f.name&&d.status!=='error')) return; // skip duplikat
+    pendingDocs.push({id:'doc'+Date.now()+Math.random().toString(36).slice(2,5),
+      file:f,name:f.name,size:f.size,type:f.type||'application/octet-stream',status:'pending'});
+  });
+  updateDocDest();
+  renderDocQueue();
+}
+
+// Render antrian file di modal (gabung file baru + existing uploaded)
+function renderDocQueue(existingDocs){
+  const el=document.getElementById('f-doc-queue'); if(!el) return;
+  const saved=(existingDocs||[]).map(d=>({...d,_saved:true}));
+  const all=[...saved,...pendingDocs];
+  if(!all.length){ el.innerHTML=''; return; }
+  el.innerHTML=all.map((d,i)=>{
+    const icon=docIcon(d.name||d.fileName||'');
+    const name=d.name||d.fileName||'file';
+    const sz=docSize(d.size||0);
+    const isSaved=d._saved;
+    let badge='';
+    if(isSaved)         badge=`<span class="doc-item-badge doc-badge-ok">✓ Drive</span>`;
+    else if(d.status==='pending')  badge=`<span class="doc-item-badge doc-badge-wait">Antri</span>`;
+    else if(d.status==='uploading')badge=`<span class="doc-item-badge doc-badge-up">Uploading…</span>`;
+    else if(d.status==='done')     badge=`<span class="doc-item-badge doc-badge-ok">✓ Drive</span>`;
+    else if(d.status==='error')    badge=`<span class="doc-item-badge doc-badge-err" title="${d.err||''}">Gagal</span>`;
+    const nameHtml=isSaved&&d.viewUrl
+      ?`<a href="${d.viewUrl}" target="_blank">${escHtml(name)}</a>`
+      :`${escHtml(name)}`;
+    const delBtn=!isSaved?`<button class="doc-item-del" onclick="removePendingDoc(${pendingDocs.indexOf(d)})">×</button>`:'';
+    return `<div class="doc-item">
+      <span class="doc-item-icon">${icon}</span>
+      <div class="doc-item-info">
+        <div class="doc-item-name">${nameHtml}</div>
+        <div class="doc-item-meta">${sz}</div>
+      </div>
+      ${badge}${delBtn}
+    </div>`;
+  }).join('');
+}
+function removePendingDoc(i){ if(i<0||i>=pendingDocs.length)return; pendingDocs.splice(i,1); renderDocQueue(); }
+
+// ── CORE: Upload file[] ke Drive subfolder nama project ──
+async function uploadDocFiles(projectName, docs, progBarId, progFillId) {
+  const bar  = document.getElementById(progBarId);
+  const fill = document.getElementById(progFillId);
+  if(bar) bar.classList.add('show');
+  const results=[];
+  for(let i=0;i<docs.length;i++){
+    const d=docs[i];
+    d.status='uploading'; renderDocQueue();
+    if(fill) fill.style.width=Math.round(i/docs.length*100)+'%';
+    try {
+      const b64=await fileToBase64(d.file);
+      const body=JSON.stringify({
+        action:'uploadProjectDoc',
+        fileData:b64, mimeType:d.type, fileName:d.name, fileSize:d.size,
+        projectName:projectName, docsFolderId:DOCS_ROOT_FOLDER_ID
+      });
+      const ctrl=new AbortController();
+      const tid=setTimeout(()=>ctrl.abort(),90000);
+      const res=await fetch(SYNC_URL,{method:'POST',redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=UTF-8'},body,signal:ctrl.signal});
+      clearTimeout(tid);
+      const json=await res.json();
+      if(!json.ok) throw new Error(json.error||'Server error');
+      d.status='done'; d.viewUrl=json.viewUrl; d.driveId=json.fileId;
+      results.push({id:d.id,name:d.name,size:d.size,
+        viewUrl:json.viewUrl,directUrl:json.directUrl,
+        driveId:json.fileId,folderId:json.folderId,folderUrl:json.folderUrl,
+        uploadedAt:Date.now()});
+    } catch(err){
+      d.status='error'; d.err=err.name==='AbortError'?'Timeout (file besar?)':err.message;
+    }
+    renderDocQueue();
+    if(fill) fill.style.width=Math.round((i+1)/docs.length*100)+'%';
+  }
+  if(bar) setTimeout(()=>bar.classList.remove('show'),1500);
+  return results.filter(r=>r.driveId); // hanya yang berhasil
+}
+
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onerror=rej;
+    r.onload=e=>res(e.target.result.split(',')[1]);
+    r.readAsDataURL(file);
+  });
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Render dokumen di detail panel ────────────────────────────────────────
+function renderDetailDocs(p){
+  const list=document.getElementById('d-doc-list'); if(!list) return;
+  const docs=p.docs||[];
+  if(!docs.length){
+    list.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);padding:6px 0;">Belum ada dokumen.</div>';
+    return;
+  }
+  let html='';
+  if(p.driveFolderUrl){
+    html+=`<a href="${p.driveFolderUrl}" target="_blank" class="doc-folder-link">📂 Buka Folder Drive Project</a>`;
+  }
+  html+=`<div class="doc-queue">`+docs.map(d=>{
+    const icon=docIcon(d.name||'');
+    const name=escHtml(d.name||'Dokumen');
+    const sz=docSize(d.size||0);
+    const dt=d.uploadedAt?new Date(d.uploadedAt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'';
+    const url=d.viewUrl||d.directUrl||'#';
+    return `<div class="doc-item">
+      <span class="doc-item-icon">${icon}</span>
+      <div class="doc-item-info">
+        <div class="doc-item-name"><a href="${url}" target="_blank">${name}</a></div>
+        <div class="doc-item-meta">${sz}${sz&&dt?' · ':''}${dt}</div>
+      </div>
+      <span class="doc-item-badge doc-badge-ok">Drive</span>
+      <button class="doc-item-del" onclick="deleteDoc('${p.id}','${d.id||d.driveId||''}',this)" title="Hapus dari daftar">×</button>
+    </div>`;
+  }).join('')+'</div>';
+  list.innerHTML=html;
+}
+
+// Upload dari tombol "+ Upload" di detail panel
+async function detailDocUpload(e){
+  const files=[...e.target.files]; e.target.value='';
+  const p=projects.find(x=>x.id===currentDetailId); if(!p){alert('Project tidak ditemukan.');return;}
+  const MAX=20*1024*1024;
+  const valid=files.filter(f=>{if(f.size>MAX){alert(f.name+' > 20MB');return false;}return true;});
+  if(!valid.length) return;
+  const st=document.getElementById('d-doc-status');
+  if(st) st.textContent='⬆ Mengupload '+valid.length+' file...';
+  const queue=valid.map(f=>({id:'doc'+Date.now()+Math.random().toString(36).slice(2,5),
+    file:f,name:f.name,size:f.size,type:f.type||'application/octet-stream',status:'pending'}));
+  const uploaded=await uploadDocFiles(p.name,queue,'d-doc-prog','d-doc-prog-fill');
+  if(!p.docs) p.docs=[];
+  p.docs.push(...uploaded);
+  if(!p.driveFolderUrl&&uploaded[0]?.folderUrl) p.driveFolderUrl=uploaded[0].folderUrl;
+  logActivity('Upload Dokumen',p.name+' ('+uploaded.length+' file)',p.id);
+  save(); renderDetailDocs(p);
+  if(st){ st.textContent=uploaded.length?'✓ '+uploaded.length+' file berhasil':'⚠ Upload gagal'; setTimeout(()=>st.textContent='',4000); }
+}
+
+// Hapus dokumen dari daftar (file Drive tidak dihapus)
+function deleteDoc(projId,docId,btn){
+  if(!confirm('Hapus dokumen dari daftar?\n(File di Google Drive tidak dihapus)')) return;
+  const p=projects.find(x=>x.id===projId); if(!p) return;
+  p.docs=(p.docs||[]).filter(d=>(d.id||d.driveId)!==docId);
+  logActivity('Hapus Dokumen',p.name,p.id);
+  save(); renderDetailDocs(p);
+}
+
 
 // Render photos in detail panel
 function renderDetailPhotos(p) {
