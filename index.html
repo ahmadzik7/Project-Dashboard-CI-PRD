@@ -3345,63 +3345,84 @@ async function uploadDocFiles(projectName, docs, progBarId, progFillId) {
     d.status='uploading'; renderDocQueue();
     if(fill) fill.style.width=Math.round(i/docs.length*100)+'%';
     try {
-      // Validasi ukuran — base64 expand ~33%, GAS limit ~50MB tapi praktis aman di bawah 15MB
+      // Validasi: pastikan File object masih valid
+      if(!d.file || !(d.file instanceof File)){
+        throw new Error('File object tidak valid — coba pilih file ulang');
+      }
+      if(d.file.size === 0){
+        throw new Error('File kosong (0 bytes)');
+      }
       if(d.file.size > 15*1024*1024){
-        throw new Error('File melebihi 15MB. Kompres dulu sebelum upload.');
+        throw new Error('File '+d.name+' melebihi batas 15MB ('+Math.round(d.file.size/1024/1024)+'MB)');
       }
 
-      const b64  = await fileToBase64(d.file);
-      const body = JSON.stringify({
-        action:'uploadProjectDoc',
-        fileData:b64, mimeType:d.type||'application/octet-stream',
-        fileName:d.name, fileSize:d.file.size,
-        projectName:projectName
-      });
+      console.log('[upload] START', d.name, Math.round(d.file.size/1024)+'KB', d.file.type);
+
+      const b64     = await fileToBase64(d.file);
+      const mime    = d.file.type || d.type || 'application/octet-stream';
+      const payload = {
+        action      : 'uploadProjectDoc',
+        fileData    : b64,
+        mimeType    : mime,
+        fileName    : d.name,
+        fileSize    : d.file.size,
+        projectName : projectName
+      };
+
+      console.log('[upload] Payload ready, size:', JSON.stringify(payload).length, 'chars');
 
       const ctrl = new AbortController();
-      const tid  = setTimeout(()=>ctrl.abort(), 120000); // 2 menit timeout
+      const tid  = setTimeout(()=>ctrl.abort(), 120000);
       const res  = await fetch(SYNC_URL, {
-        method:'POST', redirect:'follow',
-        headers:{'Content-Type':'text/plain;charset=UTF-8'},
-        body, signal:ctrl.signal
+        method : 'POST',
+        redirect: 'follow',
+        headers : { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body    : JSON.stringify(payload),
+        signal  : ctrl.signal
       });
       clearTimeout(tid);
 
-      // ── Safe parse: baca teks dulu, baru parse JSON ──
-      // Apps Script kadang kembalikan teks/HTML bukan JSON langsung
-      const raw  = await res.text();
-      let   json = {};
-      try {
-        // Cari kurung kurawal pertama — trim HTML wrapper jika ada
-        const start = raw.indexOf('{');
-        const end   = raw.lastIndexOf('}');
-        if(start !== -1 && end !== -1) {
-          json = JSON.parse(raw.slice(start, end+1));
-        } else {
-          throw new Error('Response bukan JSON: ' + raw.slice(0,200));
-        }
-      } catch(parseErr) {
-        throw new Error('Parse error: ' + parseErr.message + ' | Raw: ' + raw.slice(0,300));
+      console.log('[upload] Response status:', res.status, res.type);
+
+      // Safe parse — GAS kadang bungkus JSON dalam HTML atau teks biasa
+      const raw = await res.text();
+      console.log('[upload] Raw response (first 300):', raw.slice(0,300));
+
+      let json = {};
+      const start = raw.indexOf('{');
+      const end   = raw.lastIndexOf('}');
+      if(start !== -1 && end !== -1){
+        try { json = JSON.parse(raw.slice(start, end+1)); }
+        catch(pe){ throw new Error('Response tidak bisa di-parse: ' + raw.slice(0,200)); }
+      } else {
+        throw new Error('Response tidak mengandung JSON: ' + raw.slice(0,200));
       }
 
-      if(!json.ok) throw new Error(json.error || 'Server menolak upload');
+      if(!json.ok) throw new Error(json.error || 'Server error tanpa pesan');
 
-      d.status = 'done';
+      console.log('[upload] SUCCESS fileId:', json.fileId);
+
+      d.status  = 'done';
       d.viewUrl = json.viewUrl;
       d.driveId = json.fileId;
       results.push({
-        id:d.id, name:d.name, size:d.file.size,
-        viewUrl:json.viewUrl, directUrl:json.directUrl,
-        driveId:json.fileId, folderId:json.folderId,
-        folderUrl:json.folderUrl, uploadedAt:Date.now()
+        id       : d.id,
+        name     : d.name,
+        size     : d.file.size,
+        viewUrl  : json.viewUrl,
+        directUrl: json.directUrl,
+        driveId  : json.fileId,
+        folderId : json.folderId,
+        folderUrl: json.folderUrl,
+        uploadedAt: Date.now()
       });
 
     } catch(err){
       d.status = 'error';
-      d.err    = err.name==='AbortError'
-        ? 'Timeout — file terlalu besar atau koneksi lambat'
+      d.err    = err.name === 'AbortError'
+        ? 'Timeout — koneksi lambat atau file terlalu besar'
         : err.message;
-      console.error('[uploadDocFiles]', d.name, d.err);
+      console.error('[upload] FAIL', d.name, '→', d.err);
     }
     renderDocQueue();
     if(fill) fill.style.width=Math.round((i+1)/docs.length*100)+'%';
