@@ -3317,7 +3317,7 @@ function renderDocQueue(existingDocs){
     else if(d.status==='pending')  badge=`<span class="doc-item-badge doc-badge-wait">Antri</span>`;
     else if(d.status==='uploading')badge=`<span class="doc-item-badge doc-badge-up">Uploading…</span>`;
     else if(d.status==='done')     badge=`<span class="doc-item-badge doc-badge-ok">✓ Drive</span>`;
-    else if(d.status==='error')    badge=`<span class="doc-item-badge doc-badge-err" title="${d.err||''}">Gagal</span>`;
+    else if(d.status==='error')    badge=`<span class="doc-item-badge doc-badge-err" title="${d.err||''}" style="cursor:help;">✗ ${escHtml((d.err||'Gagal').slice(0,40))}</span>`;
     const nameHtml=isSaved&&d.viewUrl
       ?`<a href="${d.viewUrl}" target="_blank">${escHtml(name)}</a>`
       :`${escHtml(name)}`;
@@ -3345,32 +3345,69 @@ async function uploadDocFiles(projectName, docs, progBarId, progFillId) {
     d.status='uploading'; renderDocQueue();
     if(fill) fill.style.width=Math.round(i/docs.length*100)+'%';
     try {
-      const b64=await fileToBase64(d.file);
-      const body=JSON.stringify({
+      // Validasi ukuran — base64 expand ~33%, GAS limit ~50MB tapi praktis aman di bawah 15MB
+      if(d.file.size > 15*1024*1024){
+        throw new Error('File melebihi 15MB. Kompres dulu sebelum upload.');
+      }
+
+      const b64  = await fileToBase64(d.file);
+      const body = JSON.stringify({
         action:'uploadProjectDoc',
-        fileData:b64, mimeType:d.type, fileName:d.name, fileSize:d.size,
+        fileData:b64, mimeType:d.type||'application/octet-stream',
+        fileName:d.name, fileSize:d.file.size,
         projectName:projectName
       });
-      const ctrl=new AbortController();
-      const tid=setTimeout(()=>ctrl.abort(),90000);
-      const res=await fetch(SYNC_URL,{method:'POST',redirect:'follow',
-        headers:{'Content-Type':'text/plain;charset=UTF-8'},body,signal:ctrl.signal});
+
+      const ctrl = new AbortController();
+      const tid  = setTimeout(()=>ctrl.abort(), 120000); // 2 menit timeout
+      const res  = await fetch(SYNC_URL, {
+        method:'POST', redirect:'follow',
+        headers:{'Content-Type':'text/plain;charset=UTF-8'},
+        body, signal:ctrl.signal
+      });
       clearTimeout(tid);
-      const json=await res.json();
-      if(!json.ok) throw new Error(json.error||'Server error');
-      d.status='done'; d.viewUrl=json.viewUrl; d.driveId=json.fileId;
-      results.push({id:d.id,name:d.name,size:d.size,
-        viewUrl:json.viewUrl,directUrl:json.directUrl,
-        driveId:json.fileId,folderId:json.folderId,folderUrl:json.folderUrl,
-        uploadedAt:Date.now()});
+
+      // ── Safe parse: baca teks dulu, baru parse JSON ──
+      // Apps Script kadang kembalikan teks/HTML bukan JSON langsung
+      const raw  = await res.text();
+      let   json = {};
+      try {
+        // Cari kurung kurawal pertama — trim HTML wrapper jika ada
+        const start = raw.indexOf('{');
+        const end   = raw.lastIndexOf('}');
+        if(start !== -1 && end !== -1) {
+          json = JSON.parse(raw.slice(start, end+1));
+        } else {
+          throw new Error('Response bukan JSON: ' + raw.slice(0,200));
+        }
+      } catch(parseErr) {
+        throw new Error('Parse error: ' + parseErr.message + ' | Raw: ' + raw.slice(0,300));
+      }
+
+      if(!json.ok) throw new Error(json.error || 'Server menolak upload');
+
+      d.status = 'done';
+      d.viewUrl = json.viewUrl;
+      d.driveId = json.fileId;
+      results.push({
+        id:d.id, name:d.name, size:d.file.size,
+        viewUrl:json.viewUrl, directUrl:json.directUrl,
+        driveId:json.fileId, folderId:json.folderId,
+        folderUrl:json.folderUrl, uploadedAt:Date.now()
+      });
+
     } catch(err){
-      d.status='error'; d.err=err.name==='AbortError'?'Timeout (file besar?)':err.message;
+      d.status = 'error';
+      d.err    = err.name==='AbortError'
+        ? 'Timeout — file terlalu besar atau koneksi lambat'
+        : err.message;
+      console.error('[uploadDocFiles]', d.name, d.err);
     }
     renderDocQueue();
     if(fill) fill.style.width=Math.round((i+1)/docs.length*100)+'%';
   }
   if(bar) setTimeout(()=>bar.classList.remove('show'),1500);
-  return results.filter(r=>r.driveId); // hanya yang berhasil
+  return results.filter(r=>r.driveId);
 }
 
 function fileToBase64(file){
