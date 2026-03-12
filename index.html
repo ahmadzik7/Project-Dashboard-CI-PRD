@@ -1889,8 +1889,6 @@ Ada update? cc: [Atasan jika perlu]</div>
 // Cara dapat URL: Apps Script → Deploy → New Deployment → copy URL
 // ===================================================
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycby5RKWJP0yhGDUubEjOxP-t6gcXR2MwfbRZvru5zRXolh94wtzt76lAo3DxfV6nhFjn/exec';
-// Root folder Google Drive untuk dokumen project (ID dari link yang diberikan)
-const DOCS_ROOT_FOLDER_ID = '1JWOi4e1bFHMGTy92j13Xp5CujSXzMIuj';
 const SYNC_ENABLED = true;
 const SYNC_INTERVAL_MS = 30000;
 let saveDebounceTimer = null;
@@ -3351,7 +3349,7 @@ async function uploadDocFiles(projectName, docs, progBarId, progFillId) {
       const body=JSON.stringify({
         action:'uploadProjectDoc',
         fileData:b64, mimeType:d.type, fileName:d.name, fileSize:d.size,
-        projectName:projectName, docsFolderId:DOCS_ROOT_FOLDER_ID
+        projectName:projectName
       });
       const ctrl=new AbortController();
       const tid=setTimeout(()=>ctrl.abort(),90000);
