@@ -306,6 +306,46 @@ select option{background:var(--surface);}
 .todo-overdue-bar{background:rgba(239,68,68,0.08);border-top:1px solid rgba(239,68,68,0.2);padding:5px 10px;font-family:var(--mono);font-size:9px;color:var(--danger);display:flex;align-items:center;gap:5px;margin:8px -16px -13px;border-radius:0;}
 
 /* =================== SOP & WI LIBRARY =================== */
+/* Tab system untuk library */
+.lib-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);padding:0 14px;}
+.lib-tab{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:10px 16px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;}
+.lib-tab:hover{color:var(--text);}
+.lib-tab.active{color:var(--purple);border-bottom-color:var(--purple);}
+.lib-tab-count{background:var(--surface2);font-size:9px;padding:1px 5px;margin-left:5px;border-radius:2px;}
+
+/* CI Data tree */
+.lib-proj-item{display:flex;align-items:center;gap:6px;padding:5px 14px 5px 14px;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all 0.12s;border-left:2px solid transparent;}
+.lib-proj-item:hover{background:var(--surface2);color:var(--text);}
+.lib-proj-item.active{border-left-color:var(--accent2);color:var(--accent2);background:rgba(99,102,241,0.06);}
+.lib-proj-toggle{font-size:10px;transition:transform 0.15s;display:inline-block;width:12px;}
+.lib-proj-toggle.open{transform:rotate(90deg);}
+.lib-proj-files{display:none;padding-left:0;}
+.lib-proj-files.open{display:block;}
+.lib-file-item{display:flex;align-items:center;gap:6px;padding:5px 14px 5px 32px;font-size:11px;color:var(--text-muted);border-left:2px solid transparent;}
+.lib-file-item:hover{background:var(--surface2);color:var(--text);}
+
+/* File card untuk CI Data */
+.file-card{background:var(--surface2);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:all 0.12s;}
+.file-card:hover{border-color:var(--accent2);background:rgba(99,102,241,0.04);}
+.file-card-icon{font-size:22px;flex-shrink:0;}
+.file-card-body{flex:1;min-width:0;}
+.file-card-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-card-meta{font-size:10px;color:var(--text-muted);margin-top:2px;font-family:var(--mono);}
+.file-card-proj{font-size:10px;color:var(--accent2);margin-top:2px;}
+.file-card-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* Foto grid untuk CI Form photos */
+.photo-lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:14px;}
+.photo-lib-item{position:relative;aspect-ratio:1;background:var(--surface2);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all 0.12s;}
+.photo-lib-item:hover{border-color:var(--accent3);transform:scale(1.02);}
+.photo-lib-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-lib-item-noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;}
+.photo-lib-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);padding:4px 6px;font-size:9px;color:#fff;font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.photo-lib-proj-badge{position:absolute;top:4px;left:4px;background:rgba(16,185,129,0.85);color:#fff;font-size:8px;padding:1px 5px;font-family:var(--mono);max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Sidebar section headers untuk tree baru */
+.lib-section-hdr{padding:8px 14px 4px;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;border-top:1px solid var(--border);margin-top:4px;}
+.lib-section-hdr:first-child{border-top:none;margin-top:0;}
 .lib-layout{display:grid;grid-template-columns:230px 1fr;gap:16px;min-height:500px;}
 .lib-sidebar{background:var(--surface);border:1px solid var(--border);overflow-y:auto;}
 .lib-sidebar-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
@@ -766,7 +806,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="nav-item" onclick="showPage('materials',this)"><span class="nav-icon">⬡</span> Material Tracker</div>
   <div class="nav-item" onclick="showPage('matmaster',this)"><span class="nav-icon">🗂️</span> Material Master <span class="nav-badge" id="nav-master-count" style="background:var(--surface2);color:var(--text-muted);display:none;">0</span></div>
   <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
-  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP & WI Library</div>
+  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP/WI & FILE Library</div>
   <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
   <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
   <div class="nav-item" onclick="showPage('gantt',this)"><span class="nav-icon">📊</span> Gantt Jadwal</div>
@@ -934,28 +974,69 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
 <!-- ===== SOP & WI LIBRARY ===== -->
 <div class="page" id="page-sop">
   <div class="section-header">
-    <span class="section-title" style="color:var(--purple);">▸ SOP & WI Document Library</span>
-    <div style="display:flex;gap:7px;">
-      <input type="text" id="lib-search-global" placeholder="Cari dokumen..." style="width:200px;" oninput="renderLibrary()">
-      <button class="btn-secondary" onclick="openFolderModal()" style="border-color:rgba(168,85,247,0.4);color:var(--purple);">+ Folder</button>
-      <button class="btn-primary" style="background:var(--purple);" onclick="openDocModal()">+ Dokumen</button>
+    <span class="section-title" style="color:var(--purple);">▸ Document & File Library</span>
+    <div style="display:flex;gap:7px;align-items:center;">
+      <input type="text" id="lib-search-global" placeholder="Cari dokumen / file / foto..." style="width:220px;" oninput="renderLibrary()">
+      <button class="btn-secondary" id="lib-btn-folder" onclick="openFolderModal()" style="border-color:rgba(168,85,247,0.4);color:var(--purple);">+ Folder</button>
+      <button class="btn-primary" id="lib-btn-doc" style="background:var(--purple);" onclick="openDocModal()">+ Dokumen</button>
     </div>
   </div>
-  <div class="lib-layout">
-    <!-- FOLDER TREE -->
-    <div class="lib-sidebar">
-      <div class="lib-sidebar-header">
-        <span class="lib-sidebar-title">Folder</span>
+
+  <!-- TABS -->
+  <div class="lib-tabs">
+    <div class="lib-tab active" id="lib-tab-sop"    onclick="switchLibTab('sop')">📚 SOP &amp; WI <span class="lib-tab-count" id="ltc-sop">0</span></div>
+    <div class="lib-tab"        id="lib-tab-cidata" onclick="switchLibTab('cidata')">📁 CI Data <span class="lib-tab-count" id="ltc-cidata">0</span></div>
+    <div class="lib-tab"        id="lib-tab-photo"  onclick="switchLibTab('photo')">📷 Foto Form <span class="lib-tab-count" id="ltc-photo">0</span></div>
+  </div>
+
+  <!-- TAB: SOP & WI -->
+  <div id="lib-pane-sop">
+    <div class="lib-layout">
+      <div class="lib-sidebar">
+        <div class="lib-sidebar-header"><span class="lib-sidebar-title">Folder</span></div>
+        <div class="lib-tree" id="lib-tree"></div>
       </div>
-      <div class="lib-tree" id="lib-tree"></div>
+      <div class="lib-content">
+        <div class="lib-content-header">
+          <span class="lib-content-title" id="lib-content-title">📂 Semua Dokumen</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);" id="lib-doc-count"></span>
+        </div>
+        <div class="doc-grid" id="doc-grid"></div>
+      </div>
     </div>
-    <!-- DOC CONTENT -->
-    <div class="lib-content">
-      <div class="lib-content-header">
-        <span class="lib-content-title" id="lib-content-title">📂 Semua Dokumen</span>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);" id="lib-doc-count"></span>
+  </div>
+
+  <!-- TAB: CI Data (file per project) -->
+  <div id="lib-pane-cidata" style="display:none;">
+    <div class="lib-layout">
+      <div class="lib-sidebar">
+        <div class="lib-sidebar-header"><span class="lib-sidebar-title">Project</span></div>
+        <div class="lib-tree" id="lib-tree-cidata"></div>
       </div>
-      <div class="doc-grid" id="doc-grid"></div>
+      <div class="lib-content">
+        <div class="lib-content-header">
+          <span class="lib-content-title" id="lib-cidata-title">📁 Semua File Project</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);" id="lib-cidata-count"></span>
+        </div>
+        <div id="lib-cidata-grid" style="padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Foto CI Form -->
+  <div id="lib-pane-photo" style="display:none;">
+    <div class="lib-layout">
+      <div class="lib-sidebar">
+        <div class="lib-sidebar-header"><span class="lib-sidebar-title">Project</span></div>
+        <div class="lib-tree" id="lib-tree-photo"></div>
+      </div>
+      <div class="lib-content">
+        <div class="lib-content-header">
+          <span class="lib-content-title" id="lib-photo-title">📷 Semua Foto</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);" id="lib-photo-count"></span>
+        </div>
+        <div id="lib-photo-grid" class="photo-lib-grid"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1906,8 +1987,11 @@ let projects   = [];
 let materials  = [];
 let issues     = [];
 let todos      = [];
-let libFolders = [];
-let libDocs    = [];
+let libFolders    = [];
+let libDocs       = [];
+let libActiveTab  = 'sop';      // 'sop' | 'cidata' | 'photo'
+let libActiveProjCidata = '';   // project id filter untuk CI Data tab
+let libActiveProjPhoto  = '';   // project id filter untuk Foto tab
 let cinotes    = [];
 let ganttSchedules = [];
 let calibrations   = [];
@@ -2555,9 +2639,225 @@ function renderIssues() {
 }
 
 // ===== SOP / WI LIBRARY =====
+// ── FILE ICON helper ───────────────────────────────────────────
+function fileIcon(name) {
+  const ext = (name||'').split('.').pop().toLowerCase();
+  const m = {pdf:'📄',xlsx:'📊',xls:'📊',docx:'📝',doc:'📝',pptx:'📑',ppt:'📑',
+             jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',mp4:'🎬',zip:'🗜',rar:'🗜',
+             txt:'📃',csv:'📊',dwg:'📐',dxf:'📐'};
+  return m[ext] || '📎';
+}
+
+// ── MAIN renderLibrary ────────────────────────────────────────
 function renderLibrary() {
-  renderLibTree();
-  renderDocGrid();
+  // Update tab counts
+  const allFiles = projects.flatMap(p=>p.docs||[]);
+  const allPhotos = projects.flatMap(p=>(p.photos||[]).filter(ph=>ph.viewUrl||ph.src));
+  document.getElementById('ltc-sop').textContent    = libDocs.length;
+  document.getElementById('ltc-cidata').textContent = allFiles.length;
+  document.getElementById('ltc-photo').textContent  = allPhotos.length;
+
+  // Tombol + hanya muncul di tab SOP
+  const isSop = libActiveTab === 'sop';
+  document.getElementById('lib-btn-folder').style.display = isSop ? '' : 'none';
+  document.getElementById('lib-btn-doc').style.display    = isSop ? '' : 'none';
+
+  if (libActiveTab === 'sop') {
+    renderLibTree();
+    renderDocGrid();
+  } else if (libActiveTab === 'cidata') {
+    renderCiDataTree();
+    renderCiDataGrid();
+  } else if (libActiveTab === 'photo') {
+    renderPhotoTree();
+    renderPhotoGrid();
+  }
+}
+
+function switchLibTab(tab) {
+  libActiveTab = tab;
+  ['sop','cidata','photo'].forEach(t => {
+    document.getElementById('lib-tab-' + t).classList.toggle('active', t===tab);
+    document.getElementById('lib-pane-' + t).style.display = t===tab ? '' : 'none';
+  });
+  renderLibrary();
+}
+
+// ── CI DATA TAB ───────────────────────────────────────────────
+function renderCiDataTree() {
+  const search = (document.getElementById('lib-search-global')?.value||'').toLowerCase();
+  // Hanya tampilkan project yang punya docs
+  const projs  = projects.filter(p => {
+    const docs = p.docs||[];
+    if (!docs.length) return false;
+    if (!search) return true;
+    return docs.some(d=>(d.name||'').toLowerCase().includes(search)) ||
+           (p.name||'').toLowerCase().includes(search);
+  });
+
+  let html = '';
+  // "Semua File" entry
+  const totalFiles = projects.reduce((n,p)=>(n+(p.docs||[]).length),0);
+  html += `<div class="lib-proj-item ${!libActiveProjCidata?'active':''}" onclick="libActiveProjCidata='';renderCiDataTree();renderCiDataGrid()">
+    <span>📋</span><span style="flex:1">Semua File</span>
+    <span class="lib-folder-count">${totalFiles}</span>
+  </div>`;
+
+  projs.forEach(p => {
+    const docs    = p.docs||[];
+    const isOpen  = libActiveProjCidata === p.id;
+    html += `<div>
+      <div class="lib-proj-item ${isOpen?'active':''}" onclick="libActiveProjCidata='${p.id}';renderCiDataTree();renderCiDataGrid()">
+        <span class="lib-proj-toggle ${isOpen?'open':''}">▶</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</span>
+        <span class="lib-folder-count">${docs.length}</span>
+      </div>
+      ${isOpen ? `<div class="lib-proj-files open">${
+        docs.map(d=>`<div class="lib-file-item">
+          <span>${fileIcon(d.name)}</span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;">${d.name}</span>
+        </div>`).join('')
+      }</div>` : ''}
+    </div>`;
+  });
+
+  if (!projs.length && !totalFiles) {
+    html = `<div style="padding:20px 14px;font-size:11px;color:var(--text-muted);text-align:center;">Belum ada file<br>yang diupload ke project.</div>`;
+  }
+  document.getElementById('lib-tree-cidata').innerHTML = html;
+}
+
+function renderCiDataGrid() {
+  const search = (document.getElementById('lib-search-global')?.value||'').toLowerCase();
+  const grid   = document.getElementById('lib-cidata-grid');
+  const title  = document.getElementById('lib-cidata-title');
+  const count  = document.getElementById('lib-cidata-count');
+
+  // Kumpulkan semua file dengan info projectnya
+  let items = [];
+  projects.forEach(p => {
+    (p.docs||[]).forEach(d => {
+      if (libActiveProjCidata && p.id !== libActiveProjCidata) return;
+      if (search && !(d.name||'').toLowerCase().includes(search) && !(p.name||'').toLowerCase().includes(search)) return;
+      items.push({ ...d, projName: p.name, projId: p.id });
+    });
+  });
+
+  // Sort: terbaru dulu
+  items.sort((a,b) => (b.uploadedAt||0) - (a.uploadedAt||0));
+
+  if (libActiveProjCidata) {
+    const p = projects.find(x=>x.id===libActiveProjCidata);
+    title.textContent = p ? `📁 ${p.name}` : '📁 Project';
+  } else {
+    title.textContent = '📁 Semua File Project';
+  }
+  count.textContent = items.length + ' file';
+
+  if (!items.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📁</div>${
+      search ? 'File tidak ditemukan.' : libActiveProjCidata ? 'Belum ada file di project ini.' : 'Belum ada file yang diupload ke project manapun.'
+    }</div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(d => {
+    const url  = d.viewUrl || d.directUrl || '#';
+    const size = d.size ? (d.size > 1024*1024 ? (d.size/1024/1024).toFixed(1)+'MB' : Math.round(d.size/1024)+'KB') : '';
+    const date = d.uploadedAt ? new Date(d.uploadedAt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'2-digit'}) : '';
+    return `<div class="file-card">
+      <div class="file-card-icon">${fileIcon(d.name)}</div>
+      <div class="file-card-body">
+        <div class="file-card-name" title="${d.name}">${d.name}</div>
+        <div class="file-card-proj">📁 ${d.projName}</div>
+        <div class="file-card-meta">${[size,date].filter(Boolean).join(' · ')}</div>
+      </div>
+      <div class="file-card-actions">
+        ${url !== '#' ? `<a href="${url}" target="_blank" class="doc-link-btn" style="font-size:10px;">🔗 Buka</a>` : '<span style="font-size:9px;color:var(--text-muted);">No link</span>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── FOTO FORM TAB ─────────────────────────────────────────────
+function renderPhotoTree() {
+  const search = (document.getElementById('lib-search-global')?.value||'').toLowerCase();
+  const projs  = projects.filter(p => {
+    const photos = (p.photos||[]).filter(ph=>ph.viewUrl||ph.src||ph.thumbUrl);
+    if (!photos.length) return false;
+    if (!search) return true;
+    return (p.name||'').toLowerCase().includes(search) ||
+           photos.some(ph=>(ph.name||'').toLowerCase().includes(search));
+  });
+
+  const totalPhotos = projects.reduce((n,p)=>n+(p.photos||[]).filter(ph=>ph.viewUrl||ph.src).length, 0);
+  let html = `<div class="lib-proj-item ${!libActiveProjPhoto?'active':''}" onclick="libActiveProjPhoto='';renderPhotoTree();renderPhotoGrid()">
+    <span>📷</span><span style="flex:1">Semua Foto</span>
+    <span class="lib-folder-count">${totalPhotos}</span>
+  </div>`;
+
+  projs.forEach(p => {
+    const photos  = (p.photos||[]).filter(ph=>ph.viewUrl||ph.src||ph.thumbUrl);
+    const isActive = libActiveProjPhoto === p.id;
+    const srcBadge = p._source==='ci-form' ? '📨' : '🖥';
+    html += `<div class="lib-proj-item ${isActive?'active':''}" onclick="libActiveProjPhoto='${p.id}';renderPhotoTree();renderPhotoGrid()">
+      <span>${srcBadge}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</span>
+      <span class="lib-folder-count">${photos.length}</span>
+    </div>`;
+  });
+
+  if (!totalPhotos) {
+    html = `<div style="padding:20px 14px;font-size:11px;color:var(--text-muted);text-align:center;">Belum ada foto<br>dari CI Form.</div>`;
+  }
+  document.getElementById('lib-tree-photo').innerHTML = html;
+}
+
+function renderPhotoGrid() {
+  const search = (document.getElementById('lib-search-global')?.value||'').toLowerCase();
+  const grid   = document.getElementById('lib-photo-grid');
+  const title  = document.getElementById('lib-photo-title');
+  const count  = document.getElementById('lib-photo-count');
+
+  let items = [];
+  projects.forEach(p => {
+    (p.photos||[]).forEach(ph => {
+      if (libActiveProjPhoto && p.id !== libActiveProjPhoto) return;
+      const hasUrl = ph.viewUrl || ph.src || ph.thumbUrl;
+      if (!hasUrl) return;
+      if (search && !(ph.name||'').toLowerCase().includes(search) && !(p.name||'').toLowerCase().includes(search)) return;
+      items.push({ ...ph, projName: p.name, projId: p.id, _source: p._source });
+    });
+  });
+
+  if (libActiveProjPhoto) {
+    const p = projects.find(x=>x.id===libActiveProjPhoto);
+    title.textContent = p ? `📷 ${p.name}` : '📷 Foto';
+  } else {
+    title.textContent = '📷 Semua Foto';
+  }
+  count.textContent = items.length + ' foto';
+
+  if (!items.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📷</div>${
+      search ? 'Foto tidak ditemukan.' : 'Belum ada foto yang tersedia.'
+    }</div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(ph => {
+    const imgSrc  = ph.thumbUrl || ph.src || ph.viewUrl;
+    const linkUrl = ph.viewUrl  || ph.src || '#';
+    const isForm  = ph._source === 'ci-form';
+    return `<a href="${linkUrl}" target="_blank" class="photo-lib-item" title="${ph.name||''}">
+      ${imgSrc
+        ? `<img src="${imgSrc}" alt="${ph.name||'foto'}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
+      <div class="photo-lib-item-noimg" style="${imgSrc?'display:none':''}">🖼</div>
+      ${isForm ? `<div class="photo-lib-proj-badge">📨 ${ph.projName}</div>` : `<div class="photo-lib-proj-badge" style="background:rgba(99,102,241,0.85);">🖥 ${ph.projName}</div>`}
+      <div class="photo-lib-caption">${ph.name||'foto'}</div>
+    </a>`;
+  }).join('');
 }
 
 function renderLibTree() {
@@ -3240,7 +3540,7 @@ function handlePhotoUpload(e) {
     if(file.size > 2*1024*1024){ alert(`${file.name} terlalu besar (max 2MB)`); return; }
     const reader=new FileReader();
     reader.onload=ev=>{
-      pendingPhotos.push({src:ev.target.result, name:file.name, uploadedAt:Date.now()});
+      pendingPhotos.push({src:ev.target.result, name:file.name, uploadedAt:Date.now(), viewUrl:'', thumbUrl:''});
       added++;
       if(added===files.length) renderPhotoPreview();
     };
@@ -3384,18 +3684,23 @@ async function uploadDocFiles(projectName, docs, progBarId, progFillId) {
 
       console.log('[upload] Response status:', res.status, res.type);
 
-      // Safe parse — GAS kadang bungkus JSON dalam HTML atau teks biasa
+      // GAS v13 selalu return JSON bersih via J() — pakai res.json() langsung
       const raw = await res.text();
       console.log('[upload] Raw response (first 300):', raw.slice(0,300));
 
       let json = {};
-      const start = raw.indexOf('{');
-      const end   = raw.lastIndexOf('}');
-      if(start !== -1 && end !== -1){
-        try { json = JSON.parse(raw.slice(start, end+1)); }
-        catch(pe){ throw new Error('Response tidak bisa di-parse: ' + raw.slice(0,200)); }
-      } else {
-        throw new Error('Response tidak mengandung JSON: ' + raw.slice(0,200));
+      try {
+        json = JSON.parse(raw);
+      } catch(pe) {
+        // Fallback: cari { } jika ada wrapper
+        const start = raw.indexOf('{');
+        const end   = raw.lastIndexOf('}');
+        if(start !== -1 && end !== -1){
+          try { json = JSON.parse(raw.slice(start, end+1)); }
+          catch(pe2){ throw new Error('Response tidak bisa di-parse: ' + raw.slice(0,300)); }
+        } else {
+          throw new Error('Response bukan JSON: ' + raw.slice(0,300));
+        }
       }
 
       if(!json.ok) throw new Error(json.error || 'Server error tanpa pesan');
@@ -3515,7 +3820,18 @@ function renderDetailPhotos(p) {
   let html='';
   if(hasDrive) html+=`<div style="margin-bottom:6px;"><a href="${p.gdrive}" target="_blank" style="color:var(--accent2);font-size:12px;word-break:break-all;">🔗 Buka di Google Drive</a></div>`;
   if(hasPhotos) html+=`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">`+
-    p.photos.map(ph=>`<a href="${ph.src}" target="_blank"><img src="${ph.src}" style="width:72px;height:72px;object-fit:cover;border:1px solid var(--border);" title="${ph.name}"></a>`).join('')+`</div>`;
+    p.photos.map(ph=>{
+      const imgSrc  = ph.src || ph.thumbUrl || ph.viewUrl || '';
+      const linkUrl = ph.src || ph.viewUrl  || ph.directUrl || '#';
+      if(!imgSrc && !linkUrl) return '';
+      // Foto dari CI Form: tidak punya src, pakai thumbUrl untuk gambar & viewUrl untuk link
+      // Foto dari Dashboard: pakai src untuk keduanya
+      return `<a href="${linkUrl}" target="_blank">` +
+        (imgSrc
+          ? `<img src="${imgSrc}" style="width:72px;height:72px;object-fit:cover;border:1px solid var(--border);" title="${ph.name||''}">`
+          : `<div style="width:72px;height:72px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);font-size:10px;text-align:center;color:var(--muted);">📷 ${(ph.name||'foto').slice(0,10)}</div>`) +
+        `</a>`;
+    }).join('')+`</div>`;
   link.innerHTML=html;
 }
 
