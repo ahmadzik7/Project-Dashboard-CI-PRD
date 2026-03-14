@@ -53,6 +53,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .nav-item.active{border-left-color:var(--accent);background:var(--surface2);color:var(--accent);}
 .nav-item.todo-nav.active{border-left-color:var(--teal);color:var(--teal);}
 .nav-item.sop-nav.active{border-left-color:var(--purple);color:var(--purple);}
+.cat-tab.tab-form{color:#60A5FA;border-bottom-color:transparent;}
+.cat-tab.tab-form:hover{background:rgba(59,130,246,0.08);}
+.cat-tab.tab-form.active{color:#60A5FA;border-bottom-color:#60A5FA;background:rgba(59,130,246,0.08);}
 .nav-icon{font-size:13px;width:16px;text-align:center;}
 .nav-sep{border:none;border-top:1px solid var(--border);margin:8px 0;}
 .nav-cat-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
@@ -806,7 +809,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="nav-item" onclick="showPage('materials',this)"><span class="nav-icon">⬡</span> Material Tracker</div>
   <div class="nav-item" onclick="showPage('matmaster',this)"><span class="nav-icon">🗂️</span> Material Master <span class="nav-badge" id="nav-master-count" style="background:var(--surface2);color:var(--text-muted);display:none;">0</span></div>
   <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
-  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP/WI & FILE Library</div>
+  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP/WI & File Library</div>
   <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
   <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
   <div class="nav-item" onclick="showPage('gantt',this)"><span class="nav-icon">📊</span> Gantt Jadwal</div>
@@ -925,6 +928,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
     <div class="cat-tab tab-she" data-cat="she" onclick="setCatTab(this,'she')">SHE</div>
     <div class="cat-tab tab-improve" data-cat="improve" onclick="setCatTab(this,'improve')">Improve</div>
     <div class="cat-tab tab-perbaikan" data-cat="perbaikan" onclick="setCatTab(this,'perbaikan')">Perbaikan</div>
+    <div class="cat-tab tab-form" data-cat="__form__" onclick="setCatTab(this,'__form__')" id="tab-form-btn">📨 Form <span id="tab-form-count" style="font-family:var(--mono);font-size:9px;background:rgba(59,130,246,0.2);color:#60A5FA;padding:1px 5px;margin-left:3px;border-radius:2px;">0</span></div>
   </div>
   <div class="table-wrap">
     <table>
@@ -2362,6 +2366,9 @@ function showPage(name, el) {
   if (renders[name]) renders[name]();
 }
 function filterCat(cat, el) {
+  // Reset form tab jika user klik kategori dari sidebar
+  const formTab = document.getElementById('tab-form-btn');
+  if (formTab) formTab.classList.remove('active');
   currentCatFilter = cat;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
@@ -2381,7 +2388,9 @@ function filterStatus(status, el) {
 }
 function setCatTab(el, cat) {
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active'); currentCatFilter = cat; renderAllProjects();
+  el.classList.add('active');
+  currentCatFilter = cat; // '__form__' = filter CI Form, string lain = filter category
+  renderAllProjects();
 }
 function setTodoTab(el, f) {
   document.querySelectorAll('.todo-tab').forEach(t => t.classList.remove('active'));
@@ -2555,29 +2564,58 @@ function renderTodo() {
 
 // ===== ALL PROJECTS =====
 function renderAllProjects() {
-  const search = (document.getElementById('search-input')?.value||'').toLowerCase();
+  const search  = (document.getElementById('search-input')?.value||'').toLowerCase();
   const statusF = document.getElementById('filter-status-sel')?.value||'';
+
+  // Update count badge di tab FORM
+  const formCount = projects.filter(p => p._source === 'ci-form').length;
+  const formCountEl = document.getElementById('tab-form-count');
+  if (formCountEl) formCountEl.textContent = formCount;
+
+  const isFormFilter = currentCatFilter === '__form__';
+
+  // Update section title sesuai filter aktif
+  const titleEl = document.getElementById('all-proj-title');
+  if (titleEl) {
+    if (isFormFilter) titleEl.textContent = '▸ Project Request dari CI Form (' + formCount + ')';
+    else if (currentCatFilter) titleEl.textContent = '▸ Project — ' + currentCatFilter.toUpperCase();
+    else titleEl.textContent = '▸ Semua Project';
+  }
+
   let list = projects.filter(p => {
-    const ms=!statusF||p.status===statusF;
-    const mc=!currentCatFilter||p.category===currentCatFilter;
-    const mq=!search||[p.name,p.location,p.pic,p.ejo].some(x=>(x||'').toLowerCase().includes(search));
-    return ms&&mc&&mq;
+    const ms = !statusF || p.status === statusF;
+    const mc = isFormFilter
+      ? p._source === 'ci-form'                        // filter khusus: hanya dari CI Form
+      : !currentCatFilter || p.category === currentCatFilter;
+    const mq = !search || [p.name, p.location, p.pic, p.ejo, p.submittedBy]
+      .some(x => (x||'').toLowerCase().includes(search)); // search juga ke submittedBy
+    return ms && mc && mq;
   });
-  document.getElementById('all-tbody').innerHTML = list.length ? list.map(p=>`<tr onclick="openDetail('${p.id}')">
-    <td><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${p.id}</span></td>
-    <td>${p.ejo?`<span class="ejo-badge">${p.ejo}</span>`:'—'}</td>
-    <td style="font-weight:500;max-width:130px;">${p.name}</td>
-    <td>${catBadge(p.category||'perbaikan')}</td>
-    <td style="font-size:11px;color:var(--text-dim);">${p.location||'—'}</td>
-    <td>${prioBadge(p.priority||'M')}</td>
-    <td>${statusBadge(p.status)}</td>
-    <td style="font-size:11px;">${p.pic||'—'}</td>
-    <td>${matBadge(p.matStatus||'pending')}</td>
-    <td style="font-family:var(--mono);font-size:9px;">${fmt(p.startDate)}</td>
-    <td style="font-family:var(--mono);font-size:9px;">${fmt(p.endDate)}</td>
-    <td>${progBar(p.progress,p.status)}</td>
-    <td><button class="btn-danger" onclick="event.stopPropagation();delProject('${p.id}')">×</button></td>
-  </tr>`).join('') : `<tr><td colspan="13" class="empty-state">Tidak ada project.</td></tr>`;
+
+  // Badge FORM inline di kolom Project
+  const formBadge = p => p._source === 'ci-form'
+    ? `<br><span style="font-size:9px;font-family:var(--mono);background:rgba(59,130,246,0.15);color:#60A5FA;padding:1px 6px;border-radius:3px;display:inline-block;margin-top:2px;">📨 ${p.submittedBy||'Form'}</span>`
+    : '';
+
+  document.getElementById('all-tbody').innerHTML = list.length
+    ? list.map(p => `<tr onclick="openDetail('${p.id}')">
+        <td><span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);">${p.id}</span></td>
+        <td>${p.ejo ? `<span class="ejo-badge">${p.ejo}</span>` : '—'}</td>
+        <td style="font-weight:500;max-width:140px;">${p.name}${formBadge(p)}</td>
+        <td>${catBadge(p.category||'perbaikan')}</td>
+        <td style="font-size:11px;color:var(--text-dim);">${p.location||'—'}</td>
+        <td>${prioBadge(p.priority||'M')}</td>
+        <td>${statusBadge(p.status)}</td>
+        <td style="font-size:11px;">${p.pic||'—'}</td>
+        <td>${matBadge(p.matStatus||'pending')}</td>
+        <td style="font-family:var(--mono);font-size:9px;">${fmt(p.startDate)}</td>
+        <td style="font-family:var(--mono);font-size:9px;">${fmt(p.endDate)}</td>
+        <td>${progBar(p.progress, p.status)}</td>
+        <td><button class="btn-danger" onclick="event.stopPropagation();delProject('${p.id}')">×</button></td>
+      </tr>`).join('')
+    : `<tr><td colspan="13" class="empty-state">${
+        isFormFilter ? 'Belum ada project request dari CI Form.' : 'Tidak ada project.'
+      }</td></tr>`;
 }
 
 // ===== MATERIALS =====
