@@ -2050,9 +2050,18 @@ function applyData(data) {
   }
   _lastDataHash = newHash;
   activityLog = newLog;
-  projects   = data.projects   || [];
+  // Normalisasi: CI Form lama menyimpan ke 'attachments', baru ke 'photos'
+  // Konversi otomatis agar semua versi CI Form bisa ditampilkan dengan benar
+  const normalizePhotos = arr => (arr||[]).map(item => {
+    if (!item) return item;
+    if (!item.photos && item.attachments) {
+      return { ...item, photos: item.attachments };
+    }
+    return item;
+  });
+  projects   = normalizePhotos(data.projects  || []);
   materials  = data.materials  || [];
-  issues     = data.issues     || [];
+  issues     = normalizePhotos(data.issues    || []);
   todos      = data.todos      || [];
   libFolders = data.libFolders || [];
   libDocs    = data.libDocs    || [];
@@ -2311,8 +2320,9 @@ async function pushToSheets(payload) {
 function startAutoSync() {
   if (!SYNC_ENABLED) return;
   setInterval(async () => {
-    // ← FIX Bug 4: jangan pull kalau user sedang edit (ada pending save atau sedang push)
-    if (isSyncing || saveDebounceTimer || _retryTimer) return;
+    // Hanya skip saat isSyncing (sedang push) — tetap pull meski debounce/retry aktif
+    // Sebelumnya skip saat debounce juga → CI Form tidak muncul jika user sedang aktif
+    if (isSyncing) return;
     try {
       const res    = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET', redirect:'follow' });
       const text   = await res.text();
@@ -2320,9 +2330,23 @@ function startAutoSync() {
       if (text !== cached) {
         const data = JSON.parse(text);
         localStorage.setItem('ci3_cache', text);
+        // Hitung delta untuk notifikasi item baru dari CI Form
+        const prevData   = JSON.parse(cached||'{}');
+        const addedProj  = (data.projects||[]).length  - (prevData.projects||[]).length;
+        const addedIssue = (data.issues||[]).length    - (prevData.issues||[]).length;
+
         applyData(data);
         lastSyncTime = new Date();
-        setSyncStatus('ok', 'Updated ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+
+        if (addedProj > 0 || addedIssue > 0) {
+          const msg = [];
+          if (addedProj  > 0) msg.push(addedProj  + ' project baru');
+          if (addedIssue > 0) msg.push(addedIssue + ' issue baru');
+          setSyncStatus('ok', '🔔 ' + msg.join(', ') + ' masuk · ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+          setTimeout(() => setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})), 5000);
+        } else {
+          setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+        }
         refreshAllUI();
       }
     } catch(e) { /* silent fail on auto-pull */ }
