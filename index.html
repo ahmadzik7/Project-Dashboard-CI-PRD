@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>CI Project Command Center</title>
+<title>CI Project Command Center v17</title>
 <!-- PWA -->
 <meta name="application-name" content="CI Command">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -809,7 +809,7 @@ tr.mat-used{background:rgba(16,185,129,0.05);}
   <div class="nav-item" onclick="showPage('materials',this)"><span class="nav-icon">⬡</span> Material Tracker</div>
   <div class="nav-item" onclick="showPage('matmaster',this)"><span class="nav-icon">🗂️</span> Material Master <span class="nav-badge" id="nav-master-count" style="background:var(--surface2);color:var(--text-muted);display:none;">0</span></div>
   <div class="nav-item" onclick="showPage('issues',this)"><span class="nav-icon">⚠</span> Issue Log</div>
-  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP & WI Library</div>
+  <div class="nav-item sop-nav" onclick="showPage('sop',this)"><span class="nav-icon">📁</span> SOP/WI & File Library</div>
   <div class="nav-item" onclick="showPage('cinote',this)" style="--note-color:var(--teal)"><span class="nav-icon">📝</span> CI Note</div>
   <div class="nav-item" onclick="showPage('framework',this)"><span class="nav-icon">◎</span> CI Framework</div>
   <div class="nav-item" onclick="showPage('gantt',this)"><span class="nav-icon">📊</span> Gantt Jadwal</div>
@@ -1982,6 +1982,7 @@ let pendingSave       = false;
 let _retryTimer       = null;       // retry timer after failed push
 let _retryCount       = 0;          // consecutive failure count
 let _lastSuccessfulPayload = null;  // last payload confirmed saved to Sheets
+let _sheetsDataHash        = null;  // hash of data currently on Sheets (to detect external changes)
 const MAX_RETRIES     = 5;          // max auto-retry attempts
 const RETRY_DELAYS    = [3000, 8000, 20000, 60000, 120000]; // back-off in ms
 let lastSyncTime = null;
@@ -2050,9 +2051,18 @@ function applyData(data) {
   }
   _lastDataHash = newHash;
   activityLog = newLog;
-  projects   = data.projects   || [];
+  // Normalisasi: CI Form lama menyimpan ke 'attachments', baru ke 'photos'
+  // Konversi otomatis agar semua versi CI Form bisa ditampilkan dengan benar
+  const normalizePhotos = arr => (arr||[]).map(item => {
+    if (!item) return item;
+    if (!item.photos && item.attachments) {
+      return { ...item, photos: item.attachments };
+    }
+    return item;
+  });
+  projects   = normalizePhotos(data.projects  || []);
   materials  = data.materials  || [];
-  issues     = data.issues     || [];
+  issues     = normalizePhotos(data.issues    || []);
   todos      = data.todos      || [];
   libFolders = data.libFolders || [];
   libDocs    = data.libDocs    || [];
@@ -2147,8 +2157,151 @@ function save() {
   setSyncStatus('waiting', 'Akan disimpan...');
   saveDebounceTimer = setTimeout(() => {
     saveDebounceTimer = null;
-    pushToSheets(sheetsPayload); // kirim versi ringan — tanpa base64 foto
+    // FIX: Gunakan pushToSheetsMerge — pull data terbaru dari Sheets dulu,
+    // merge dengan perubahan lokal, baru push. Mencegah overwrite CI Form submission.
+    pushToSheetsMerge(stateObj);
   }, 1000);
+}
+
+// ===== PUSH WITH MERGE — versi safe, pull-then-merge sebelum push =====
+// Sama seperti yang CI Form lakukan di pushData() — cegah race condition
+async function pushToSheetsMerge(localState) {
+  if (isSyncing) { pendingSave = true; return; }
+  isSyncing = true;
+  setSyncStatus('syncing', 'Menyimpan ke Sheets...');
+  pendingSave = false;
+
+  try {
+    // 1. Pull data terbaru dari Sheets
+    let sheetsData = {};
+    try {
+      const controller0 = new AbortController();
+      const t0 = setTimeout(() => controller0.abort(), 15000);
+      const r0 = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET', redirect:'follow', signal: controller0.signal });
+      clearTimeout(t0);
+      if (r0.ok) {
+        const txt0 = await r0.text();
+        sheetsData = JSON.parse(txt0);
+        // Update sheetsDataHash agar auto-pull tidak push ulang
+        _sheetsDataHash = txt0;
+      }
+    } catch(fetchErr) {
+      console.warn('pushToSheetsMerge: pull gagal, pakai state lokal', fetchErr);
+      sheetsData = {};
+    }
+
+    // 2. Merge: local state menang untuk data yang di-edit di Dashboard,
+    //    tapi pertahankan item dari CI Form yang tidak ada di local state
+    const mergedProjects  = mergeById(localState.projects,  sheetsData.projects);
+    const mergedIssues    = mergeById(localState.issues,    sheetsData.issues);
+    const mergedMaterials = mergeById(localState.materials, sheetsData.materials);
+    const mergedLog       = mergeLog(localState.activityLog, sheetsData.activityLog);
+
+    const merged = {
+      ...localState,
+      projects:     mergedProjects,
+      issues:       mergedIssues,
+      materials:    mergedMaterials,
+      activityLog:  mergedLog.slice(0, 100),
+      todos:        localState.todos,
+      libFolders:   localState.libFolders,
+      libDocs:      localState.libDocs,
+      cinotes:      localState.cinotes,
+      ganttSchedules: localState.ganttSchedules,
+      calibrations:   localState.calibrations,
+      hseGroups:      localState.hseGroups,
+    };
+
+    // 3. Update state lokal dengan hasil merge (tampilkan item dari CI Form)
+    projects   = merged.projects;
+    issues     = merged.issues;
+    materials  = merged.materials;
+    activityLog = merged.activityLog;
+    const mergedFull = JSON.stringify(merged);
+    localStorage.setItem('ci3_cache', mergedFull);
+
+    // 4. Push merged data ke Sheets (tanpa base64)
+    let sendData = stripPhotosForSheets(merged);
+    if (Array.isArray(sendData.activityLog) && sendData.activityLog.length > 50) {
+      sendData.activityLog = sendData.activityLog.slice(0, 50);
+    }
+    let sendPayload = JSON.stringify(sendData);
+    if (sendPayload.length > 180000) {
+      const t = { ...sendData }; delete t.materialMaster;
+      sendPayload = JSON.stringify(t);
+    }
+
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), 25000);
+    const res = await fetch(SYNC_URL, {
+      method:   'POST',
+      body:     sendPayload,
+      redirect: 'follow',
+      headers:  { 'Content-Type': 'text/plain;charset=UTF-8' },
+      signal:   controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const txt = await res.text();
+    if (txt.startsWith('ERROR')) throw new Error(txt);
+
+    // ✅ Berhasil
+    lastSyncTime = new Date();
+    _retryCount  = 0;
+    clearTimeout(_retryTimer);
+    _retryTimer = null;
+    _lastSuccessfulPayload = mergedFull;
+    _sheetsDataHash = mergedFull;
+    setSyncStatus('ok', 'Tersimpan ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+    refreshAllUI(); // tampilkan hasil merge (item CI Form yang baru)
+
+  } catch(e) {
+    console.warn('pushToSheetsMerge failed:', e.name === 'AbortError' ? 'Timeout 25s' : e);
+    const delay = RETRY_DELAYS[Math.min(_retryCount, RETRY_DELAYS.length-1)];
+    _retryCount++;
+    if (_retryCount <= MAX_RETRIES) {
+      const delaySec = Math.round(delay/1000);
+      const reason   = e.name === 'AbortError' ? 'Timeout' : 'Gagal';
+      setSyncStatus('error', `${reason} simpan ke Sheets (retry ${_retryCount}/${MAX_RETRIES} dalam ${delaySec}s) — Data lokal AMAN ✓`);
+      _retryTimer = setTimeout(() => {
+        _retryTimer = null;
+        const stateObjRetry = { projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, materialMaster, activityLog };
+        pushToSheetsMerge(stateObjRetry);
+      }, delay);
+    } else {
+      setSyncStatus('error', `Gagal sync ke Sheets setelah ${MAX_RETRIES}x — Data tersimpan lokal ✓ · Klik 🔄 untuk coba manual`);
+      _retryCount = 0;
+    }
+  } finally {
+    isSyncing = false;
+    if (pendingSave) {
+      pendingSave = false;
+      const stateObjPending = { projects, materials, issues, todos, libFolders, libDocs, cinotes, ganttSchedules, calibrations, hseGroups, materialMaster, activityLog };
+      setTimeout(() => pushToSheetsMerge(stateObjPending), 300);
+    }
+  }
+}
+
+// ===== MERGE HELPERS =====
+// Merge dua array by id: local menang jika id sama (edit), tapi item yg hanya ada di remote (CI Form) tetap masuk
+function mergeById(localArr, remoteArr) {
+  const local  = localArr  || [];
+  const remote = remoteArr || [];
+  const localIds = new Set(local.map(i => i.id));
+  // Ambil item dari remote yang TIDAK ada di local (submitted via CI Form)
+  const remoteOnly = remote.filter(i => i.id && !localIds.has(i.id));
+  // Remote-only items di depan (baru), local items (sudah ada/diedit) di belakang
+  return [...remoteOnly, ...local];
+}
+
+// Merge activity log: gabung dan deduplicate by id, sort by ts desc
+function mergeLog(localLog, remoteLog) {
+  const combined = [...(localLog||[]), ...(remoteLog||[])];
+  const seen = new Set();
+  return combined.filter(e => {
+    if (!e || !e.id || seen.has(e.id)) return false;
+    seen.add(e.id); return true;
+  }).sort((a, b) => (b.ts||0) - (a.ts||0));
 }
 
 // ===== LOAD FROM SHEETS =====
@@ -2166,6 +2319,7 @@ async function loadFromSheets() {
     const data = JSON.parse(text);
     localStorage.setItem('ci3_cache', text);
     _lastSuccessfulPayload = text; // ini sudah confirmed ada di Sheets
+    _sheetsDataHash = text;        // FIX: catat apa yang ada di Sheets saat ini
     applyData(data);
     // Update sync status untuk master
     if (materialMaster.length) {
@@ -2271,6 +2425,7 @@ async function pushToSheets(payload) {
     clearTimeout(_retryTimer);
     _retryTimer = null;
     _lastSuccessfulPayload = payload; // catat payload ASLI (bukan yang di-trim) sebagai referensi
+    _sheetsDataHash = payload;        // FIX: sync hash agar auto-pull tidak push ulang
     setSyncStatus('ok', 'Tersimpan ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
 
   } catch(e) {
@@ -2311,18 +2466,72 @@ async function pushToSheets(payload) {
 function startAutoSync() {
   if (!SYNC_ENABLED) return;
   setInterval(async () => {
-    // ← FIX Bug 4: jangan pull kalau user sedang edit (ada pending save atau sedang push)
-    if (isSyncing || saveDebounceTimer || _retryTimer) return;
+    // Hanya skip saat isSyncing (sedang push) — tetap pull meski debounce/retry aktif
+    if (isSyncing) return;
     try {
       const res    = await fetch(SYNC_URL + '?t=' + Date.now(), { method:'GET', redirect:'follow' });
       const text   = await res.text();
       const cached = localStorage.getItem('ci3_cache');
+
+      // FIX BUG #3: Jika ada perubahan lokal yang belum di-push (debounce aktif atau retry aktif),
+      // jangan langsung overwrite state — cukup update _sheetsDataHash.
+      // Data CI Form dari luar tetap akan masuk setelah save lokal selesai.
+      const hasPendingLocalChange = (saveDebounceTimer !== null) || (_retryTimer !== null && _retryCount > 0);
+
       if (text !== cached) {
-        const data = JSON.parse(text);
+        let data;
+        try { data = JSON.parse(text); } catch(e) { return; /* response tidak valid */ }
+
+        // Hitung delta untuk notifikasi
+        const prevData   = JSON.parse(cached||'{}');
+        const addedProj  = (data.projects||[]).length  - (prevData.projects||[]).length;
+        const addedIssue = (data.issues||[]).length    - (prevData.issues||[]).length;
+
+        if (hasPendingLocalChange) {
+          // Ada local change pending — simpan hash Sheets tapi jangan replace state lokal.
+          // Setelah save lokal berhasil (pushToSheets sukses), auto-sync berikutnya akan
+          // melihat text === cached dan skip, atau merge ulang.
+          _sheetsDataHash = text;
+          // Tapi tetap update localStorage cache dengan data Sheets agar retry
+          // mengambil data yang sudah berisi CI Form submission dari luar
+          // HANYA jika Sheets punya lebih banyak data (menghindari overwrite lokal)
+          if (addedProj > 0 || addedIssue > 0) {
+            // Data baru masuk dari luar (CI Form), merge ke state lokal sekarang
+            // FIX: cancel debounce lama, apply data Sheets (lebih fresh), jangan push
+            clearTimeout(saveDebounceTimer);
+            saveDebounceTimer = null;
+            localStorage.setItem('ci3_cache', text);
+            _sheetsDataHash = text;
+            _lastSuccessfulPayload = text;
+            applyData(data);
+            lastSyncTime = new Date();
+            const msg = [];
+            if (addedProj  > 0) msg.push(addedProj  + ' project baru');
+            if (addedIssue > 0) msg.push(addedIssue + ' issue baru');
+            setSyncStatus('ok', '🔔 ' + msg.join(', ') + ' masuk · ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+            setTimeout(() => setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})), 5000);
+            refreshAllUI();
+          }
+          return;
+        }
+
+        // Tidak ada pending local change — aman untuk apply data Sheets
         localStorage.setItem('ci3_cache', text);
+        _sheetsDataHash = text;
+        _lastSuccessfulPayload = text; // FIX: update agar manualSync tidak push ulang
+
         applyData(data);
         lastSyncTime = new Date();
-        setSyncStatus('ok', 'Updated ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+
+        if (addedProj > 0 || addedIssue > 0) {
+          const msg = [];
+          if (addedProj  > 0) msg.push(addedProj  + ' project baru');
+          if (addedIssue > 0) msg.push(addedIssue + ' issue baru');
+          setSyncStatus('ok', '🔔 ' + msg.join(', ') + ' masuk · ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+          setTimeout(() => setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})), 5000);
+        } else {
+          setSyncStatus('ok', 'Sync ' + lastSyncTime.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+        }
         refreshAllUI();
       }
     } catch(e) { /* silent fail on auto-pull */ }
@@ -2330,10 +2539,12 @@ function startAutoSync() {
 }
 
 function manualSync() {
-  // Kalau ada data lokal yang belum tersimpan ke Sheets, push dulu
+  // FIX: Bandingkan dengan _sheetsDataHash (apa yang ada di Sheets sekarang),
+  // bukan _lastSuccessfulPayload (apa yang terakhir kita push).
+  // Ini mencegah push data lama yang menimpa CI Form submission dari luar.
   const local = localStorage.getItem('ci3_cache');
-  const lastOk = _lastSuccessfulPayload;
-  if (local && local !== lastOk && !isSyncing) {
+  const sheetsHash = _sheetsDataHash || _lastSuccessfulPayload;
+  if (local && local !== sheetsHash && !isSyncing) {
     clearTimeout(_retryTimer); _retryTimer = null; _retryCount = 0;
     pushToSheets(local);
   } else {
